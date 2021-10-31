@@ -5,6 +5,9 @@ Supports 300 Players @ 20 TPS (Given all your plugins are programmed well)
 
 ## Commons Plugins
 
+## Download
+[Download BurritoSpigot.jar](https://github.com/CobbleSword/BurritoSpigot/releases/download/v1.0/BurritoSpigot.jar)
+
 ## How to modify knockback
 Edit the `KnockbackSpigot.json` then restart the server
 

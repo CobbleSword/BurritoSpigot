@@ -100,6 +100,13 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>elmakers-repo</id>
+            <url>https://maven.elmakers.com/repository/</url>
+        </repository>
+    </repositories>
+
     <!-- required until fixed plexus-compiler-eclipse is deployed -->
     <pluginRepositories>
         <pluginRepository>

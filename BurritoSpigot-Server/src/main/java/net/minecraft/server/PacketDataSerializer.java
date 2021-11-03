@@ -189,7 +189,10 @@ public class PacketDataSerializer extends ByteBuf {
         } else {
             this.readerIndex(i);
             try {
-                return NBTCompressedStreamTools.a((DataInput) (new ByteBufInputStream(this)), new NBTReadLimiter(2097152L));
+                // Burrito: Update NBTReadLimiter from ~2MB limit to a ~0.05MB limit on NBT 
+                // Credit: bob7l
+                // Ref: https://github.com/CobbleSword/NachoSpigot/commit/64b8084cb8516df77d362512fe76dc54b17ba594#diff-bdf0fffb21f6af459eae96bc2932b5d223bdac20282b590af4b1fabf22276805
+                return NBTCompressedStreamTools.a((DataInput) (new ByteBufInputStream(this)), new NBTReadLimiter(50000L));
             } catch (IOException ioexception) {
                 throw new EncoderException(ioexception);
             }

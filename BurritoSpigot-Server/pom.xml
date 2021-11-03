@@ -135,7 +135,7 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <finalName>NachoSpigot</finalName>
+                    <finalName>BurritoSpigot</finalName> <!-- BurritoSpigot -->
                     <forceCreation>true</forceCreation> <!-- Required to prevent shading the jar multiple times -->
                     <archive>
                         <manifestEntries>

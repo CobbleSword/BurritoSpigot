@@ -1086,7 +1086,7 @@ public abstract class MinecraftServer implements Runnable, ICommandListener, IAs
     }
 
     public String getServerModName() {
-        return "NachoSpigot"; // NachoSpigot - NachoSpig >  // TacoSpigot - TacoSpigot // PaperSpigot - PaperSpigot > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
+        return "BurritoSpigot"; // BurritoSpigot - BurritoSpigot >  // TacoSpigot - TacoSpigot // PaperSpigot - PaperSpigot > // Spigot - Spigot > // CraftBukkit - cb > vanilla!
     }
 
     public CrashReport b(CrashReport crashreport) {

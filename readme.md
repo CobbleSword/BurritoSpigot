@@ -4,8 +4,9 @@ BurritoSpigot is a fork of TacoSpigot 1.8.9 that offers several enhancements to 
 Supports 300 Players @ 20 TPS (Given all your plugins are programmed well)
 
 ## Features
+Since it's been a few years since 1.8.9 release, it has fallen behind in a few optimizations to the infrastructure to replies on, these changes just brings it up to speed
 * Java 8+ support (WIP) this brings all the performance improvements of the more later java versions 
-** Updated netty
+* Updated netty 4.0.23.Final => 4.1.68.Final
 
 ## Commons Plugins
 

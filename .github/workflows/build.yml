@@ -21,3 +21,7 @@ jobs:
         cache: maven
     - name: Build with Maven
       run: mvn clean install
+    - uses: actions/upload-artifact@v2
+      with:
+        name: Package
+        path: staging

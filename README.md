@@ -18,7 +18,7 @@ Since it's been a few years since 1.8.9 release, it has fallen behind in a few o
 * [essentialsx](https://essentialsx.net/downloads.html) a mix of common commands
 
 ## Download (Last build )
-[Download BurritoSpigot.jar](https://github.com/CobbleSword/BurritoSpigot/releases/download/v1.0/BurritoSpigot.jar)
+[Download BurritoSpigot.jar](https://nightly.link/CobbleSword/BurritoSpigot/actions/artifacts/110384724.zip)
 
 
 ## How to modify knockback

@@ -25,3 +25,5 @@ jobs:
       with:
         name: Package
         path: ./BurritoSpigot-Server/target/BurritoSpigot.jar
+    - name: Readme Replacer - Readme-Workflows
+      uses: Readme-Workflows/readme-replacer@v1.0.1

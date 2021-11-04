@@ -1998,13 +1998,13 @@ public class PlayerConnection implements PacketListenerPlayIn, IUpdatePlayerList
 
     public void a(PacketPlayInCustomPayload packetplayincustompayload) {
         PlayerConnectionUtils.ensureMainThread(packetplayincustompayload, this, this.player.u());
-        if(isExploiter) return;//NachoSpigot - ignore if they have explotied
+        if(isExploiter) return;// BurritoSpigot - ignore if they have explotied
         PacketDataSerializer packetdataserializer;
         ItemStack itemstack;
         ItemStack itemstack1;
 
         try { // CraftBukkit
-            //NachoSpigot
+            // BurritoSpigot
 
             try {
                 String channelName = packetplayincustompayload.a();

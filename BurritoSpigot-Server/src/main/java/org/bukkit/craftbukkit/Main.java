@@ -22,10 +22,8 @@ public class Main {
     public static boolean useConsole = true;
 
     public static void main(String[] args) {
-        if (!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
-            System.err.println("TacoSpigot requires java 8");
-            System.err.println("Oracle dropped all support for java " + SystemUtils.JAVA_VERSION);
-            System.err.println("Please update to use TacoSpigot and the numerous bug-fixes, performance improvements, and security fixes");
+        if(!SystemUtils.isJavaVersionAtLeast(JavaVersion.JAVA_1_8)) {
+            System.err.println("BurritoSpigot requires Java 8 or higher.");
             System.err.println("Shutting down");
             System.exit(1);
         }

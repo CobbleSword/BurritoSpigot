@@ -39,6 +39,11 @@
             <version>7.0.12</version>
         </dependency>
         <dependency>
+            <groupId>org.apache.commons</groupId>
+            <artifactId>commons-lang3</artifactId>
+            <version>3.12.0</version>
+        </dependency>
+        <dependency>
             <groupId>dev.cobblesword.burritospigot</groupId>
             <artifactId>api</artifactId>
             <version>${project.version}</version>
@@ -135,16 +140,16 @@
                 <artifactId>maven-jar-plugin</artifactId>
                 <version>2.5</version>
                 <configuration>
-                    <finalName>NachoSpigot</finalName>
+                    <finalName>BurritoSpigot</finalName> <!-- BurritoSpigot -->
                     <forceCreation>true</forceCreation> <!-- Required to prevent shading the jar multiple times -->
                     <archive>
                         <manifestEntries>
                             <Main-Class>org.bukkit.craftbukkit.Main</Main-Class>
                             <Implementation-Title>CraftBukkit</Implementation-Title>
+                            <!--suppress UnresolvedMavenProperty -->
                             <Implementation-Version>${describe}</Implementation-Version>
                             <Implementation-Vendor>${maven.build.timestamp}</Implementation-Vendor>
                             <Specification-Title>Bukkit</Specification-Title>
-                            <!-- I don't see why this is necessary but I'll leave it alone for now -->
                             <Specification-Version>${api.version}</Specification-Version>
                             <Specification-Vendor>Bukkit Team</Specification-Vendor>
                         </manifestEntries>
@@ -205,14 +210,6 @@
                                     <excludes>
                                         <exclude>org.bukkit.craftbukkit.Main*</exclude>
                                     </excludes>
-                                </relocation>
-                                <relocation>
-                                    <pattern>com.github.benmanes.caffeine</pattern>
-                                    <shadedPattern>org.bukkit.craftbukkit.libs.caffeine</shadedPattern>
-                                </relocation>
-                                <relocation>
-                                    <pattern>javassist</pattern>
-                                    <shadedPattern>org.bukkit.craftbukkit.libs.javassist</shadedPattern>
                                 </relocation>
                                 <relocation>
                                     <pattern>net.minecraft.server</pattern>

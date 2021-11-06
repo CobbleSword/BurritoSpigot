@@ -1,0 +1,19 @@
+--- a/net/minecraft/server/Enchantment.java
++++ b/net/minecraft/server/Enchantment.java
+@@ -8,6 +8,7 @@
+ 
+ public abstract class Enchantment {
+ 
++    // CraftBukkit - update CraftEnchant.getName(i) if this changes
+     private static final Enchantment[] byId = new Enchantment[256];
+     public static final Enchantment[] b;
+     private static final Map<MinecraftKey, Enchantment> E = Maps.newHashMap();
+@@ -55,6 +56,8 @@
+             Enchantment.byId[i] = this;
+             Enchantment.E.put(minecraftkey, this);
+         }
++
++        org.bukkit.enchantments.Enchantment.registerEnchantment(new org.bukkit.craftbukkit.enchantments.CraftEnchantment(this)); // CraftBukkit
+     }
+ 
+     public static Enchantment getByName(String s) {

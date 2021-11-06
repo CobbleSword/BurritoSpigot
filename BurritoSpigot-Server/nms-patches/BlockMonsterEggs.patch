@@ -1,0 +1,172 @@
+--- a/net/minecraft/server/BlockMonsterEggs.java
++++ b/net/minecraft/server/BlockMonsterEggs.java
+@@ -2,6 +2,8 @@
+ 
+ import java.util.Random;
+ 
++import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason; // CraftBukkit
++
+ public class BlockMonsterEggs extends Block {
+ 
+     public static final BlockStateEnum<BlockMonsterEggs.EnumMonsterEggVarient> VARIANT = BlockStateEnum.of("variant", BlockMonsterEggs.EnumMonsterEggVarient.class);
+@@ -24,19 +26,24 @@
+     }
+ 
+     protected ItemStack i(IBlockData iblockdata) {
+-        switch ((BlockMonsterEggs.EnumMonsterEggVarient) iblockdata.get(BlockMonsterEggs.VARIANT)) {
+-            case COBBLESTONE:
+-                return new ItemStack(Blocks.COBBLESTONE);
+-            case STONEBRICK:
+-                return new ItemStack(Blocks.STONEBRICK);
+-            case MOSSY_STONEBRICK:
+-                return new ItemStack(Blocks.STONEBRICK, 1, BlockSmoothBrick.EnumStonebrickType.MOSSY.a());
+-            case CRACKED_STONEBRICK:
+-                return new ItemStack(Blocks.STONEBRICK, 1, BlockSmoothBrick.EnumStonebrickType.CRACKED.a());
+-            case CHISELED_STONEBRICK:
+-                return new ItemStack(Blocks.STONEBRICK, 1, BlockSmoothBrick.EnumStonebrickType.CHISELED.a());
+-            default:
+-                return new ItemStack(Blocks.STONE);
++        switch (BlockMonsterEggs.SyntheticClass_1.a[((BlockMonsterEggs.EnumMonsterEggVarient) iblockdata.get(BlockMonsterEggs.VARIANT)).ordinal()]) {
++        case 1:
++            return new ItemStack(Blocks.COBBLESTONE);
++
++        case 2:
++            return new ItemStack(Blocks.STONEBRICK);
++
++        case 3:
++            return new ItemStack(Blocks.STONEBRICK, 1, BlockSmoothBrick.EnumStonebrickType.MOSSY.a());
++
++        case 4:
++            return new ItemStack(Blocks.STONEBRICK, 1, BlockSmoothBrick.EnumStonebrickType.CRACKED.a());
++
++        case 5:
++            return new ItemStack(Blocks.STONEBRICK, 1, BlockSmoothBrick.EnumStonebrickType.CHISELED.a());
++
++        default:
++            return new ItemStack(Blocks.STONE);
+         }
+     }
+ 
+@@ -45,7 +52,7 @@
+             EntitySilverfish entitysilverfish = new EntitySilverfish(world);
+ 
+             entitysilverfish.setPositionRotation((double) blockposition.getX() + 0.5D, (double) blockposition.getY(), (double) blockposition.getZ() + 0.5D, 0.0F, 0.0F);
+-            world.addEntity(entitysilverfish);
++            world.addEntity(entitysilverfish, SpawnReason.SILVERFISH_BLOCK); // CraftBukkit - add SpawnReason
+             entitysilverfish.y();
+         }
+ 
+@@ -66,41 +73,74 @@
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockMonsterEggs.VARIANT});
++        return new BlockStateList(this, new IBlockState[] { BlockMonsterEggs.VARIANT});
+     }
+ 
+-    public static enum EnumMonsterEggVarient implements INamable {
++    static class SyntheticClass_1 {
+ 
+-        STONE(0, "stone") {
+-            public IBlockData d() {
+-                return Blocks.STONE.getBlockData().set(BlockStone.VARIANT, BlockStone.EnumStoneVariant.STONE);
++        static final int[] a = new int[BlockMonsterEggs.EnumMonsterEggVarient.values().length];
++
++        static {
++            try {
++                BlockMonsterEggs.SyntheticClass_1.a[BlockMonsterEggs.EnumMonsterEggVarient.COBBLESTONE.ordinal()] = 1;
++            } catch (NoSuchFieldError nosuchfielderror) {
++                ;
+             }
+-        },
+-        COBBLESTONE(1, "cobblestone", "cobble") {
+-            public IBlockData d() {
+-                return Blocks.COBBLESTONE.getBlockData();
++
++            try {
++                BlockMonsterEggs.SyntheticClass_1.a[BlockMonsterEggs.EnumMonsterEggVarient.STONEBRICK.ordinal()] = 2;
++            } catch (NoSuchFieldError nosuchfielderror1) {
++                ;
+             }
+-        },
+-        STONEBRICK(2, "stone_brick", "brick") {
+-            public IBlockData d() {
+-                return Blocks.STONEBRICK.getBlockData().set(BlockSmoothBrick.VARIANT, BlockSmoothBrick.EnumStonebrickType.DEFAULT);
++
++            try {
++                BlockMonsterEggs.SyntheticClass_1.a[BlockMonsterEggs.EnumMonsterEggVarient.MOSSY_STONEBRICK.ordinal()] = 3;
++            } catch (NoSuchFieldError nosuchfielderror2) {
++                ;
+             }
+-        },
+-        MOSSY_STONEBRICK(3, "mossy_brick", "mossybrick") {
+-            public IBlockData d() {
+-                return Blocks.STONEBRICK.getBlockData().set(BlockSmoothBrick.VARIANT, BlockSmoothBrick.EnumStonebrickType.MOSSY);
++
++            try {
++                BlockMonsterEggs.SyntheticClass_1.a[BlockMonsterEggs.EnumMonsterEggVarient.CRACKED_STONEBRICK.ordinal()] = 4;
++            } catch (NoSuchFieldError nosuchfielderror3) {
++                ;
+             }
+-        },
+-        CRACKED_STONEBRICK(4, "cracked_brick", "crackedbrick") {
+-            public IBlockData d() {
+-                return Blocks.STONEBRICK.getBlockData().set(BlockSmoothBrick.VARIANT, BlockSmoothBrick.EnumStonebrickType.CRACKED);
++
++            try {
++                BlockMonsterEggs.SyntheticClass_1.a[BlockMonsterEggs.EnumMonsterEggVarient.CHISELED_STONEBRICK.ordinal()] = 5;
++            } catch (NoSuchFieldError nosuchfielderror4) {
++                ;
+             }
+-        },
+-        CHISELED_STONEBRICK(5, "chiseled_brick", "chiseledbrick") {
++
++        }
++    }
++
++    public static enum EnumMonsterEggVarient implements INamable {
++
++        STONE(0, "stone") {;
+             public IBlockData d() {
+-                return Blocks.STONEBRICK.getBlockData().set(BlockSmoothBrick.VARIANT, BlockSmoothBrick.EnumStonebrickType.CHISELED);
++                return Blocks.STONE.getBlockData().set(BlockStone.VARIANT, BlockStone.EnumStoneVariant.STONE);
+             }
+-        };
++        }, COBBLESTONE(1, "cobblestone", "cobble") {;
++    public IBlockData d() {
++        return Blocks.COBBLESTONE.getBlockData();
++    }
++}, STONEBRICK(2, "stone_brick", "brick") {;
++    public IBlockData d() {
++        return Blocks.STONEBRICK.getBlockData().set(BlockSmoothBrick.VARIANT, BlockSmoothBrick.EnumStonebrickType.DEFAULT);
++    }
++}, MOSSY_STONEBRICK(3, "mossy_brick", "mossybrick") {;
++    public IBlockData d() {
++        return Blocks.STONEBRICK.getBlockData().set(BlockSmoothBrick.VARIANT, BlockSmoothBrick.EnumStonebrickType.MOSSY);
++    }
++}, CRACKED_STONEBRICK(4, "cracked_brick", "crackedbrick") {;
++    public IBlockData d() {
++        return Blocks.STONEBRICK.getBlockData().set(BlockSmoothBrick.VARIANT, BlockSmoothBrick.EnumStonebrickType.CRACKED);
++    }
++}, CHISELED_STONEBRICK(5, "chiseled_brick", "chiseledbrick") {;
++    public IBlockData d() {
++        return Blocks.STONEBRICK.getBlockData().set(BlockSmoothBrick.VARIANT, BlockSmoothBrick.EnumStonebrickType.CHISELED);
++    }
++};
+ 
+         private static final BlockMonsterEggs.EnumMonsterEggVarient[] g = new BlockMonsterEggs.EnumMonsterEggVarient[values().length];
+         private final int h;
+@@ -158,11 +198,11 @@
+             return BlockMonsterEggs.EnumMonsterEggVarient.STONE;
+         }
+ 
+-        EnumMonsterEggVarient(int i, String s, Object object) {
++        EnumMonsterEggVarient(int i, String s, BlockMonsterEggs.SyntheticClass_1 blockmonstereggs_syntheticclass_1) {
+             this(i, s);
+         }
+ 
+-        EnumMonsterEggVarient(int i, String s, String s1, Object object) {
++        EnumMonsterEggVarient(int i, String s, String s1, BlockMonsterEggs.SyntheticClass_1 blockmonstereggs_syntheticclass_1) {
+             this(i, s, s1);
+         }
+ 

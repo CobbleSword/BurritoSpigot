@@ -1,0 +1,105 @@
+--- a/net/minecraft/server/Block.java
++++ b/net/minecraft/server/Block.java
+@@ -7,8 +7,8 @@
+ public class Block {
+ 
+     private static final MinecraftKey a = new MinecraftKey("air");
+-    public static final RegistryBlocks<MinecraftKey, Block> REGISTRY = new RegistryBlocks<>(Block.a);
+-    public static final RegistryID<IBlockData> d = new RegistryID<>();
++    public static final RegistryBlocks<MinecraftKey, Block> REGISTRY = new RegistryBlocks(Block.a);
++    public static final RegistryID<IBlockData> d = new RegistryID();
+     private CreativeModeTab creativeTab;
+     public static final Block.StepSound e = new Block.StepSound("stone", 1.0F, 1.0F);
+     public static final Block.StepSound f = new Block.StepSound("wood", 1.0F, 1.0F);
+@@ -65,6 +65,16 @@
+     protected boolean y;
+     protected boolean z;
+     protected boolean isTileEntity;
++    // Spigot start
++    public co.aikar.timings.Timing timing;
++    public co.aikar.timings.Timing getTiming() {
++        if (timing == null) {
++            timing = co.aikar.timings.SpigotTimings.getBlockTiming(this);
++        }
++        return timing;
++    }
++    // Spigot end
++
+     protected double minX;
+     protected double minY;
+     protected double minZ;
+@@ -149,7 +159,7 @@
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+         if (iblockdata != null && !iblockdata.a().isEmpty()) {
+-            throw new IllegalArgumentException("Don't know how to convert " + iblockdata + " back into data...");
++            throw new IllegalArgumentException("Don\'t know how to convert " + iblockdata + " back into data...");
+         } else {
+             return 0;
+         }
+@@ -309,9 +319,13 @@
+         return 10;
+     }
+ 
+-    public void onPlace(World world, BlockPosition blockposition, IBlockData iblockdata) {}
++    public void onPlace(World world, BlockPosition blockposition, IBlockData iblockdata) {
++        org.spigotmc.AsyncCatcher.catchOp( "block onPlace"); // Spigot
++    }
+ 
+-    public void remove(World world, BlockPosition blockposition, IBlockData iblockdata) {}
++    public void remove(World world, BlockPosition blockposition, IBlockData iblockdata) {
++        org.spigotmc.AsyncCatcher.catchOp( "block remove"); // Spigot
++    }
+ 
+     public int a(Random random) {
+         return 1;
+@@ -336,7 +350,8 @@
+             int j = this.getDropCount(i, world.random);
+ 
+             for (int k = 0; k < j; ++k) {
+-                if (world.random.nextFloat() <= f) {
++                // CraftBukkit - <= to < to allow for plugins to completely disable block drops from explosions
++                if (world.random.nextFloat() < f) {
+                     Item item = this.getDropType(iblockdata, world.random, i);
+ 
+                     if (item != null) {
+@@ -561,7 +576,7 @@
+ 
+     public void a(World world, EntityHuman entityhuman, BlockPosition blockposition, IBlockData iblockdata, TileEntity tileentity) {
+         entityhuman.b(StatisticList.MINE_BLOCK_COUNT[getId(this)]);
+-        entityhuman.applyExhaustion(0.025F);
++        entityhuman.applyExhaustion(world.paperSpigotConfig.blockBreakExhaustion); // PaperSpigot - Configurable block break exhaustion
+         if (this.I() && EnchantmentManager.hasSilkTouchEnchantment(entityhuman)) {
+             ItemStack itemstack = this.i(iblockdata);
+ 
+@@ -955,6 +970,7 @@
+             while (iterator1.hasNext()) {
+                 IBlockData iblockdata = (IBlockData) iterator1.next();
+                 int i = Block.REGISTRY.b(block13) << 4 | block13.toLegacyData(iblockdata);
++                // TacoSpigot start
+ 
+                 Block.d.a(iblockdata, i);
+             }
+@@ -1002,4 +1018,22 @@
+             return this.getBreakSound();
+         }
+     }
++
++    // CraftBukkit start
++    public int getExpDrop(World world, IBlockData data, int enchantmentLevel) {
++        return 0;
++    }
++    // CraftBukkit end
++
++    // Spigot start
++    public static float range(float min, float value, float max) {
++        if (value < min) {
++            return min;
++        }
++        if (value > max) {
++            return max;
++        }
++        return value;
++    }
++    // Spigot end
+ }

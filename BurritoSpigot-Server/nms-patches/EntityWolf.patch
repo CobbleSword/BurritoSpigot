@@ -1,0 +1,160 @@
+--- a/net/minecraft/server/EntityWolf.java
++++ b/net/minecraft/server/EntityWolf.java
+@@ -2,6 +2,11 @@
+ 
+ import com.google.common.base.Predicate;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.event.entity.EntityTargetEvent.TargetReason;
++// CraftBukkit end
++
+ public class EntityWolf extends EntityTameableAnimal {
+ 
+     private float bo;
+@@ -28,7 +33,7 @@
+         this.targetSelector.a(1, new PathfinderGoalOwnerHurtByTarget(this));
+         this.targetSelector.a(2, new PathfinderGoalOwnerHurtTarget(this));
+         this.targetSelector.a(3, new PathfinderGoalHurtByTarget(this, true, new Class[0]));
+-        this.targetSelector.a(4, new PathfinderGoalRandomTargetNonTamed<>(this, EntityAnimal.class, false, new Predicate<Entity>() {
++        this.targetSelector.a(4, new PathfinderGoalRandomTargetNonTamed(this, EntityAnimal.class, false, new Predicate() {
+             public boolean a(Entity entity) {
+                 return entity instanceof EntitySheep || entity instanceof EntityRabbit;
+             }
+@@ -37,7 +42,7 @@
+                 return this.a((Entity) object);
+             }
+         }));
+-        this.targetSelector.a(5, new PathfinderGoalNearestAttackableTarget<>(this, EntitySkeleton.class, false));
++        this.targetSelector.a(5, new PathfinderGoalNearestAttackableTarget(this, EntitySkeleton.class, false));
+         this.setTamed(false);
+     }
+ 
+@@ -64,8 +69,20 @@
+ 
+     }
+ 
++    // CraftBukkit - add overriden version
++    @Override
++    public void setGoalTarget(EntityLiving entityliving, org.bukkit.event.entity.EntityTargetEvent.TargetReason reason, boolean fire) {
++        super.setGoalTarget(entityliving, reason, fire);
++        if (entityliving == null) {
++            this.setAngry(false);
++        } else if (!this.isTamed()) {
++            this.setAngry(true);
++        }
++    }
++    // CraftBukkit end
++
+     protected void E() {
+-        this.datawatcher.watch(18, this.getHealth());
++        this.datawatcher.watch(18, Float.valueOf(this.getHealth()));
+     }
+ 
+     protected void h() {
+@@ -95,7 +112,8 @@
+     }
+ 
+     protected String z() {
+-        return this.isAngry() ? "mob.wolf.growl" : (this.random.nextInt(3) == 0 ? (this.isTamed() && this.datawatcher.getFloat(18) < 10.0F ? "mob.wolf.whine" : "mob.wolf.panting") : "mob.wolf.bark");
++        // CraftBukkit - (getFloat(18) < 10) -> (getFloat(18) < this.getMaxHealth() / 2)
++        return this.isAngry() ? "mob.wolf.growl" : (this.random.nextInt(3) == 0 ? (this.isTamed() && this.datawatcher.getFloat(18) < this.getMaxHealth() / 2 ? "mob.wolf.whine" : "mob.wolf.panting") : "mob.wolf.bark");
+     }
+ 
+     protected String bo() {
+@@ -165,7 +183,7 @@
+                     float f1 = (this.random.nextFloat() * 2.0F - 1.0F) * this.width * 0.5F;
+                     float f2 = (this.random.nextFloat() * 2.0F - 1.0F) * this.width * 0.5F;
+ 
+-                    this.world.addParticle(EnumParticle.WATER_SPLASH, this.locX + (double) f1, (double) (f + 0.8F), this.locZ + (double) f2, this.motX, this.motY, this.motZ);
++                    this.world.addParticle(EnumParticle.WATER_SPLASH, this.locX + (double) f1, (double) (f + 0.8F), this.locZ + (double) f2, this.motX, this.motY, this.motZ, new int[0]);
+                 }
+             }
+         }
+@@ -186,7 +204,8 @@
+         } else {
+             Entity entity = damagesource.getEntity();
+ 
+-            this.bm.setSitting(false);
++            // CraftBukkit - moved into EntityLiving.d(DamageSource, float)
++            // this.bm.setSitting(false);
+             if (entity != null && !(entity instanceof EntityHuman) && !(entity instanceof EntityArrow)) {
+                 f = (f + 1.0F) / 2.0F;
+             }
+@@ -229,7 +248,7 @@
+                             --itemstack.count;
+                         }
+ 
+-                        this.heal((float) itemfood.getNutrition(itemstack));
++                        this.heal((float) itemfood.getNutrition(itemstack), org.bukkit.event.entity.EntityRegainHealthEvent.RegainReason.EATING); // CraftBukkit
+                         if (itemstack.count <= 0) {
+                             entityhuman.inventory.setItem(entityhuman.inventory.itemInHandIndex, (ItemStack) null);
+                         }
+@@ -254,7 +273,7 @@
+                 this.bm.setSitting(!this.isSitting());
+                 this.aY = false;
+                 this.navigation.n();
+-                this.setGoalTarget((EntityLiving) null);
++                this.setGoalTarget((EntityLiving) null, TargetReason.FORGOT_TARGET, true); // CraftBukkit - reason
+             }
+         } else if (itemstack != null && itemstack.getItem() == Items.BONE && !this.isAngry()) {
+             if (!entityhuman.abilities.canInstantlyBuild) {
+@@ -266,12 +285,13 @@
+             }
+ 
+             if (!this.world.isClientSide) {
+-                if (this.random.nextInt(3) == 0) {
++                // CraftBukkit - added event call and isCancelled check.
++                if (this.random.nextInt(3) == 0 && !CraftEventFactory.callEntityTameEvent(this, entityhuman).isCancelled()) {
+                     this.setTamed(true);
+                     this.navigation.n();
+-                    this.setGoalTarget((EntityLiving) null);
++                    this.setGoalTarget((EntityLiving) null, TargetReason.FORGOT_TARGET, true);
+                     this.bm.setSitting(true);
+-                    this.setHealth(20.0F);
++                    this.setHealth(this.getMaxHealth()); // CraftBukkit - 20.0 -> getMaxHealth()
+                     this.setOwnerUUID(entityhuman.getUniqueID().toString());
+                     this.l(true);
+                     this.world.broadcastEntityEffect(this, (byte) 7);
+@@ -303,9 +323,9 @@
+         byte b0 = this.datawatcher.getByte(16);
+ 
+         if (flag) {
+-            this.datawatcher.watch(16, (byte) (b0 | 2));
++            this.datawatcher.watch(16, Byte.valueOf((byte) (b0 | 2)));
+         } else {
+-            this.datawatcher.watch(16, (byte) (b0 & -3));
++            this.datawatcher.watch(16, Byte.valueOf((byte) (b0 & -3)));
+         }
+ 
+     }
+@@ -315,7 +335,7 @@
+     }
+ 
+     public void setCollarColor(EnumColor enumcolor) {
+-        this.datawatcher.watch(20, (byte) (enumcolor.getInvColorIndex() & 15));
++        this.datawatcher.watch(20, Byte.valueOf((byte) (enumcolor.getInvColorIndex() & 15)));
+     }
+ 
+     public EntityWolf b(EntityAgeable entityageable) {
+@@ -332,9 +352,9 @@
+ 
+     public void p(boolean flag) {
+         if (flag) {
+-            this.datawatcher.watch(19, (byte) 1);
++            this.datawatcher.watch(19, Byte.valueOf((byte) 1));
+         } else {
+-            this.datawatcher.watch(19, (byte) 0);
++            this.datawatcher.watch(19, Byte.valueOf((byte) 0));
+         }
+ 
+     }
+@@ -358,7 +378,7 @@
+     }
+ 
+     protected boolean isTypeNotPersistent() {
+-        return !this.isTamed() && this.ticksLived > 2400;
++        return !this.isTamed() /*&& this.ticksLived > 2400*/; // CraftBukkit
+     }
+ 
+     public boolean a(EntityLiving entityliving, EntityLiving entityliving1) {

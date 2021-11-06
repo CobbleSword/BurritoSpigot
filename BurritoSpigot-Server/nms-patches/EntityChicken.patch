@@ -1,0 +1,14 @@
+--- a/net/minecraft/server/EntityChicken.java
++++ b/net/minecraft/server/EntityChicken.java
+@@ -35,6 +35,11 @@
+     }
+ 
+     public void m() {
++        // CraftBukkit start
++        if (this.isChickenJockey()) {
++            this.persistent = !this.isTypeNotPersistent();
++        }
++        // CraftBukkit end
+         super.m();
+         this.bq = this.bm;
+         this.bp = this.bo;

@@ -1,0 +1,82 @@
+--- a/net/minecraft/server/EntityRabbit.java
++++ b/net/minecraft/server/EntityRabbit.java
+@@ -21,6 +21,12 @@
+         this.g = new EntityRabbit.ControllerJumpRabbit(this);
+         this.moveController = new EntityRabbit.ControllerMoveRabbit(this);
+         ((Navigation) this.getNavigation()).a(true);
++        this.initializePathFinderGoals(); // CraftBukkit - moved code
++        this.b(0.0D);
++    }
++
++    // CraftBukkit start - code from constructor
++    public void initializePathFinderGoals(){
+         this.navigation.a(2.5F);
+         this.goalSelector.a(1, new PathfinderGoalFloat(this));
+         this.goalSelector.a(1, new EntityRabbit.PathfinderGoalRabbitPanic(this, 1.33D));
+@@ -31,10 +37,10 @@
+         this.goalSelector.a(5, new EntityRabbit.PathfinderGoalEatCarrots(this));
+         this.goalSelector.a(5, new PathfinderGoalRandomStroll(this, 0.6D));
+         this.goalSelector.a(11, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 10.0F));
+-        this.bm = new EntityRabbit.PathfinderGoalRabbitAvoidTarget<>(this, EntityWolf.class, 16.0F, 1.33D, 1.33D);
++        this.bm = new EntityRabbit.PathfinderGoalRabbitAvoidTarget(this, EntityWolf.class, 16.0F, 1.33D, 1.33D);
+         this.goalSelector.a(4, this.bm);
+-        this.b(0.0D);
+     }
++    // CraftBukkit end
+ 
+     protected float bE() {
+         return this.moveController.a() && this.moveController.e() > this.locY + 0.5D ? 0.5F : this.bt.b();
+@@ -75,7 +81,7 @@
+ 
+     protected void h() {
+         super.h();
+-        this.datawatcher.a(18, (byte) 0);
++        this.datawatcher.a(18, Byte.valueOf((byte) 0));
+     }
+ 
+     public void E() {
+@@ -276,14 +282,14 @@
+             this.goalSelector.a((PathfinderGoal) this.bm);
+             this.goalSelector.a(4, new EntityRabbit.PathfinderGoalKillerRabbitMeleeAttack(this));
+             this.targetSelector.a(1, new PathfinderGoalHurtByTarget(this, false, new Class[0]));
+-            this.targetSelector.a(2, new PathfinderGoalNearestAttackableTarget<>(this, EntityHuman.class, true));
+-            this.targetSelector.a(2, new PathfinderGoalNearestAttackableTarget<>(this, EntityWolf.class, true));
++            this.targetSelector.a(2, new PathfinderGoalNearestAttackableTarget(this, EntityHuman.class, true));
++            this.targetSelector.a(2, new PathfinderGoalNearestAttackableTarget(this, EntityWolf.class, true));
+             if (!this.hasCustomName()) {
+                 this.setCustomName(LocaleI18n.get("entity.KillerBunny.name"));
+             }
+         }
+ 
+-        this.datawatcher.watch(18, (byte) i);
++        this.datawatcher.watch(18, Byte.valueOf((byte) i));
+     }
+ 
+     public GroupDataEntity prepare(DifficultyDamageScaler difficultydamagescaler, GroupDataEntity groupdataentity) {
+@@ -315,7 +321,7 @@
+     }
+ 
+     protected void cp() {
+-        this.world.addParticle(EnumParticle.BLOCK_DUST, this.locX + (double) (this.random.nextFloat() * this.width * 2.0F) - (double) this.width, this.locY + 0.5D + (double) (this.random.nextFloat() * this.length), this.locZ + (double) (this.random.nextFloat() * this.width * 2.0F) - (double) this.width, 0.0D, 0.0D, 0.0D, Block.getCombinedId(Blocks.CARROTS.fromLegacyData(7)));
++        this.world.addParticle(EnumParticle.BLOCK_DUST, this.locX + (double) (this.random.nextFloat() * this.width * 2.0F) - (double) this.width, this.locY + 0.5D + (double) (this.random.nextFloat() * this.length), this.locZ + (double) (this.random.nextFloat() * this.width * 2.0F) - (double) this.width, 0.0D, 0.0D, 0.0D, new int[] { Block.getCombinedId(Blocks.CARROTS.fromLegacyData(7))});
+         this.bu = 100;
+     }
+ 
+@@ -427,7 +433,7 @@
+                 IBlockData iblockdata = world.getType(blockposition);
+                 Block block = iblockdata.getBlock();
+ 
+-                if (this.e && block instanceof BlockCarrots && (Integer) iblockdata.get(BlockCarrots.AGE) == 7) {
++                if (this.e && block instanceof BlockCarrots && ((Integer) iblockdata.get(BlockCarrots.AGE)).intValue() == 7) {
+                     world.setTypeAndData(blockposition, Blocks.AIR.getBlockData(), 2);
+                     world.setAir(blockposition, true);
+                     this.c.cp();
+@@ -447,7 +453,7 @@
+                 IBlockData iblockdata = world.getType(blockposition);
+ 
+                 block = iblockdata.getBlock();
+-                if (block instanceof BlockCarrots && (Integer) iblockdata.get(BlockCarrots.AGE) == 7 && this.d && !this.e) {
++                if (block instanceof BlockCarrots && ((Integer) iblockdata.get(BlockCarrots.AGE)).intValue() == 7 && this.d && !this.e) {
+                     this.e = true;
+                     return true;
+                 }

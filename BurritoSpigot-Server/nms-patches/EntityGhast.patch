@@ -1,0 +1,22 @@
+--- a/net/minecraft/server/EntityGhast.java
++++ b/net/minecraft/server/EntityGhast.java
+@@ -48,7 +48,7 @@
+ 
+     protected void h() {
+         super.h();
+-        this.datawatcher.a(16, (byte) 0);
++        this.datawatcher.a(16, Byte.valueOf((byte) 0));
+     }
+ 
+     protected void initAttributes() {
+@@ -162,7 +162,9 @@
+                     world.a((EntityHuman) null, 1008, new BlockPosition(this.b), 0);
+                     EntityLargeFireball entitylargefireball = new EntityLargeFireball(world, this.b, d2, d3, d4);
+ 
+-                    entitylargefireball.yield = this.b.cf();
++
++                    // CraftBukkit - set bukkitYield when setting explosionpower
++                    entitylargefireball.bukkitYield = entitylargefireball.yield = this.b.cf();
+                     entitylargefireball.locX = this.b.locX + vec3d.a * d1;
+                     entitylargefireball.locY = this.b.locY + (double) (this.b.length / 2.0F) + 0.5D;
+                     entitylargefireball.locZ = this.b.locZ + vec3d.c * d1;

@@ -1,0 +1,10 @@
+--- a/net/minecraft/server/ItemBookAndQuill.java
++++ b/net/minecraft/server/ItemBookAndQuill.java
+@@ -20,6 +20,7 @@
+         } else {
+             NBTTagList nbttaglist = nbttagcompound.getList("pages", 8);
+ 
++            long start = System.currentTimeMillis();
+             for (int i = 0; i < nbttaglist.size(); ++i) {
+                 String s = nbttaglist.getString(i);
+ 

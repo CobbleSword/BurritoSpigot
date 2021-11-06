@@ -1,0 +1,49 @@
+--- a/net/minecraft/server/CommandGamemode.java
++++ b/net/minecraft/server/CommandGamemode.java
+@@ -26,6 +26,13 @@
+             EntityPlayer entityplayer = astring.length >= 2 ? a(icommandlistener, astring[1]) : b(icommandlistener);
+ 
+             entityplayer.a(worldsettings_enumgamemode);
++            // CraftBukkit start - handle event cancelling the change
++            if (entityplayer.playerInteractManager.getGameMode() != worldsettings_enumgamemode) {
++                icommandlistener.sendMessage(new ChatComponentText("Failed to set the gamemode of '" + entityplayer.getName() + "'"));
++                return;
++            }
++            // CraftBukkit end
++
+             entityplayer.fallDistance = 0.0F;
+             if (icommandlistener.getWorld().getGameRules().getBoolean("sendCommandFeedback")) {
+                 entityplayer.sendMessage(new ChatMessage("gameMode.changed", new Object[0]));
+@@ -34,9 +41,9 @@
+             ChatMessage chatmessage = new ChatMessage("gameMode." + worldsettings_enumgamemode.b(), new Object[0]);
+ 
+             if (entityplayer != icommandlistener) {
+-                a(icommandlistener, this, 1, "commands.gamemode.success.other", new Object[]{entityplayer.getName(), chatmessage});
++                a(icommandlistener, this, 1, "commands.gamemode.success.other", new Object[] { entityplayer.getName(), chatmessage});
+             } else {
+-                a(icommandlistener, this, 1, "commands.gamemode.success.self", new Object[]{chatmessage});
++                a(icommandlistener, this, 1, "commands.gamemode.success.self", new Object[] { chatmessage});
+             }
+ 
+         }
+@@ -47,7 +54,7 @@
+     }
+ 
+     public List<String> tabComplete(ICommandListener icommandlistener, String[] astring, BlockPosition blockposition) {
+-        return astring.length == 1 ? a(astring, new String[]{"survival", "creative", "adventure", "spectator"}) : (astring.length == 2 ? a(astring, this.d()) : null);
++        return astring.length == 1 ? a(astring, new String[] { "survival", "creative", "adventure", "spectator"}) : (astring.length == 2 ? a(astring, this.d()) : null);
+     }
+ 
+     protected String[] d() {
+@@ -57,4 +64,11 @@
+     public boolean isListStart(String[] astring, int i) {
+         return i == 1;
+     }
++
++    // CraftBukkit start - fix decompiler error
++    @Override
++    public int compareTo(ICommand o) {
++        return a((ICommand) o);
++    }
++    // CraftBukkit end
+ }

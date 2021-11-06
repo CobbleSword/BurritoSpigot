@@ -1,0 +1,108 @@
+--- a/net/minecraft/server/ChunkProviderGenerate.java
++++ b/net/minecraft/server/ChunkProviderGenerate.java
+@@ -156,31 +156,31 @@
+         this.a(i, j, chunksnapshot);
+         this.B = this.m.getWorldChunkManager().getBiomeBlock(this.B, i * 16, j * 16, 16, 16);
+         this.a(i, j, chunksnapshot, this.B);
+-        if (this.r.r) {
++        if (this.r.r && this.m.paperSpigotConfig.generateCaves) { // PaperSpigot
+             this.u.a(this, this.m, i, j, chunksnapshot);
+         }
+ 
+-        if (this.r.z) {
++        if (this.r.z && this.m.paperSpigotConfig.generateCanyon) { // PaperSpigot
+             this.z.a(this, this.m, i, j, chunksnapshot);
+         }
+ 
+-        if (this.r.w && this.n) {
++        if (this.r.w && this.n && this.m.paperSpigotConfig.generateMineshaft) { // PaperSpigot
+             this.x.a(this, this.m, i, j, chunksnapshot);
+         }
+ 
+-        if (this.r.v && this.n) {
++        if (this.r.v && this.n && this.m.paperSpigotConfig.generateVillage) { // PaperSpigot
+             this.w.a(this, this.m, i, j, chunksnapshot);
+         }
+ 
+-        if (this.r.u && this.n) {
++        if (this.r.u && this.n && this.m.paperSpigotConfig.generateStronghold) { // PaperSpigot
+             this.v.a(this, this.m, i, j, chunksnapshot);
+         }
+ 
+-        if (this.r.x && this.n) {
++        if (this.r.x && this.n && this.m.paperSpigotConfig.generateTemple) { // PaperSpigot
+             this.y.a(this, this.m, i, j, chunksnapshot);
+         }
+ 
+-        if (this.r.y && this.n) {
++        if (this.r.y && this.n && this.m.paperSpigotConfig.generateMonument) { // PaperSpigot
+             this.A.a(this, this.m, i, j, chunksnapshot);
+         }
+ 
+@@ -319,23 +319,23 @@
+         boolean flag = false;
+         ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(i, j);
+ 
+-        if (this.r.w && this.n) {
++        if (this.r.w && this.n && this.m.paperSpigotConfig.generateMineshaft) { // PaperSpigot
+             this.x.a(this.m, this.h, chunkcoordintpair);
+         }
+ 
+-        if (this.r.v && this.n) {
++        if (this.r.v && this.n && this.m.paperSpigotConfig.generateVillage) { // PaperSpigot
+             flag = this.w.a(this.m, this.h, chunkcoordintpair);
+         }
+ 
+-        if (this.r.u && this.n) {
++        if (this.r.u && this.n && this.m.paperSpigotConfig.generateStronghold) { // PaperSpigot
+             this.v.a(this.m, this.h, chunkcoordintpair);
+         }
+ 
+-        if (this.r.x && this.n) {
++        if (this.r.x && this.n && this.m.paperSpigotConfig.generateTemple) { // PaperSpigot
+             this.y.a(this.m, this.h, chunkcoordintpair);
+         }
+ 
+-        if (this.r.y && this.n) {
++        if (this.r.y && this.n && this.m.paperSpigotConfig.generateMonument) { // PaperSpigot
+             this.A.a(this.m, this.h, chunkcoordintpair);
+         }
+ 
+@@ -359,7 +359,7 @@
+             }
+         }
+ 
+-        if (this.r.s) {
++        if (this.r.s && this.m.paperSpigotConfig.generateDungeon) { // PaperSpigot
+             for (k1 = 0; k1 < this.r.t; ++k1) {
+                 l1 = this.h.nextInt(16) + 8;
+                 i2 = this.h.nextInt(256);
+@@ -444,23 +444,23 @@
+     }
+ 
+     public void recreateStructures(Chunk chunk, int i, int j) {
+-        if (this.r.w && this.n) {
++        if (this.r.w && this.n && this.m.paperSpigotConfig.generateMineshaft) { // PaperSpigot
+             this.x.a(this, this.m, i, j, (ChunkSnapshot) null);
+         }
+ 
+-        if (this.r.v && this.n) {
++        if (this.r.v && this.n && this.m.paperSpigotConfig.generateVillage) { // PaperSpigot
+             this.w.a(this, this.m, i, j, (ChunkSnapshot) null);
+         }
+ 
+-        if (this.r.u && this.n) {
++        if (this.r.u && this.n && this.m.paperSpigotConfig.generateStronghold) { // PaperSpigot
+             this.v.a(this, this.m, i, j, (ChunkSnapshot) null);
+         }
+ 
+-        if (this.r.x && this.n) {
++        if (this.r.x && this.n && this.m.paperSpigotConfig.generateTemple) { // PaperSpigot
+             this.y.a(this, this.m, i, j, (ChunkSnapshot) null);
+         }
+ 
+-        if (this.r.y && this.n) {
++        if (this.r.y && this.n && this.m.paperSpigotConfig.generateMonument) { // PaperSpigot
+             this.A.a(this, this.m, i, j, (ChunkSnapshot) null);
+         }
+ 

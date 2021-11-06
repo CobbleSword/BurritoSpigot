@@ -1,0 +1,80 @@
+--- a/net/minecraft/server/BlockFluids.java
++++ b/net/minecraft/server/BlockFluids.java
+@@ -9,7 +9,7 @@
+ 
+     protected BlockFluids(Material material) {
+         super(material);
+-        this.j(this.blockStateList.getBlockData().set(BlockFluids.LEVEL, 0));
++        this.j(this.blockStateList.getBlockData().set(BlockFluids.LEVEL, Integer.valueOf(0)));
+         this.a(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+         this.a(true);
+     }
+@@ -27,7 +27,7 @@
+     }
+ 
+     protected int e(IBlockAccess iblockaccess, BlockPosition blockposition) {
+-        return iblockaccess.getType(blockposition).getBlock().getMaterial() == this.material ? (Integer) iblockaccess.getType(blockposition).get(BlockFluids.LEVEL) : -1;
++        return iblockaccess.getType(blockposition).getBlock().getMaterial() == this.material ? ((Integer) iblockaccess.getType(blockposition).get(BlockFluids.LEVEL)).intValue() : -1;
+     }
+ 
+     protected int f(IBlockAccess iblockaccess, BlockPosition blockposition) {
+@@ -45,7 +45,7 @@
+     }
+ 
+     public boolean a(IBlockData iblockdata, boolean flag) {
+-        return flag && (Integer) iblockdata.get(BlockFluids.LEVEL) == 0;
++        return flag && ((Integer) iblockdata.get(BlockFluids.LEVEL)).intValue() == 0;
+     }
+ 
+     public boolean b(IBlockAccess iblockaccess, BlockPosition blockposition, EnumDirection enumdirection) {
+@@ -98,7 +98,7 @@
+             }
+         }
+ 
+-        if ((Integer) iblockaccess.getType(blockposition).get(BlockFluids.LEVEL) >= 8) {
++        if (((Integer) iblockaccess.getType(blockposition).get(BlockFluids.LEVEL)).intValue() >= 8) {
+             iterator = EnumDirection.EnumDirectionLimit.HORIZONTAL.iterator();
+ 
+             while (iterator.hasNext()) {
+@@ -148,13 +148,13 @@
+             if (flag) {
+                 Integer integer = (Integer) iblockdata.get(BlockFluids.LEVEL);
+ 
+-                if (integer == 0) {
++                if (integer.intValue() == 0) {
+                     world.setTypeUpdate(blockposition, Blocks.OBSIDIAN.getBlockData());
+                     this.fizz(world, blockposition);
+                     return true;
+                 }
+ 
+-                if (integer <= 4) {
++                if (integer.intValue() > 0) { // PaperSpigot
+                     world.setTypeUpdate(blockposition, Blocks.COBBLESTONE.getBlockData());
+                     this.fizz(world, blockposition);
+                     return true;
+@@ -173,21 +173,21 @@
+         world.makeSound(d0 + 0.5D, d1 + 0.5D, d2 + 0.5D, "random.fizz", 0.5F, 2.6F + (world.random.nextFloat() - world.random.nextFloat()) * 0.8F);
+ 
+         for (int i = 0; i < 8; ++i) {
+-            world.addParticle(EnumParticle.SMOKE_LARGE, d0 + Math.random(), d1 + 1.2D, d2 + Math.random(), 0.0D, 0.0D, 0.0D);
++            world.addParticle(EnumParticle.SMOKE_LARGE, d0 + Math.random(), d1 + 1.2D, d2 + Math.random(), 0.0D, 0.0D, 0.0D, new int[0]);
+         }
+ 
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockFluids.LEVEL, i);
++        return this.getBlockData().set(BlockFluids.LEVEL, Integer.valueOf(i));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+-        return (Integer) iblockdata.get(BlockFluids.LEVEL);
++        return ((Integer) iblockdata.get(BlockFluids.LEVEL)).intValue();
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockFluids.LEVEL});
++        return new BlockStateList(this, new IBlockState[] { BlockFluids.LEVEL});
+     }
+ 
+     public static BlockFlowing a(Material material) {

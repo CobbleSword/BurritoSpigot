@@ -1,0 +1,37 @@
+--- a/net/minecraft/server/NavigationAbstract.java
++++ b/net/minecraft/server/NavigationAbstract.java
+@@ -82,10 +82,25 @@
+     }
+ 
+     public boolean a(Entity entity, double d0) {
++        // PaperSpigot start - Pathfinding optimizations
++        if (this.pathfindFailures > 10 && this.d == null && MinecraftServer.currentTick < this.lastFailure + 40) {
++            return false;
++        }
+         PathEntity pathentity = this.a(entity);
+ 
+-        return pathentity != null ? this.a(pathentity, d0) : false;
++        if (pathentity != null && this.a(pathentity, d0)) {
++            this.lastFailure = 0;
++            this.pathfindFailures = 0;
++            return true;
++        } else {
++            this.pathfindFailures++;
++            this.lastFailure = MinecraftServer.currentTick;
++            return false;
++        }
+     }
++    private int lastFailure = 0;
++    private int pathfindFailures = 0;
++    // PaperSpigot end
+ 
+     public boolean a(PathEntity pathentity, double d0) {
+         if (pathentity == null) {
+@@ -205,6 +220,7 @@
+     }
+ 
+     public void n() {
++        this.pathfindFailures = 0; this.lastFailure = 0; // PaperSpigot - Pathfinding optimizations
+         this.d = null;
+     }
+ 

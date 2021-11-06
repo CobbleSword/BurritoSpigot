@@ -1,0 +1,400 @@
+--- a/net/minecraft/server/BlockFlowerPot.java
++++ b/net/minecraft/server/BlockFlowerPot.java
+@@ -9,7 +9,7 @@
+ 
+     public BlockFlowerPot() {
+         super(Material.ORIENTABLE);
+-        this.j(this.blockStateList.getBlockData().set(BlockFlowerPot.CONTENTS, BlockFlowerPot.EnumFlowerPotContents.EMPTY).set(BlockFlowerPot.LEGACY_DATA, 0));
++        this.j(this.blockStateList.getBlockData().set(BlockFlowerPot.CONTENTS, BlockFlowerPot.EnumFlowerPotContents.EMPTY).set(BlockFlowerPot.LEGACY_DATA, Integer.valueOf(0)));
+         this.j();
+     }
+ 
+@@ -95,6 +95,7 @@
+ 
+         if (tileentityflowerpot != null && tileentityflowerpot.b() != null) {
+             a(world, blockposition, new ItemStack(tileentityflowerpot.b(), 1, tileentityflowerpot.c()));
++            tileentityflowerpot.a( null, 0 ); // Spigot
+         }
+ 
+         super.remove(world, blockposition, iblockdata);
+@@ -127,63 +128,75 @@
+         int j = 0;
+ 
+         switch (i) {
+-            case 1:
+-                object = Blocks.RED_FLOWER;
+-                j = BlockFlowers.EnumFlowerVarient.POPPY.b();
+-                break;
+-            case 2:
+-                object = Blocks.YELLOW_FLOWER;
+-                break;
+-            case 3:
+-                object = Blocks.SAPLING;
+-                j = BlockWood.EnumLogVariant.OAK.a();
+-                break;
+-            case 4:
+-                object = Blocks.SAPLING;
+-                j = BlockWood.EnumLogVariant.SPRUCE.a();
+-                break;
+-            case 5:
+-                object = Blocks.SAPLING;
+-                j = BlockWood.EnumLogVariant.BIRCH.a();
+-                break;
+-            case 6:
+-                object = Blocks.SAPLING;
+-                j = BlockWood.EnumLogVariant.JUNGLE.a();
+-                break;
+-            case 7:
+-                object = Blocks.RED_MUSHROOM;
+-                break;
+-            case 8:
+-                object = Blocks.BROWN_MUSHROOM;
+-                break;
+-            case 9:
+-                object = Blocks.CACTUS;
+-                break;
+-            case 10:
+-                object = Blocks.DEADBUSH;
+-                break;
+-            case 11:
+-                object = Blocks.TALLGRASS;
+-                j = BlockLongGrass.EnumTallGrassType.FERN.a();
+-                break;
+-            case 12:
+-                object = Blocks.SAPLING;
+-                j = BlockWood.EnumLogVariant.ACACIA.a();
+-                break;
+-            case 13:
+-                object = Blocks.SAPLING;
+-                j = BlockWood.EnumLogVariant.DARK_OAK.a();
++        case 1:
++            object = Blocks.RED_FLOWER;
++            j = BlockFlowers.EnumFlowerVarient.POPPY.b();
++            break;
++
++        case 2:
++            object = Blocks.YELLOW_FLOWER;
++            break;
++
++        case 3:
++            object = Blocks.SAPLING;
++            j = BlockWood.EnumLogVariant.OAK.a();
++            break;
++
++        case 4:
++            object = Blocks.SAPLING;
++            j = BlockWood.EnumLogVariant.SPRUCE.a();
++            break;
++
++        case 5:
++            object = Blocks.SAPLING;
++            j = BlockWood.EnumLogVariant.BIRCH.a();
++            break;
++
++        case 6:
++            object = Blocks.SAPLING;
++            j = BlockWood.EnumLogVariant.JUNGLE.a();
++            break;
++
++        case 7:
++            object = Blocks.RED_MUSHROOM;
++            break;
++
++        case 8:
++            object = Blocks.BROWN_MUSHROOM;
++            break;
++
++        case 9:
++            object = Blocks.CACTUS;
++            break;
++
++        case 10:
++            object = Blocks.DEADBUSH;
++            break;
++
++        case 11:
++            object = Blocks.TALLGRASS;
++            j = BlockLongGrass.EnumTallGrassType.FERN.a();
++            break;
++
++        case 12:
++            object = Blocks.SAPLING;
++            j = BlockWood.EnumLogVariant.ACACIA.a();
++            break;
++
++        case 13:
++            object = Blocks.SAPLING;
++            j = BlockWood.EnumLogVariant.DARK_OAK.a();
+         }
+ 
+         return new TileEntityFlowerPot(Item.getItemOf((Block) object), j);
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockFlowerPot.CONTENTS, BlockFlowerPot.LEGACY_DATA});
++        return new BlockStateList(this, new IBlockState[] { BlockFlowerPot.CONTENTS, BlockFlowerPot.LEGACY_DATA});
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+-        return (Integer) iblockdata.get(BlockFlowerPot.LEGACY_DATA);
++        return ((Integer) iblockdata.get(BlockFlowerPot.LEGACY_DATA)).intValue();
+     }
+ 
+     public IBlockData updateState(IBlockData iblockdata, IBlockAccess iblockaccess, BlockPosition blockposition) {
+@@ -199,72 +212,89 @@
+                 Block block = Block.asBlock(item);
+ 
+                 if (block == Blocks.SAPLING) {
+-                    switch (BlockWood.EnumLogVariant.a(i)) {
+-                        case OAK:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.OAK_SAPLING;
+-                            break;
+-                        case SPRUCE:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.SPRUCE_SAPLING;
+-                            break;
+-                        case BIRCH:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.BIRCH_SAPLING;
+-                            break;
+-                        case JUNGLE:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.JUNGLE_SAPLING;
+-                            break;
+-                        case ACACIA:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.ACACIA_SAPLING;
+-                            break;
+-                        case DARK_OAK:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.DARK_OAK_SAPLING;
+-                            break;
+-                        default:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.EMPTY;
++                    switch (BlockFlowerPot.SyntheticClass_1.a[BlockWood.EnumLogVariant.a(i).ordinal()]) {
++                    case 1:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.OAK_SAPLING;
++                        break;
++
++                    case 2:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.SPRUCE_SAPLING;
++                        break;
++
++                    case 3:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.BIRCH_SAPLING;
++                        break;
++
++                    case 4:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.JUNGLE_SAPLING;
++                        break;
++
++                    case 5:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.ACACIA_SAPLING;
++                        break;
++
++                    case 6:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.DARK_OAK_SAPLING;
++                        break;
++
++                    default:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.EMPTY;
+                     }
+                 } else if (block == Blocks.TALLGRASS) {
+                     switch (i) {
+-                        case 0:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.DEAD_BUSH;
+-                            break;
+-                        case 2:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.FERN;
+-                            break;
+-                        default:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.EMPTY;
++                    case 0:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.DEAD_BUSH;
++                        break;
++
++                    case 2:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.FERN;
++                        break;
++
++                    default:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.EMPTY;
+                     }
+                 } else if (block == Blocks.YELLOW_FLOWER) {
+                     blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.DANDELION;
+                 } else if (block == Blocks.RED_FLOWER) {
+-                    switch (BlockFlowers.EnumFlowerVarient.a(BlockFlowers.EnumFlowerType.RED, i)) {
+-                        case POPPY:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.POPPY;
+-                            break;
+-                        case BLUE_ORCHID:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.BLUE_ORCHID;
+-                            break;
+-                        case ALLIUM:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.ALLIUM;
+-                            break;
+-                        case HOUSTONIA:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.HOUSTONIA;
+-                            break;
+-                        case RED_TULIP:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.RED_TULIP;
+-                            break;
+-                        case ORANGE_TULIP:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.ORANGE_TULIP;
+-                            break;
+-                        case WHITE_TULIP:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.WHITE_TULIP;
+-                            break;
+-                        case PINK_TULIP:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.PINK_TULIP;
+-                            break;
+-                        case OXEYE_DAISY:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.OXEYE_DAISY;
+-                            break;
+-                        default:
+-                            blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.EMPTY;
++                    switch (BlockFlowerPot.SyntheticClass_1.b[BlockFlowers.EnumFlowerVarient.a(BlockFlowers.EnumFlowerType.RED, i).ordinal()]) {
++                    case 1:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.POPPY;
++                        break;
++
++                    case 2:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.BLUE_ORCHID;
++                        break;
++
++                    case 3:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.ALLIUM;
++                        break;
++
++                    case 4:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.HOUSTONIA;
++                        break;
++
++                    case 5:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.RED_TULIP;
++                        break;
++
++                    case 6:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.ORANGE_TULIP;
++                        break;
++
++                    case 7:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.WHITE_TULIP;
++                        break;
++
++                    case 8:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.PINK_TULIP;
++                        break;
++
++                    case 9:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.OXEYE_DAISY;
++                        break;
++
++                    default:
++                        blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.EMPTY;
+                     }
+                 } else if (block == Blocks.RED_MUSHROOM) {
+                     blockflowerpot_enumflowerpotcontents = BlockFlowerPot.EnumFlowerPotContents.MUSHROOM_RED;
+@@ -281,6 +311,107 @@
+         return iblockdata.set(BlockFlowerPot.CONTENTS, blockflowerpot_enumflowerpotcontents);
+     }
+ 
++    static class SyntheticClass_1 {
++
++        static final int[] a;
++        static final int[] b = new int[BlockFlowers.EnumFlowerVarient.values().length];
++
++        static {
++            try {
++                BlockFlowerPot.SyntheticClass_1.b[BlockFlowers.EnumFlowerVarient.POPPY.ordinal()] = 1;
++            } catch (NoSuchFieldError nosuchfielderror) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.b[BlockFlowers.EnumFlowerVarient.BLUE_ORCHID.ordinal()] = 2;
++            } catch (NoSuchFieldError nosuchfielderror1) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.b[BlockFlowers.EnumFlowerVarient.ALLIUM.ordinal()] = 3;
++            } catch (NoSuchFieldError nosuchfielderror2) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.b[BlockFlowers.EnumFlowerVarient.HOUSTONIA.ordinal()] = 4;
++            } catch (NoSuchFieldError nosuchfielderror3) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.b[BlockFlowers.EnumFlowerVarient.RED_TULIP.ordinal()] = 5;
++            } catch (NoSuchFieldError nosuchfielderror4) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.b[BlockFlowers.EnumFlowerVarient.ORANGE_TULIP.ordinal()] = 6;
++            } catch (NoSuchFieldError nosuchfielderror5) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.b[BlockFlowers.EnumFlowerVarient.WHITE_TULIP.ordinal()] = 7;
++            } catch (NoSuchFieldError nosuchfielderror6) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.b[BlockFlowers.EnumFlowerVarient.PINK_TULIP.ordinal()] = 8;
++            } catch (NoSuchFieldError nosuchfielderror7) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.b[BlockFlowers.EnumFlowerVarient.OXEYE_DAISY.ordinal()] = 9;
++            } catch (NoSuchFieldError nosuchfielderror8) {
++                ;
++            }
++
++            a = new int[BlockWood.EnumLogVariant.values().length];
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.a[BlockWood.EnumLogVariant.OAK.ordinal()] = 1;
++            } catch (NoSuchFieldError nosuchfielderror9) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.a[BlockWood.EnumLogVariant.SPRUCE.ordinal()] = 2;
++            } catch (NoSuchFieldError nosuchfielderror10) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.a[BlockWood.EnumLogVariant.BIRCH.ordinal()] = 3;
++            } catch (NoSuchFieldError nosuchfielderror11) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.a[BlockWood.EnumLogVariant.JUNGLE.ordinal()] = 4;
++            } catch (NoSuchFieldError nosuchfielderror12) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.a[BlockWood.EnumLogVariant.ACACIA.ordinal()] = 5;
++            } catch (NoSuchFieldError nosuchfielderror13) {
++                ;
++            }
++
++            try {
++                BlockFlowerPot.SyntheticClass_1.a[BlockWood.EnumLogVariant.DARK_OAK.ordinal()] = 6;
++            } catch (NoSuchFieldError nosuchfielderror14) {
++                ;
++            }
++
++        }
++    }
++
+     public static enum EnumFlowerPotContents implements INamable {
+ 
+         EMPTY("empty"), POPPY("rose"), BLUE_ORCHID("blue_orchid"), ALLIUM("allium"), HOUSTONIA("houstonia"), RED_TULIP("red_tulip"), ORANGE_TULIP("orange_tulip"), WHITE_TULIP("white_tulip"), PINK_TULIP("pink_tulip"), OXEYE_DAISY("oxeye_daisy"), DANDELION("dandelion"), OAK_SAPLING("oak_sapling"), SPRUCE_SAPLING("spruce_sapling"), BIRCH_SAPLING("birch_sapling"), JUNGLE_SAPLING("jungle_sapling"), ACACIA_SAPLING("acacia_sapling"), DARK_OAK_SAPLING("dark_oak_sapling"), MUSHROOM_RED("mushroom_red"), MUSHROOM_BROWN("mushroom_brown"), DEAD_BUSH("dead_bush"), FERN("fern"), CACTUS("cactus");

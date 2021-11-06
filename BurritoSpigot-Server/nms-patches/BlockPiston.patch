@@ -1,0 +1,281 @@
+--- a/net/minecraft/server/BlockPiston.java
++++ b/net/minecraft/server/BlockPiston.java
+@@ -2,6 +2,18 @@
+ 
+ import java.util.List;
+ 
++// CraftBukkit start
++import java.util.AbstractList;
++import java.util.Collection;
++import java.util.Iterator;
++import java.util.ListIterator;
++
++import com.google.common.collect.ImmutableList;
++import org.bukkit.craftbukkit.block.CraftBlock;
++import org.bukkit.event.block.BlockPistonRetractEvent;
++import org.bukkit.event.block.BlockPistonExtendEvent;
++// CraftBukkit end
++
+ public class BlockPiston extends Block {
+ 
+     public static final BlockStateDirection FACING = BlockStateDirection.of("facing");
+@@ -10,7 +22,7 @@
+ 
+     public BlockPiston(boolean flag) {
+         super(Material.PISTON);
+-        this.j(this.blockStateList.getBlockData().set(BlockPiston.FACING, EnumDirection.NORTH).set(BlockPiston.EXTENDED, false));
++        this.j(this.blockStateList.getBlockData().set(BlockPiston.FACING, EnumDirection.NORTH).set(BlockPiston.EXTENDED, Boolean.valueOf(false)));
+         this.sticky = flag;
+         this.a(BlockPiston.i);
+         this.c(0.5F);
+@@ -44,19 +56,30 @@
+     }
+ 
+     public IBlockData getPlacedState(World world, BlockPosition blockposition, EnumDirection enumdirection, float f, float f1, float f2, int i, EntityLiving entityliving) {
+-        return this.getBlockData().set(BlockPiston.FACING, a(world, blockposition, entityliving)).set(BlockPiston.EXTENDED, false);
++        return this.getBlockData().set(BlockPiston.FACING, a(world, blockposition, entityliving)).set(BlockPiston.EXTENDED, Boolean.valueOf(false));
+     }
+ 
+     private void e(World world, BlockPosition blockposition, IBlockData iblockdata) {
+         EnumDirection enumdirection = (EnumDirection) iblockdata.get(BlockPiston.FACING);
+         boolean flag = this.a(world, blockposition, enumdirection);
+ 
+-        if (flag && !(Boolean) iblockdata.get(BlockPiston.EXTENDED)) {
++        if (flag && !((Boolean) iblockdata.get(BlockPiston.EXTENDED)).booleanValue()) {
+             if ((new PistonExtendsChecker(world, blockposition, enumdirection, true)).a()) {
+                 world.playBlockAction(blockposition, this, 0, enumdirection.a());
+             }
+-        } else if (!flag && (Boolean) iblockdata.get(BlockPiston.EXTENDED)) {
+-            world.setTypeAndData(blockposition, iblockdata.set(BlockPiston.EXTENDED, false), 2);
++        } else if (!flag && ((Boolean) iblockdata.get(BlockPiston.EXTENDED)).booleanValue()) {
++            // CraftBukkit start
++            if (!this.sticky) {
++                org.bukkit.block.Block block = world.getWorld().getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ());
++                BlockPistonRetractEvent event = new BlockPistonRetractEvent(block, ImmutableList.<org.bukkit.block.Block>of(), CraftBlock.notchToBlockFace(enumdirection));
++                world.getServer().getPluginManager().callEvent(event);
++
++                if (event.isCancelled()) {
++                    return;
++                }
++            }
++            // CraftBukkit end
++            world.setTypeAndData(blockposition, iblockdata.set(BlockPiston.EXTENDED, Boolean.valueOf(false)), 2);
+             world.playBlockAction(blockposition, this, 1, enumdirection.a());
+         }
+ 
+@@ -103,7 +126,7 @@
+             boolean flag = this.a(world, blockposition, enumdirection);
+ 
+             if (flag && i == 1) {
+-                world.setTypeAndData(blockposition, iblockdata.set(BlockPiston.EXTENDED, true), 2);
++                world.setTypeAndData(blockposition, iblockdata.set(BlockPiston.EXTENDED, Boolean.valueOf(true)), 2);
+                 return false;
+             }
+ 
+@@ -117,7 +140,7 @@
+                 return false;
+             }
+ 
+-            world.setTypeAndData(blockposition, iblockdata.set(BlockPiston.EXTENDED, true), 2);
++            world.setTypeAndData(blockposition, iblockdata.set(BlockPiston.EXTENDED, Boolean.valueOf(true)), 2);
+             world.makeSound((double) blockposition.getX() + 0.5D, (double) blockposition.getY() + 0.5D, (double) blockposition.getZ() + 0.5D, "tile.piston.out", 0.5F, world.random.nextFloat() * 0.25F + 0.6F);
+         } else if (i == 1) {
+             TileEntity tileentity = world.getTileEntity(blockposition.shift(enumdirection));
+@@ -146,7 +169,7 @@
+                     }
+                 }
+ 
+-                if (!flag1 && block.getMaterial() != Material.AIR && a(block, world, blockposition1, enumdirection.opposite(), false) && (block.k() == 0 || block == Blocks.PISTON || block == Blocks.STICKY_PISTON)) {
++                if (!flag1 && a(block, world, blockposition1, enumdirection.opposite(), false) && (block.k() == 0 || block == Blocks.PISTON || block == Blocks.STICKY_PISTON)) { // CraftBukkit - remove 'block.getMaterial() != Material.AIR' condition
+                     this.a(world, blockposition, enumdirection, false);
+                 }
+             } else {
+@@ -162,29 +185,34 @@
+     public void updateShape(IBlockAccess iblockaccess, BlockPosition blockposition) {
+         IBlockData iblockdata = iblockaccess.getType(blockposition);
+ 
+-        if (iblockdata.getBlock() == this && (Boolean) iblockdata.get(BlockPiston.EXTENDED)) {
++        if (iblockdata.getBlock() == this && ((Boolean) iblockdata.get(BlockPiston.EXTENDED)).booleanValue()) {
+             float f = 0.25F;
+             EnumDirection enumdirection = (EnumDirection) iblockdata.get(BlockPiston.FACING);
+ 
+             if (enumdirection != null) {
+-                switch (enumdirection) {
+-                    case DOWN:
+-                        this.a(0.0F, 0.25F, 0.0F, 1.0F, 1.0F, 1.0F);
+-                        break;
+-                    case UP:
+-                        this.a(0.0F, 0.0F, 0.0F, 1.0F, 0.75F, 1.0F);
+-                        break;
+-                    case NORTH:
+-                        this.a(0.0F, 0.0F, 0.25F, 1.0F, 1.0F, 1.0F);
+-                        break;
+-                    case SOUTH:
+-                        this.a(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.75F);
+-                        break;
+-                    case WEST:
+-                        this.a(0.25F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+-                        break;
+-                    case EAST:
+-                        this.a(0.0F, 0.0F, 0.0F, 0.75F, 1.0F, 1.0F);
++                switch (BlockPiston.SyntheticClass_1.a[enumdirection.ordinal()]) {
++                case 1:
++                    this.a(0.0F, 0.25F, 0.0F, 1.0F, 1.0F, 1.0F);
++                    break;
++
++                case 2:
++                    this.a(0.0F, 0.0F, 0.0F, 1.0F, 0.75F, 1.0F);
++                    break;
++
++                case 3:
++                    this.a(0.0F, 0.0F, 0.25F, 1.0F, 1.0F, 1.0F);
++                    break;
++
++                case 4:
++                    this.a(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 0.75F);
++                    break;
++
++                case 5:
++                    this.a(0.25F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
++                    break;
++
++                case 6:
++                    this.a(0.0F, 0.0F, 0.0F, 0.75F, 1.0F, 1.0F);
+                 }
+             }
+         } else {
+@@ -256,7 +284,7 @@
+ 
+                         return true;
+                     }
+-                } else if ((Boolean) world.getType(blockposition).get(BlockPiston.EXTENDED)) {
++                } else if (((Boolean) world.getType(blockposition).get(BlockPiston.EXTENDED)).booleanValue()) {
+                     return false;
+                 }
+ 
+@@ -281,12 +309,55 @@
+         if (!pistonextendschecker.a()) {
+             return false;
+         } else {
++            // CraftBukkit start
++            final org.bukkit.block.Block bblock = world.getWorld().getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ());
++
++            final List<BlockPosition> moved = pistonextendschecker.getMovedBlocks();
++            final List<BlockPosition> broken = pistonextendschecker.getBrokenBlocks();
++
++            List<org.bukkit.block.Block> blocks = new AbstractList<org.bukkit.block.Block>() {
++
++                @Override
++                public int size() {
++                    return moved.size() + broken.size();
++                }
++
++                @Override
++                public org.bukkit.block.Block get(int index) {
++                    if (index >= size() || index < 0) {
++                        throw new ArrayIndexOutOfBoundsException(index);
++                    }
++                    BlockPosition pos = (BlockPosition) (index < moved.size() ? moved.get(index) : broken.get(index - moved.size()));
++                    return bblock.getWorld().getBlockAt(pos.getX(), pos.getY(), pos.getZ());
++                }
++            };
++
+             int i = list.size() + list1.size();
+             Block[] ablock = new Block[i];
+             EnumDirection enumdirection1 = flag ? enumdirection : enumdirection.opposite();
+ 
+-            BlockPosition blockposition1;
++            org.bukkit.event.block.BlockPistonEvent event;
++            if (flag) {
++                event = new BlockPistonExtendEvent(bblock, blocks, CraftBlock.notchToBlockFace(enumdirection1));
++            } else {
++                event = new BlockPistonRetractEvent(bblock, blocks, CraftBlock.notchToBlockFace(enumdirection1));
++            }
++            world.getServer().getPluginManager().callEvent(event);
++
++            if (event.isCancelled()) {
++                for (BlockPosition b : broken) {
++                    world.notify(b);
++                }
++                for (BlockPosition b : moved) {
++                    world.notify(b);
++                    world.notify(b.shift(enumdirection1));
++                }
++                return false;
++            }
++            // CraftBukkit end
++
+             int j;
++            BlockPosition blockposition1;
+ 
+             for (j = list1.size() - 1; j >= 0; --j) {
+                 blockposition1 = (BlockPosition) list1.get(j);
+@@ -346,14 +417,14 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockPiston.FACING, b(i)).set(BlockPiston.EXTENDED, (i & 8) > 0);
++        return this.getBlockData().set(BlockPiston.FACING, b(i)).set(BlockPiston.EXTENDED, Boolean.valueOf((i & 8) > 0));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+         byte b0 = 0;
+         int i = b0 | ((EnumDirection) iblockdata.get(BlockPiston.FACING)).a();
+ 
+-        if ((Boolean) iblockdata.get(BlockPiston.EXTENDED)) {
++        if (((Boolean) iblockdata.get(BlockPiston.EXTENDED)).booleanValue()) {
+             i |= 8;
+         }
+ 
+@@ -361,6 +432,50 @@
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockPiston.FACING, BlockPiston.EXTENDED});
++        return new BlockStateList(this, new IBlockState[] { BlockPiston.FACING, BlockPiston.EXTENDED});
++    }
++
++    static class SyntheticClass_1 {
++
++        static final int[] a = new int[EnumDirection.values().length];
++
++        static {
++            try {
++                BlockPiston.SyntheticClass_1.a[EnumDirection.DOWN.ordinal()] = 1;
++            } catch (NoSuchFieldError nosuchfielderror) {
++                ;
++            }
++
++            try {
++                BlockPiston.SyntheticClass_1.a[EnumDirection.UP.ordinal()] = 2;
++            } catch (NoSuchFieldError nosuchfielderror1) {
++                ;
++            }
++
++            try {
++                BlockPiston.SyntheticClass_1.a[EnumDirection.NORTH.ordinal()] = 3;
++            } catch (NoSuchFieldError nosuchfielderror2) {
++                ;
++            }
++
++            try {
++                BlockPiston.SyntheticClass_1.a[EnumDirection.SOUTH.ordinal()] = 4;
++            } catch (NoSuchFieldError nosuchfielderror3) {
++                ;
++            }
++
++            try {
++                BlockPiston.SyntheticClass_1.a[EnumDirection.WEST.ordinal()] = 5;
++            } catch (NoSuchFieldError nosuchfielderror4) {
++                ;
++            }
++
++            try {
++                BlockPiston.SyntheticClass_1.a[EnumDirection.EAST.ordinal()] = 6;
++            } catch (NoSuchFieldError nosuchfielderror5) {
++                ;
++            }
++
++        }
+     }
+ }

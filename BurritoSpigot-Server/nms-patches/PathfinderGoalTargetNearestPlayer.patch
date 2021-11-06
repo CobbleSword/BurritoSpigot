@@ -1,0 +1,20 @@
+--- a/net/minecraft/server/PathfinderGoalTargetNearestPlayer.java
++++ b/net/minecraft/server/PathfinderGoalTargetNearestPlayer.java
+@@ -20,7 +20,7 @@
+             PathfinderGoalTargetNearestPlayer.a.warn("Use NearestAttackableTargetGoal.class for PathfinerMob mobs!");
+         }
+ 
+-        this.c = new Predicate<Entity>() {
++        this.c = new Predicate() {
+             public boolean a(Entity entity) {
+                 if (!(entity instanceof EntityHuman)) {
+                     return false;
+@@ -91,7 +91,7 @@
+     }
+ 
+     public void c() {
+-        this.b.setGoalTarget(this.e);
++        this.b.setGoalTarget(this.e, org.bukkit.event.entity.EntityTargetEvent.TargetReason.CLOSEST_PLAYER, true); // CraftBukkit - added reason
+         super.c();
+     }
+ 

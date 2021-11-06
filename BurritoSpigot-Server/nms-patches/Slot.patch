@@ -1,0 +1,12 @@
+--- a/net/minecraft/server/Slot.java
++++ b/net/minecraft/server/Slot.java
+@@ -45,6 +45,9 @@
+     }
+ 
+     public boolean hasItem() {
++        if (getItem() != null && getItem().count == 0) {
++            set(null);
++        }
+         return this.getItem() != null;
+     }
+ 

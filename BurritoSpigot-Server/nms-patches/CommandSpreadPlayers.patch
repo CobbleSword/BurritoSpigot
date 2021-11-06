@@ -1,0 +1,77 @@
+--- a/net/minecraft/server/CommandSpreadPlayers.java
++++ b/net/minecraft/server/CommandSpreadPlayers.java
+@@ -67,7 +67,7 @@
+             if (arraylist.isEmpty()) {
+                 throw new ExceptionEntityNotFound();
+             } else {
+-                icommandlistener.sendMessage(new ChatMessage("commands.spreadplayers.spreading." + (flag ? "teams" : "players"), new Object[]{arraylist.size(), d4, d1, d2, d3}));
++                icommandlistener.sendMessage(new ChatMessage("commands.spreadplayers.spreading." + (flag ? "teams" : "players"), new Object[] { Integer.valueOf(arraylist.size()), Double.valueOf(d4), Double.valueOf(d1), Double.valueOf(d2), Double.valueOf(d3)}));
+                 this.a(icommandlistener, arraylist, new CommandSpreadPlayers.Location2D(d1, d2), d3, d4, ((Entity) arraylist.get(0)).world, flag);
+             }
+         }
+@@ -83,9 +83,9 @@
+         int i = this.a(commandspreadplayers_location2d, d0, world, random, d2, d3, d4, d5, acommandspreadplayers_location2d, flag);
+         double d6 = this.a(list, world, acommandspreadplayers_location2d, flag);
+ 
+-        a(icommandlistener, this, "commands.spreadplayers.success." + (flag ? "teams" : "players"), new Object[]{acommandspreadplayers_location2d.length, commandspreadplayers_location2d.a, commandspreadplayers_location2d.b});
++        a(icommandlistener, this, "commands.spreadplayers.success." + (flag ? "teams" : "players"), new Object[] { Integer.valueOf(acommandspreadplayers_location2d.length), Double.valueOf(commandspreadplayers_location2d.a), Double.valueOf(commandspreadplayers_location2d.b)});
+         if (acommandspreadplayers_location2d.length > 1) {
+-            icommandlistener.sendMessage(new ChatMessage("commands.spreadplayers.info." + (flag ? "teams" : "players"), new Object[]{String.format("%.2f", d6), i}));
++            icommandlistener.sendMessage(new ChatMessage("commands.spreadplayers.info." + (flag ? "teams" : "players"), new Object[] { String.format("%.2f", new Object[] { Double.valueOf(d6)}), Integer.valueOf(i)}));
+         }
+ 
+     }
+@@ -175,7 +175,7 @@
+         }
+ 
+         if (i >= 10000) {
+-            throw new CommandException("commands.spreadplayers.failure." + (flag ? "teams" : "players"), new Object[]{acommandspreadplayers_location2d.length, commandspreadplayers_location2d.a, commandspreadplayers_location2d.b, String.format("%.2f", d5)});
++            throw new CommandException("commands.spreadplayers.failure." + (flag ? "teams" : "players"), new Object[] { Integer.valueOf(acommandspreadplayers_location2d.length), Double.valueOf(commandspreadplayers_location2d.a), Double.valueOf(commandspreadplayers_location2d.b), String.format("%.2f", new Object[] { Double.valueOf(d5)})});
+         } else {
+             return i;
+         }
+@@ -237,6 +237,13 @@
+         return astring.length >= 1 && astring.length <= 2 ? b(astring, 0, blockposition) : null;
+     }
+ 
++    // CraftBukkit start - fix decompile error
++    @Override
++    public int compareTo(ICommand o) {
++        return a(o);
++    }
++    // CraftBukkit end
++
+     static class Location2D {
+ 
+         double a;
+@@ -303,7 +310,7 @@
+                 }
+ 
+                 blockposition = blockposition.down();
+-            } while (world.getType(blockposition).getBlock().getMaterial() == Material.AIR);
++            } while (getType(world, blockposition).getBlock().getMaterial() == Material.AIR); // CraftBukkit
+ 
+             return blockposition.getY() + 1;
+         }
+@@ -319,7 +326,7 @@
+                 }
+ 
+                 blockposition = blockposition.down();
+-                material = world.getType(blockposition).getBlock().getMaterial();
++                material = getType(world, blockposition).getBlock().getMaterial(); // CraftBukkit
+             } while (material == Material.AIR);
+ 
+             return !material.isLiquid() && material != Material.FIRE;
+@@ -329,5 +336,12 @@
+             this.a = MathHelper.a(random, d0, d2);
+             this.b = MathHelper.a(random, d1, d3);
+         }
++
++        // CraftBukkit start - add a version of getType which force loads chunks
++        private static IBlockData getType(World world, BlockPosition position) {
++            ((ChunkProviderServer) world.chunkProvider).getChunkAt(position.getX() >> 4, position.getZ() >> 4);
++            return world.getType(position);
++        }
++        // CraftBukkit end
+     }
+ }

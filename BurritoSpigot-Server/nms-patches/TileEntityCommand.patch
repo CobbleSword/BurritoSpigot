@@ -1,0 +1,12 @@
+--- a/net/minecraft/server/TileEntityCommand.java
++++ b/net/minecraft/server/TileEntityCommand.java
+@@ -3,6 +3,9 @@
+ public class TileEntityCommand extends TileEntity {
+ 
+     private final CommandBlockListenerAbstract a = new CommandBlockListenerAbstract() {
++        {
++            sender = new org.bukkit.craftbukkit.command.CraftBlockCommandSender(this); // CraftBukkit - add sender
++        }
+         public BlockPosition getChunkCoordinates() {
+             return TileEntityCommand.this.position;
+         }

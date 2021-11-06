@@ -1,0 +1,96 @@
+--- a/net/minecraft/server/EntityOcelot.java
++++ b/net/minecraft/server/EntityOcelot.java
+@@ -6,6 +6,7 @@
+ 
+     private PathfinderGoalAvoidTarget<EntityHuman> bo;
+     private PathfinderGoalTempt bp;
++    public boolean spawnBonus = true; // Spigot
+ 
+     public EntityOcelot(World world) {
+         super(world);
+@@ -21,12 +22,12 @@
+         this.goalSelector.a(9, new PathfinderGoalBreed(this, 0.8D));
+         this.goalSelector.a(10, new PathfinderGoalRandomStroll(this, 0.8D));
+         this.goalSelector.a(11, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 10.0F));
+-        this.targetSelector.a(1, new PathfinderGoalRandomTargetNonTamed<>(this, EntityChicken.class, false, (Predicate) null));
++        this.targetSelector.a(1, new PathfinderGoalRandomTargetNonTamed(this, EntityChicken.class, false, (Predicate) null));
+     }
+ 
+     protected void h() {
+         super.h();
+-        this.datawatcher.a(18, (byte) 0);
++        this.datawatcher.a(18, Byte.valueOf((byte) 0));
+     }
+ 
+     public void E() {
+@@ -51,7 +52,7 @@
+     }
+ 
+     protected boolean isTypeNotPersistent() {
+-        return !this.isTamed() && this.ticksLived > 2400;
++        return !this.isTamed() /*&& this.ticksLived > 2400*/; // CraftBukkit
+     }
+ 
+     protected void initAttributes() {
+@@ -96,6 +97,9 @@
+         return entity.damageEntity(DamageSource.mobAttack(this), 3.0F);
+     }
+ 
++    /* CraftBukkit start
++    // Function disabled as it has no special function anymore after
++    //   setSitting is disabled.
+     public boolean damageEntity(DamageSource damagesource, float f) {
+         if (this.isInvulnerable(damagesource)) {
+             return false;
+@@ -104,6 +108,7 @@
+             return super.damageEntity(damagesource, f);
+         }
+     }
++    // CraftBukkit end */
+ 
+     protected void dropDeathLoot(boolean flag, int i) {}
+ 
+@@ -124,7 +129,8 @@
+             }
+ 
+             if (!this.world.isClientSide) {
+-                if (this.random.nextInt(3) == 0) {
++                // CraftBukkit - added event call and isCancelled check
++                if (this.random.nextInt(3) == 0 && !org.bukkit.craftbukkit.event.CraftEventFactory.callEntityTameEvent(this, entityhuman).isCancelled()) {
+                     this.setTamed(true);
+                     this.setCatType(1 + this.world.random.nextInt(3));
+                     this.setOwnerUUID(entityhuman.getUniqueID().toString());
+@@ -178,7 +184,7 @@
+     }
+ 
+     public void setCatType(int i) {
+-        this.datawatcher.watch(18, (byte) i);
++        this.datawatcher.watch(18, Byte.valueOf((byte) i));
+     }
+ 
+     public boolean bR() {
+@@ -213,7 +219,7 @@
+ 
+     protected void cm() {
+         if (this.bo == null) {
+-            this.bo = new PathfinderGoalAvoidTarget<>(this, EntityHuman.class, 16.0F, 0.8D, 1.33D);
++            this.bo = new PathfinderGoalAvoidTarget(this, EntityHuman.class, 16.0F, 0.8D, 1.33D);
+         }
+ 
+         this.goalSelector.a((PathfinderGoal) this.bo);
+@@ -225,13 +231,13 @@
+ 
+     public GroupDataEntity prepare(DifficultyDamageScaler difficultydamagescaler, GroupDataEntity groupdataentity) {
+         groupdataentity = super.prepare(difficultydamagescaler, groupdataentity);
+-        if (this.world.random.nextInt(7) == 0) {
++        if (spawnBonus && this.world.random.nextInt(7) == 0) { // Spigot
+             for (int i = 0; i < 2; ++i) {
+                 EntityOcelot entityocelot = new EntityOcelot(this.world);
+ 
+                 entityocelot.setPositionRotation(this.locX, this.locY, this.locZ, this.yaw, 0.0F);
+                 entityocelot.setAgeRaw(-24000);
+-                this.world.addEntity(entityocelot);
++                this.world.addEntity(entityocelot, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.OCELOT_BABY); // CraftBukkit - add SpawnReason
+             }
+         }
+ 

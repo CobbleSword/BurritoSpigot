@@ -1,0 +1,92 @@
+--- a/net/minecraft/server/BiomeMesa.java
++++ b/net/minecraft/server/BiomeMesa.java
+@@ -94,7 +94,7 @@
+                 chunksnapshot.a(l, l1, k, Blocks.STONE.getBlockData());
+             }
+ 
+-            if (l1 <= random.nextInt(5)) {
++            if (l1 <= (world.paperSpigotConfig.generateFlatBedrock ? 0 : random.nextInt(5))) { // PaperSpigot - Configurable flat bedrock
+                 chunksnapshot.a(l, l1, k, Blocks.BEDROCK.getBlockData());
+             } else {
+                 IBlockData iblockdata2 = chunksnapshot.a(l, l1, k);
+@@ -186,55 +186,55 @@
+         int i1;
+         int j1;
+ 
+-        for (j1 = 0; j1 < j; ++j1) {
+-            k = random.nextInt(3) + 1;
+-            l = random.nextInt(64);
++        for (k = 0; k < j; ++k) {
++            l = random.nextInt(3) + 1;
++            i1 = random.nextInt(64);
+ 
+-            for (i1 = 0; l + i1 < 64 && i1 < k; ++i1) {
+-                this.aD[l + i1] = Blocks.STAINED_HARDENED_CLAY.getBlockData().set(BlockCloth.COLOR, EnumColor.YELLOW);
++            for (j1 = 0; i1 + j1 < 64 && j1 < l; ++j1) {
++                this.aD[i1 + j1] = Blocks.STAINED_HARDENED_CLAY.getBlockData().set(BlockCloth.COLOR, EnumColor.YELLOW);
+             }
+         }
+ 
+-        j1 = random.nextInt(4) + 2;
++        k = random.nextInt(4) + 2;
+ 
+         int k1;
+ 
+-        for (k = 0; k < j1; ++k) {
+-            l = random.nextInt(3) + 2;
+-            i1 = random.nextInt(64);
++        for (l = 0; l < k; ++l) {
++            i1 = random.nextInt(3) + 2;
++            j1 = random.nextInt(64);
+ 
+-            for (k1 = 0; i1 + k1 < 64 && k1 < l; ++k1) {
+-                this.aD[i1 + k1] = Blocks.STAINED_HARDENED_CLAY.getBlockData().set(BlockCloth.COLOR, EnumColor.BROWN);
++            for (k1 = 0; j1 + k1 < 64 && k1 < i1; ++k1) {
++                this.aD[j1 + k1] = Blocks.STAINED_HARDENED_CLAY.getBlockData().set(BlockCloth.COLOR, EnumColor.BROWN);
+             }
+         }
+ 
+-        k = random.nextInt(4) + 2;
++        l = random.nextInt(4) + 2;
+ 
+-        for (l = 0; l < k; ++l) {
+-            i1 = random.nextInt(3) + 1;
++        for (i1 = 0; i1 < l; ++i1) {
++            j1 = random.nextInt(3) + 1;
+             k1 = random.nextInt(64);
+ 
+-            for (int l1 = 0; k1 + l1 < 64 && l1 < i1; ++l1) {
++            for (int l1 = 0; k1 + l1 < 64 && l1 < j1; ++l1) {
+                 this.aD[k1 + l1] = Blocks.STAINED_HARDENED_CLAY.getBlockData().set(BlockCloth.COLOR, EnumColor.RED);
+             }
+         }
+ 
+-        l = random.nextInt(3) + 3;
+-        i1 = 0;
++        i1 = random.nextInt(3) + 3;
++        j1 = 0;
+ 
+-        for (k1 = 0; k1 < l; ++k1) {
++        for (k1 = 0; k1 < i1; ++k1) {
+             byte b0 = 1;
+ 
+-            i1 += random.nextInt(16) + 4;
++            j1 += random.nextInt(16) + 4;
+ 
+-            for (int i2 = 0; i1 + i2 < 64 && i2 < b0; ++i2) {
+-                this.aD[i1 + i2] = Blocks.STAINED_HARDENED_CLAY.getBlockData().set(BlockCloth.COLOR, EnumColor.WHITE);
+-                if (i1 + i2 > 1 && random.nextBoolean()) {
+-                    this.aD[i1 + i2 - 1] = Blocks.STAINED_HARDENED_CLAY.getBlockData().set(BlockCloth.COLOR, EnumColor.SILVER);
++            for (int i2 = 0; j1 + i2 < 64 && i2 < b0; ++i2) {
++                this.aD[j1 + i2] = Blocks.STAINED_HARDENED_CLAY.getBlockData().set(BlockCloth.COLOR, EnumColor.WHITE);
++                if (j1 + i2 > 1 && random.nextBoolean()) {
++                    this.aD[j1 + i2 - 1] = Blocks.STAINED_HARDENED_CLAY.getBlockData().set(BlockCloth.COLOR, EnumColor.SILVER);
+                 }
+ 
+-                if (i1 + i2 < 63 && random.nextBoolean()) {
+-                    this.aD[i1 + i2 + 1] = Blocks.STAINED_HARDENED_CLAY.getBlockData().set(BlockCloth.COLOR, EnumColor.SILVER);
++                if (j1 + i2 < 63 && random.nextBoolean()) {
++                    this.aD[j1 + i2 + 1] = Blocks.STAINED_HARDENED_CLAY.getBlockData().set(BlockCloth.COLOR, EnumColor.SILVER);
+                 }
+             }
+         }

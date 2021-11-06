@@ -1,0 +1,25 @@
+--- a/net/minecraft/server/FileIOThread.java
++++ b/net/minecraft/server/FileIOThread.java
+@@ -7,7 +7,7 @@
+ public class FileIOThread implements Runnable {
+ 
+     private static final FileIOThread a = new FileIOThread();
+-    private List<IAsyncChunkSaver> b = Collections.synchronizedList(Lists.newArrayList());
++    private List<IAsyncChunkSaver> b = Collections.synchronizedList(Lists.<IAsyncChunkSaver>newArrayList());
+     private volatile long c;
+     private volatile long d;
+     private volatile boolean e;
+@@ -39,11 +39,12 @@
+                 ++this.d;
+             }
+ 
++            /* // Spigot start - don't sleep in between chunks so we unload faster.
+             try {
+                 Thread.sleep(this.e ? 0L : 10L);
+             } catch (InterruptedException interruptedexception) {
+                 interruptedexception.printStackTrace();
+-            }
++            } */ // Spigot end
+         }
+ 
+         if (this.b.isEmpty()) {

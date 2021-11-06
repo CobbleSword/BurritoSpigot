@@ -1,0 +1,146 @@
+--- a/net/minecraft/server/BlockStateList.java
++++ b/net/minecraft/server/BlockStateList.java
+@@ -21,10 +21,19 @@
+ import java.util.List;
+ import java.util.Map;
+ 
++// TacoSpigot start
++import com.google.common.collect.Table;
++
++import net.techcable.tacospigot.BlockStateRegistry;
++import net.techcable.tacospigot.ImmutableArrayMap;
++import net.techcable.tacospigot.ImmutableArrayTable;
++import net.techcable.tacospigot.TacoSpigotConfig;
++// TacoSpigot end
++
+ public class BlockStateList {
+ 
+     private static final Joiner a = Joiner.on(", ");
+-    private static final Function<IBlockState, String> b = new Function<IBlockState, String>() {
++    private static final Function<IBlockState, String> b = new Function() {
+         public String a(IBlockState iblockstate) {
+             return iblockstate == null ? "<NULL>" : iblockstate.a();
+         }
+@@ -39,7 +48,7 @@
+ 
+     public BlockStateList(Block block, IBlockState... aiblockstate) {
+         this.c = block;
+-        Arrays.sort(aiblockstate, new Comparator<IBlockState>() {
++        Arrays.sort(aiblockstate, new Comparator() {
+             public int a(IBlockState iblockstate, IBlockState iblockstate1) {
+                 return iblockstate.a().compareTo(iblockstate1.a());
+             }
+@@ -48,6 +57,7 @@
+                 return this.a((IBlockState) object, (IBlockState) object1);
+             }
+         });
++        for (IBlockState state : aiblockstate) state.tryInitId(); // TacoSpigot
+         this.d = ImmutableList.copyOf(aiblockstate);
+         LinkedHashMap linkedhashmap = Maps.newLinkedHashMap();
+         ArrayList arraylist = Lists.newArrayList();
+@@ -57,7 +67,7 @@
+         while (iterator.hasNext()) {
+             List list = (List) iterator.next();
+             Map map = MapGeneratorUtils.b(this.d, list);
+-            BlockStateList.BlockData blockstatelist_blockdata = new BlockStateList.BlockData(block, ImmutableMap.copyOf(map));
++            BlockStateList.BlockData blockstatelist_blockdata = new BlockStateList.BlockData(block, ImmutableMap.copyOf(map), null);
+ 
+             linkedhashmap.put(map, blockstatelist_blockdata);
+             arraylist.add(blockstatelist_blockdata);
+@@ -107,12 +117,22 @@
+     static class BlockData extends BlockDataAbstract {
+ 
+         private final Block a;
+-        private final ImmutableMap<IBlockState, Comparable> b;
+-        private ImmutableTable<IBlockState, Comparable, IBlockData> c;
++        // TacoSpigot start
++        private final ImmutableMap<IBlockState, Comparable> bAsImmutableMap;
++        private final Map<IBlockState, Comparable> b;
++        private Table<IBlockState, Comparable, IBlockData> c;
++        // TacoSpigot end
+ 
+         private BlockData(Block block, ImmutableMap<IBlockState, Comparable> immutablemap) {
+             this.a = block;
+-            this.b = immutablemap;
++            // TacoSpigot start
++            this.bAsImmutableMap = immutablemap;
++            if (TacoSpigotConfig.useArraysForBlockStates) {
++                b = new ImmutableArrayMap<>(IBlockState.INDEXER, immutablemap);
++            } else {
++                b = immutablemap;
++            }
++            // TacoSpigot end
+         }
+ 
+         public Collection<IBlockState> a() {
+@@ -120,25 +140,30 @@
+         }
+ 
+         public <T extends Comparable<T>> T get(IBlockState<T> iblockstate) {
+-            if (!this.b.containsKey(iblockstate)) {
+-                throw new IllegalArgumentException("Cannot get property " + iblockstate + " as it does not exist in " + this.a.P());
+-            } else {
+-                return (Comparable) iblockstate.b().cast(this.b.get(iblockstate));
+-            }
++            // TacoSpigot start - runtime check -> assertion
++            assert this.b.containsKey(iblockstate) : "Cannot get property " + iblockstate + " as it does not exist in " + this.a.P();
++            Object value = this.b.get(iblockstate);
++            assert value == bAsImmutableMap.get(iblockstate) : "Array map gave data " + String.valueOf(value) + " and regular map gave data " + String.valueOf(bAsImmutableMap.get(iblockstate));
++            assert value != null : "Null value for state " + iblockstate + " and data " + this;
++            assert iblockstate.b().isInstance(value) : "Value " + value + " for state " + iblockstate + " and data " + this + " not instanceof " + iblockstate.b().getTypeName();
++            return (T) value;
++            // TacoSpigot end
+         }
+ 
+         public <T extends Comparable<T>, V extends T> IBlockData set(IBlockState<T> iblockstate, V v0) {
+-            if (!this.b.containsKey(iblockstate)) {
+-                throw new IllegalArgumentException("Cannot set property " + iblockstate + " as it does not exist in " + this.a.P());
+-            } else if (!iblockstate.c().contains(v0)) {
+-                throw new IllegalArgumentException("Cannot set property " + iblockstate + " to " + v0 + " on block " + Block.REGISTRY.c(this.a) + ", it is not an allowed value");
+-            } else {
+-                return (IBlockData) (this.b.get(iblockstate) == v0 ? this : (IBlockData) this.c.get(iblockstate, v0));
+-            }
++            // TacoSpigot start - runtime check -> assertion
++            assert iblockstate != null : "Null block state";
++            assert v0 != null : "Null value for block state " + iblockstate;
++            assert this.b.containsKey(iblockstate) : "Cannot set property " + iblockstate + " as it does not exist in " + this.a.P();
++            assert  iblockstate.c().contains(v0) : "Cannot set property " + iblockstate + " to " + v0 + " on block " + Block.REGISTRY.c(this.a) + ", it is not an allowed value";
++            IBlockData data = (IBlockData) (this.b.get(iblockstate) == v0 ? this : (IBlockData) this.c.get(iblockstate, v0));
++            assert data != null : "No block data with property " + iblockstate + " and value " + v0 + " for block data " + this;
++            return data;
++            // TacoSpigot end
+         }
+ 
+         public ImmutableMap<IBlockState, Comparable> b() {
+-            return this.b;
++            return this.bAsImmutableMap; // TacoSpigot
+         }
+ 
+         public Block getBlock() {
+@@ -167,13 +192,24 @@
+                     while (iterator1.hasNext()) {
+                         Comparable comparable = (Comparable) iterator1.next();
+ 
+-                        if (comparable != this.b.get(iblockstate)) {
++                        if (comparable != this.get(iblockstate)) { // TacoSpigot - use this.get(iblockstate) instead of this.b.get(iblockstate)
++                            assert map.get(this.b(iblockstate, comparable)) != null : "Map doesn't contain block data with state " + iblockstate + " and comparable " + comparable + b(iblockstate, comparable); // TacoSpigot - assert present
+                             hashbasedtable.put(iblockstate, comparable, map.get(this.b(iblockstate, comparable)));
+                         }
+                     }
+                 }
+ 
+-                this.c = ImmutableTable.copyOf(hashbasedtable);
++                // TacoSpigot start
++                if (TacoSpigotConfig.useArraysForBlockStates) {
++                    this.c = new ImmutableArrayTable<IBlockState, Comparable, IBlockData> (
++                            IBlockState.INDEXER,
++                            (IBlockState state, Comparable value) -> state.getValueId(value),
++                            hashbasedtable
++                    );
++                } else {
++                    this.c = ImmutableTable.copyOf(hashbasedtable);
++                }
++                // TacoSpigot end
+             }
+         }
+ 

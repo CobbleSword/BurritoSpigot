@@ -1,0 +1,153 @@
+--- a/net/minecraft/server/BlockRedstoneTorch.java
++++ b/net/minecraft/server/BlockRedstoneTorch.java
+@@ -6,26 +6,27 @@
+ import java.util.Map;
+ import java.util.Random;
+ 
++import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
++
+ public class BlockRedstoneTorch extends BlockTorch {
+ 
+-    private static Map<World, List<BlockRedstoneTorch.RedstoneUpdateInfo>> b = Maps.newHashMap();
+     private final boolean isOn;
+ 
+     private boolean a(World world, BlockPosition blockposition, boolean flag) {
+-        if (!BlockRedstoneTorch.b.containsKey(world)) {
+-            BlockRedstoneTorch.b.put(world, Lists.newArrayList());
++        java.util.ArrayDeque<BlockRedstoneTorch.RedstoneUpdateInfo> list = world.redstoneUpdateInfos;
++        if(list == null)
++        {
++            list = world.redstoneUpdateInfos = new java.util.ArrayDeque<>();
+         }
+ 
+-        List list = (List) BlockRedstoneTorch.b.get(world);
+-
+         if (flag) {
+             list.add(new BlockRedstoneTorch.RedstoneUpdateInfo(blockposition, world.getTime()));
+         }
+ 
+         int i = 0;
+ 
+-        for (int j = 0; j < list.size(); ++j) {
+-            BlockRedstoneTorch.RedstoneUpdateInfo blockredstonetorch_redstoneupdateinfo = (BlockRedstoneTorch.RedstoneUpdateInfo) list.get(j);
++        for (java.util.Iterator<BlockRedstoneTorch.RedstoneUpdateInfo> iterator = list.iterator(); iterator.hasNext();) {
++            BlockRedstoneTorch.RedstoneUpdateInfo blockredstonetorch_redstoneupdateinfo = iterator.next();
+ 
+             if (blockredstonetorch_redstoneupdateinfo.a.equals(blockposition)) {
+                 ++i;
+@@ -50,6 +51,17 @@
+ 
+     public void onPlace(World world, BlockPosition blockposition, IBlockData iblockdata) {
+         if (this.isOn) {
++            // PaperSpigot start - Fix cannons
++            if (world.paperSpigotConfig.fixCannons) {
++                world.applyPhysics(blockposition.shift(EnumDirection.DOWN), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.UP), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.WEST), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.EAST), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.SOUTH), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.NORTH), this);
++                return;
++            }
++            // PaperSpigot end
+             EnumDirection[] aenumdirection = EnumDirection.values();
+             int i = aenumdirection.length;
+ 
+@@ -64,6 +76,17 @@
+ 
+     public void remove(World world, BlockPosition blockposition, IBlockData iblockdata) {
+         if (this.isOn) {
++            // PaperSpigot start - Fix cannons
++            if (world.paperSpigotConfig.fixCannons) {
++                world.applyPhysics(blockposition.shift(EnumDirection.DOWN), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.UP), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.WEST), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.EAST), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.SOUTH), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.NORTH), this);
++                return;
++            }
++            // PaperSpigot end
+             EnumDirection[] aenumdirection = EnumDirection.values();
+             int i = aenumdirection.length;
+ 
+@@ -90,14 +113,37 @@
+ 
+     public void b(World world, BlockPosition blockposition, IBlockData iblockdata, Random random) {
+         boolean flag = this.g(world, blockposition, iblockdata);
+-        List list = (List) BlockRedstoneTorch.b.get(world);
+-
+-        while (list != null && !list.isEmpty() && world.getTime() - ((BlockRedstoneTorch.RedstoneUpdateInfo) list.get(0)).time > 60L) {
+-            list.remove(0);
++        // Paper start
++        java.util.ArrayDeque<BlockRedstoneTorch.RedstoneUpdateInfo> redstoneUpdateInfos = world.redstoneUpdateInfos;
++        if (redstoneUpdateInfos != null)
++        {
++            BlockRedstoneTorch.RedstoneUpdateInfo curr;
++            while ((curr = redstoneUpdateInfos.peek()) != null && world.getTime() - curr.getTime() > 60L)
++            {
++                redstoneUpdateInfos.poll();
++            }
+         }
++        // Paper end
++
++        // CraftBukkit start
++        org.bukkit.plugin.PluginManager manager = world.getServer().getPluginManager();
++        org.bukkit.block.Block block = world.getWorld().getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ());
++        int oldCurrent = this.isOn ? 15 : 0;
++
++        BlockRedstoneEvent event = new BlockRedstoneEvent(block, oldCurrent, oldCurrent);
++        // CraftBukkit end
+ 
+         if (this.isOn) {
+             if (flag) {
++                // CraftBukkit start
++                if (oldCurrent != 0) {
++                    event.setNewCurrent(0);
++                    manager.callEvent(event);
++                    if (event.getNewCurrent() != 0) {
++                        return;
++                    }
++                }
++                // CraftBukkit end
+                 world.setTypeAndData(blockposition, Blocks.UNLIT_REDSTONE_TORCH.getBlockData().set(BlockRedstoneTorch.FACING, iblockdata.get(BlockRedstoneTorch.FACING)), 3);
+                 if (this.a(world, blockposition, true)) {
+                     world.makeSound((double) ((float) blockposition.getX() + 0.5F), (double) ((float) blockposition.getY() + 0.5F), (double) ((float) blockposition.getZ() + 0.5F), "random.fizz", 0.5F, 2.6F + (world.random.nextFloat() - world.random.nextFloat()) * 0.8F);
+@@ -107,13 +153,22 @@
+                         double d1 = (double) blockposition.getY() + random.nextDouble() * 0.6D + 0.2D;
+                         double d2 = (double) blockposition.getZ() + random.nextDouble() * 0.6D + 0.2D;
+ 
+-                        world.addParticle(EnumParticle.SMOKE_NORMAL, d0, d1, d2, 0.0D, 0.0D, 0.0D);
++                        world.addParticle(EnumParticle.SMOKE_NORMAL, d0, d1, d2, 0.0D, 0.0D, 0.0D, new int[0]);
+                     }
+ 
+                     world.a(blockposition, world.getType(blockposition).getBlock(), 160);
+                 }
+             }
+         } else if (!flag && !this.a(world, blockposition, false)) {
++            // CraftBukkit start
++            if (oldCurrent != 15) {
++                event.setNewCurrent(15);
++                manager.callEvent(event);
++                if (event.getNewCurrent() != 15) {
++                    return;
++                }
++            }
++            // CraftBukkit end
+             world.setTypeAndData(blockposition, Blocks.REDSTONE_TORCH.getBlockData().set(BlockRedstoneTorch.FACING, iblockdata.get(BlockRedstoneTorch.FACING)), 3);
+         }
+ 
+@@ -147,11 +202,11 @@
+     static class RedstoneUpdateInfo {
+ 
+         BlockPosition a;
+-        long time;
++        long b;  final long getTime() { return this.b; } // Paper - OBFHELPER
+ 
+         public RedstoneUpdateInfo(BlockPosition blockposition, long i) {
+             this.a = blockposition;
+-            this.time = i;
++            this.b = i;
+         }
+     }
+ }

@@ -1,0 +1,516 @@
+--- a/net/minecraft/server/CommandScoreboard.java
++++ b/net/minecraft/server/CommandScoreboard.java
+@@ -13,6 +13,13 @@
+ 
+ public class CommandScoreboard extends CommandAbstract {
+ 
++    // TacoSpigot start - fix compile errors
++    @Override
++    public int compareTo(ICommand o) {
++        return super.a(o);
++    }
++    // TacoSpigot end
++
+     public CommandScoreboard() {}
+ 
+     public String getCommand() {
+@@ -238,9 +245,9 @@
+         ScoreboardObjective scoreboardobjective = scoreboard.getObjective(s);
+ 
+         if (scoreboardobjective == null) {
+-            throw new CommandException("commands.scoreboard.objectiveNotFound", new Object[]{s});
++            throw new CommandException("commands.scoreboard.objectiveNotFound", new Object[] { s});
+         } else if (flag && scoreboardobjective.getCriteria().isReadOnly()) {
+-            throw new CommandException("commands.scoreboard.objectiveReadOnly", new Object[]{s});
++            throw new CommandException("commands.scoreboard.objectiveReadOnly", new Object[] { s});
+         } else {
+             return scoreboardobjective;
+         }
+@@ -251,7 +258,7 @@
+         ScoreboardTeam scoreboardteam = scoreboard.getTeam(s);
+ 
+         if (scoreboardteam == null) {
+-            throw new CommandException("commands.scoreboard.teamNotFound", new Object[]{s});
++            throw new CommandException("commands.scoreboard.teamNotFound", new Object[] { s});
+         } else {
+             return scoreboardteam;
+         }
+@@ -264,11 +271,11 @@
+         IScoreboardCriteria iscoreboardcriteria = (IScoreboardCriteria) IScoreboardCriteria.criteria.get(s1);
+ 
+         if (iscoreboardcriteria == null) {
+-            throw new ExceptionUsage("commands.scoreboard.objectives.add.wrongType", new Object[]{s1});
++            throw new ExceptionUsage("commands.scoreboard.objectives.add.wrongType", new Object[] { s1});
+         } else if (scoreboard.getObjective(s) != null) {
+-            throw new CommandException("commands.scoreboard.objectives.add.alreadyExists", new Object[]{s});
++            throw new CommandException("commands.scoreboard.objectives.add.alreadyExists", new Object[] { s});
+         } else if (s.length() > 16) {
+-            throw new ExceptionInvalidSyntax("commands.scoreboard.objectives.add.tooLong", new Object[]{s, 16});
++            throw new ExceptionInvalidSyntax("commands.scoreboard.objectives.add.tooLong", new Object[] { s, Integer.valueOf(16)});
+         } else if (s.length() == 0) {
+             throw new ExceptionUsage("commands.scoreboard.objectives.add.usage", new Object[0]);
+         } else {
+@@ -276,7 +283,7 @@
+                 String s2 = a(icommandlistener, astring, i).c();
+ 
+                 if (s2.length() > 32) {
+-                    throw new ExceptionInvalidSyntax("commands.scoreboard.objectives.add.displayTooLong", new Object[]{s2, 32});
++                    throw new ExceptionInvalidSyntax("commands.scoreboard.objectives.add.displayTooLong", new Object[] { s2, Integer.valueOf(32)});
+                 }
+ 
+                 if (s2.length() > 0) {
+@@ -288,7 +295,7 @@
+                 scoreboard.registerObjective(s, iscoreboardcriteria);
+             }
+ 
+-            a(icommandlistener, this, "commands.scoreboard.objectives.add.success", new Object[]{s});
++            a(icommandlistener, this, "commands.scoreboard.objectives.add.success", new Object[] { s});
+         }
+     }
+ 
+@@ -297,9 +304,9 @@
+         Scoreboard scoreboard = this.d();
+ 
+         if (scoreboard.getTeam(s) != null) {
+-            throw new CommandException("commands.scoreboard.teams.add.alreadyExists", new Object[]{s});
++            throw new CommandException("commands.scoreboard.teams.add.alreadyExists", new Object[] { s});
+         } else if (s.length() > 16) {
+-            throw new ExceptionInvalidSyntax("commands.scoreboard.teams.add.tooLong", new Object[]{s, 16});
++            throw new ExceptionInvalidSyntax("commands.scoreboard.teams.add.tooLong", new Object[] { s, Integer.valueOf(16)});
+         } else if (s.length() == 0) {
+             throw new ExceptionUsage("commands.scoreboard.teams.add.usage", new Object[0]);
+         } else {
+@@ -307,7 +314,7 @@
+                 String s1 = a(icommandlistener, astring, i).c();
+ 
+                 if (s1.length() > 32) {
+-                    throw new ExceptionInvalidSyntax("commands.scoreboard.teams.add.displayTooLong", new Object[]{s1, 32});
++                    throw new ExceptionInvalidSyntax("commands.scoreboard.teams.add.displayTooLong", new Object[] { s1, Integer.valueOf(32)});
+                 }
+ 
+                 if (s1.length() > 0) {
+@@ -319,7 +326,7 @@
+                 scoreboard.createTeam(s);
+             }
+ 
+-            a(icommandlistener, this, "commands.scoreboard.teams.add.success", new Object[]{s});
++            a(icommandlistener, this, "commands.scoreboard.teams.add.success", new Object[] { s});
+         }
+     }
+ 
+@@ -333,15 +340,15 @@
+                 throw new ExceptionUsage("commands.scoreboard.teams.option.usage", new Object[0]);
+             } else if (astring.length == 4) {
+                 if (s.equalsIgnoreCase("color")) {
+-                    throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[]{s, a(EnumChatFormat.a(true, false))});
++                    throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[] { s, a(EnumChatFormat.a(true, false))});
+                 } else if (!s.equalsIgnoreCase("friendlyfire") && !s.equalsIgnoreCase("seeFriendlyInvisibles")) {
+                     if (!s.equalsIgnoreCase("nametagVisibility") && !s.equalsIgnoreCase("deathMessageVisibility")) {
+                         throw new ExceptionUsage("commands.scoreboard.teams.option.usage", new Object[0]);
+                     } else {
+-                        throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[]{s, a((Object[]) ScoreboardTeamBase.EnumNameTagVisibility.a())});
++                        throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[] { s, a((Object[]) ScoreboardTeamBase.EnumNameTagVisibility.a())});
+                     }
+                 } else {
+-                    throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[]{s, a((Collection) Arrays.asList("true", "false"))});
++                    throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[] { s, a((Collection) Arrays.asList(new String[] { "true", "false"}))});
+                 }
+             } else {
+                 String s1 = astring[i];
+@@ -350,7 +357,7 @@
+                     EnumChatFormat enumchatformat = EnumChatFormat.b(s1);
+ 
+                     if (enumchatformat == null || enumchatformat.isFormat()) {
+-                        throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[]{s, a(EnumChatFormat.a(true, false))});
++                        throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[] { s, a(EnumChatFormat.a(true, false))});
+                     }
+ 
+                     scoreboardteam.a(enumchatformat);
+@@ -358,13 +365,13 @@
+                     scoreboardteam.setSuffix(EnumChatFormat.RESET.toString());
+                 } else if (s.equalsIgnoreCase("friendlyfire")) {
+                     if (!s1.equalsIgnoreCase("true") && !s1.equalsIgnoreCase("false")) {
+-                        throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[]{s, a((Collection) Arrays.asList("true", "false"))});
++                        throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[] { s, a((Collection) Arrays.asList(new String[] { "true", "false"}))});
+                     }
+ 
+                     scoreboardteam.setAllowFriendlyFire(s1.equalsIgnoreCase("true"));
+                 } else if (s.equalsIgnoreCase("seeFriendlyInvisibles")) {
+                     if (!s1.equalsIgnoreCase("true") && !s1.equalsIgnoreCase("false")) {
+-                        throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[]{s, a((Collection) Arrays.asList("true", "false"))});
++                        throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[] { s, a((Collection) Arrays.asList(new String[] { "true", "false"}))});
+                     }
+ 
+                     scoreboardteam.setCanSeeFriendlyInvisibles(s1.equalsIgnoreCase("true"));
+@@ -374,21 +381,21 @@
+                     if (s.equalsIgnoreCase("nametagVisibility")) {
+                         scoreboardteambase_enumnametagvisibility = ScoreboardTeamBase.EnumNameTagVisibility.a(s1);
+                         if (scoreboardteambase_enumnametagvisibility == null) {
+-                            throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[]{s, a((Object[]) ScoreboardTeamBase.EnumNameTagVisibility.a())});
++                            throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[] { s, a((Object[]) ScoreboardTeamBase.EnumNameTagVisibility.a())});
+                         }
+ 
+                         scoreboardteam.setNameTagVisibility(scoreboardteambase_enumnametagvisibility);
+                     } else if (s.equalsIgnoreCase("deathMessageVisibility")) {
+                         scoreboardteambase_enumnametagvisibility = ScoreboardTeamBase.EnumNameTagVisibility.a(s1);
+                         if (scoreboardteambase_enumnametagvisibility == null) {
+-                            throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[]{s, a((Object[]) ScoreboardTeamBase.EnumNameTagVisibility.a())});
++                            throw new ExceptionUsage("commands.scoreboard.teams.option.noValue", new Object[] { s, a((Object[]) ScoreboardTeamBase.EnumNameTagVisibility.a())});
+                         }
+ 
+                         scoreboardteam.b(scoreboardteambase_enumnametagvisibility);
+                     }
+                 }
+ 
+-                a(icommandlistener, this, "commands.scoreboard.teams.option.success", new Object[]{s, scoreboardteam.getName(), s1});
++                a(icommandlistener, this, "commands.scoreboard.teams.option.success", new Object[] { s, scoreboardteam.getName(), s1});
+             }
+         }
+     }
+@@ -399,7 +406,7 @@
+ 
+         if (scoreboardteam != null) {
+             scoreboard.removeTeam(scoreboardteam);
+-            a(icommandlistener, this, "commands.scoreboard.teams.remove.success", new Object[]{scoreboardteam.getName()});
++            a(icommandlistener, this, "commands.scoreboard.teams.remove.success", new Object[] { scoreboardteam.getName()});
+         }
+     }
+ 
+@@ -417,10 +424,10 @@
+ 
+             icommandlistener.a(CommandObjectiveExecutor.EnumCommandResult.QUERY_RESULT, collection.size());
+             if (collection.size() <= 0) {
+-                throw new CommandException("commands.scoreboard.teams.list.player.empty", new Object[]{scoreboardteam.getName()});
++                throw new CommandException("commands.scoreboard.teams.list.player.empty", new Object[] { scoreboardteam.getName()});
+             }
+ 
+-            ChatMessage chatmessage = new ChatMessage("commands.scoreboard.teams.list.player.count", new Object[]{collection.size(), scoreboardteam.getName()});
++            ChatMessage chatmessage = new ChatMessage("commands.scoreboard.teams.list.player.count", new Object[] { Integer.valueOf(collection.size()), scoreboardteam.getName()});
+ 
+             chatmessage.getChatModifier().setColor(EnumChatFormat.DARK_GREEN);
+             icommandlistener.sendMessage(chatmessage);
+@@ -433,7 +440,7 @@
+                 throw new CommandException("commands.scoreboard.teams.list.empty", new Object[0]);
+             }
+ 
+-            ChatMessage chatmessage1 = new ChatMessage("commands.scoreboard.teams.list.count", new Object[]{collection1.size()});
++            ChatMessage chatmessage1 = new ChatMessage("commands.scoreboard.teams.list.count", new Object[] { Integer.valueOf(collection1.size())});
+ 
+             chatmessage1.getChatModifier().setColor(EnumChatFormat.DARK_GREEN);
+             icommandlistener.sendMessage(chatmessage1);
+@@ -442,7 +449,7 @@
+             while (iterator.hasNext()) {
+                 ScoreboardTeam scoreboardteam1 = (ScoreboardTeam) iterator.next();
+ 
+-                icommandlistener.sendMessage(new ChatMessage("commands.scoreboard.teams.list.entry", new Object[]{scoreboardteam1.getName(), scoreboardteam1.getDisplayName(), scoreboardteam1.getPlayerNameSet().size()}));
++                icommandlistener.sendMessage(new ChatMessage("commands.scoreboard.teams.list.entry", new Object[] { scoreboardteam1.getName(), scoreboardteam1.getDisplayName(), Integer.valueOf(scoreboardteam1.getPlayerNameSet().size())}));
+             }
+         }
+ 
+@@ -471,6 +478,7 @@
+ 
+                     while (iterator.hasNext()) {
+                         Entity entity = (Entity) iterator.next();
++                        if (!entity.world.tacoSpigotConfig.nonPlayerEntitiesOnScoreboards && !(entity instanceof EntityHuman)) continue; // TacoSpigot
+                         String s2 = e(icommandlistener, entity.getUniqueID().toString());
+ 
+                         if (scoreboard.addPlayerToTeam(s2, s)) {
+@@ -493,11 +501,11 @@
+ 
+         if (!hashset.isEmpty()) {
+             icommandlistener.a(CommandObjectiveExecutor.EnumCommandResult.AFFECTED_ENTITIES, hashset.size());
+-            a(icommandlistener, this, "commands.scoreboard.teams.join.success", new Object[]{hashset.size(), s, a(hashset.toArray(new String[hashset.size()]))});
++            a(icommandlistener, this, "commands.scoreboard.teams.join.success", new Object[] { Integer.valueOf(hashset.size()), s, a(hashset.toArray(new String[hashset.size()]))});
+         }
+ 
+         if (!hashset1.isEmpty()) {
+-            throw new CommandException("commands.scoreboard.teams.join.failure", new Object[]{hashset1.size(), s, a(hashset1.toArray(new String[hashset1.size()]))});
++            throw new CommandException("commands.scoreboard.teams.join.failure", new Object[] { Integer.valueOf(hashset1.size()), s, a(hashset1.toArray(new String[hashset1.size()]))});
+         }
+     }
+ 
+@@ -545,11 +553,11 @@
+ 
+         if (!hashset.isEmpty()) {
+             icommandlistener.a(CommandObjectiveExecutor.EnumCommandResult.AFFECTED_ENTITIES, hashset.size());
+-            a(icommandlistener, this, "commands.scoreboard.teams.leave.success", new Object[]{hashset.size(), a(hashset.toArray(new String[hashset.size()]))});
++            a(icommandlistener, this, "commands.scoreboard.teams.leave.success", new Object[] { Integer.valueOf(hashset.size()), a(hashset.toArray(new String[hashset.size()]))});
+         }
+ 
+         if (!hashset1.isEmpty()) {
+-            throw new CommandException("commands.scoreboard.teams.leave.failure", new Object[]{hashset1.size(), a(hashset1.toArray(new String[hashset1.size()]))});
++            throw new CommandException("commands.scoreboard.teams.leave.failure", new Object[] { Integer.valueOf(hashset1.size()), a(hashset1.toArray(new String[hashset1.size()]))});
+         }
+     }
+ 
+@@ -562,7 +570,7 @@
+ 
+             icommandlistener.a(CommandObjectiveExecutor.EnumCommandResult.AFFECTED_ENTITIES, arraylist.size());
+             if (arraylist.isEmpty()) {
+-                throw new CommandException("commands.scoreboard.teams.empty.alreadyEmpty", new Object[]{scoreboardteam.getName()});
++                throw new CommandException("commands.scoreboard.teams.empty.alreadyEmpty", new Object[] { scoreboardteam.getName()});
+             } else {
+                 Iterator iterator = arraylist.iterator();
+ 
+@@ -572,7 +580,7 @@
+                     scoreboard.removePlayerFromTeam(s, scoreboardteam);
+                 }
+ 
+-                a(icommandlistener, this, "commands.scoreboard.teams.empty.success", new Object[]{arraylist.size(), scoreboardteam.getName()});
++                a(icommandlistener, this, "commands.scoreboard.teams.empty.success", new Object[] { Integer.valueOf(arraylist.size()), scoreboardteam.getName()});
+             }
+         }
+     }
+@@ -582,7 +590,7 @@
+         ScoreboardObjective scoreboardobjective = this.a(s, false);
+ 
+         scoreboard.unregisterObjective(scoreboardobjective);
+-        a(icommandlistener, this, "commands.scoreboard.objectives.remove.success", new Object[]{s});
++        a(icommandlistener, this, "commands.scoreboard.objectives.remove.success", new Object[] { s});
+     }
+ 
+     protected void d(ICommandListener icommandlistener) throws CommandException {
+@@ -592,7 +600,7 @@
+         if (collection.size() <= 0) {
+             throw new CommandException("commands.scoreboard.objectives.list.empty", new Object[0]);
+         } else {
+-            ChatMessage chatmessage = new ChatMessage("commands.scoreboard.objectives.list.count", new Object[]{collection.size()});
++            ChatMessage chatmessage = new ChatMessage("commands.scoreboard.objectives.list.count", new Object[] { Integer.valueOf(collection.size())});
+ 
+             chatmessage.getChatModifier().setColor(EnumChatFormat.DARK_GREEN);
+             icommandlistener.sendMessage(chatmessage);
+@@ -601,7 +609,7 @@
+             while (iterator.hasNext()) {
+                 ScoreboardObjective scoreboardobjective = (ScoreboardObjective) iterator.next();
+ 
+-                icommandlistener.sendMessage(new ChatMessage("commands.scoreboard.objectives.list.entry", new Object[]{scoreboardobjective.getName(), scoreboardobjective.getDisplayName(), scoreboardobjective.getCriteria().getName()}));
++                icommandlistener.sendMessage(new ChatMessage("commands.scoreboard.objectives.list.entry", new Object[] { scoreboardobjective.getName(), scoreboardobjective.getDisplayName(), scoreboardobjective.getCriteria().getName()}));
+             }
+ 
+         }
+@@ -618,13 +626,13 @@
+         }
+ 
+         if (j < 0) {
+-            throw new CommandException("commands.scoreboard.objectives.setdisplay.invalidSlot", new Object[]{s});
++            throw new CommandException("commands.scoreboard.objectives.setdisplay.invalidSlot", new Object[] { s});
+         } else {
+             scoreboard.setDisplaySlot(j, scoreboardobjective);
+             if (scoreboardobjective != null) {
+-                a(icommandlistener, this, "commands.scoreboard.objectives.setdisplay.successSet", new Object[]{Scoreboard.getSlotName(j), scoreboardobjective.getName()});
++                a(icommandlistener, this, "commands.scoreboard.objectives.setdisplay.successSet", new Object[] { Scoreboard.getSlotName(j), scoreboardobjective.getName()});
+             } else {
+-                a(icommandlistener, this, "commands.scoreboard.objectives.setdisplay.successCleared", new Object[]{Scoreboard.getSlotName(j)});
++                a(icommandlistener, this, "commands.scoreboard.objectives.setdisplay.successCleared", new Object[] { Scoreboard.getSlotName(j)});
+             }
+ 
+         }
+@@ -639,10 +647,10 @@
+ 
+             icommandlistener.a(CommandObjectiveExecutor.EnumCommandResult.QUERY_RESULT, map.size());
+             if (map.size() <= 0) {
+-                throw new CommandException("commands.scoreboard.players.list.player.empty", new Object[]{s});
++                throw new CommandException("commands.scoreboard.players.list.player.empty", new Object[] { s});
+             }
+ 
+-            ChatMessage chatmessage = new ChatMessage("commands.scoreboard.players.list.player.count", new Object[]{map.size(), s});
++            ChatMessage chatmessage = new ChatMessage("commands.scoreboard.players.list.player.count", new Object[] { Integer.valueOf(map.size()), s});
+ 
+             chatmessage.getChatModifier().setColor(EnumChatFormat.DARK_GREEN);
+             icommandlistener.sendMessage(chatmessage);
+@@ -651,7 +659,7 @@
+             while (iterator.hasNext()) {
+                 ScoreboardScore scoreboardscore = (ScoreboardScore) iterator.next();
+ 
+-                icommandlistener.sendMessage(new ChatMessage("commands.scoreboard.players.list.player.entry", new Object[]{scoreboardscore.getScore(), scoreboardscore.getObjective().getDisplayName(), scoreboardscore.getObjective().getName()}));
++                icommandlistener.sendMessage(new ChatMessage("commands.scoreboard.players.list.player.entry", new Object[] { Integer.valueOf(scoreboardscore.getScore()), scoreboardscore.getObjective().getDisplayName(), scoreboardscore.getObjective().getName()}));
+             }
+         } else {
+             Collection collection = scoreboard.getPlayers();
+@@ -661,7 +669,7 @@
+                 throw new CommandException("commands.scoreboard.players.list.empty", new Object[0]);
+             }
+ 
+-            ChatMessage chatmessage1 = new ChatMessage("commands.scoreboard.players.list.count", new Object[]{collection.size()});
++            ChatMessage chatmessage1 = new ChatMessage("commands.scoreboard.players.list.count", new Object[] { Integer.valueOf(collection.size())});
+ 
+             chatmessage1.getChatModifier().setColor(EnumChatFormat.DARK_GREEN);
+             icommandlistener.sendMessage(chatmessage1);
+@@ -676,7 +684,7 @@
+         String s1 = e(icommandlistener, astring[i++]);
+ 
+         if (s1.length() > 40) {
+-            throw new ExceptionInvalidSyntax("commands.scoreboard.players.name.tooLong", new Object[]{s1, 40});
++            throw new ExceptionInvalidSyntax("commands.scoreboard.players.name.tooLong", new Object[] { s1, Integer.valueOf(40)});
+         } else {
+             ScoreboardObjective scoreboardobjective = this.a(astring[i++], true);
+             int k = s.equalsIgnoreCase("set") ? a(astring[i++]) : a(astring[i++], 0);
+@@ -690,10 +698,10 @@
+ 
+                     entity.e(nbttagcompound1);
+                     if (!GameProfileSerializer.a(nbttagcompound, nbttagcompound1, true)) {
+-                        throw new CommandException("commands.scoreboard.players.set.tagMismatch", new Object[]{s1});
++                        throw new CommandException("commands.scoreboard.players.set.tagMismatch", new Object[] { s1});
+                     }
+                 } catch (MojangsonParseException mojangsonparseexception) {
+-                    throw new CommandException("commands.scoreboard.players.set.tagError", new Object[]{mojangsonparseexception.getMessage()});
++                    throw new CommandException("commands.scoreboard.players.set.tagError", new Object[] { mojangsonparseexception.getMessage()});
+                 }
+             }
+ 
+@@ -708,7 +716,7 @@
+                 scoreboardscore.removeScore(k);
+             }
+ 
+-            a(icommandlistener, this, "commands.scoreboard.players.set.success", new Object[]{scoreboardobjective.getName(), s1, scoreboardscore.getScore()});
++            a(icommandlistener, this, "commands.scoreboard.players.set.success", new Object[] { scoreboardobjective.getName(), s1, Integer.valueOf(scoreboardscore.getScore())});
+         }
+     }
+ 
+@@ -720,10 +728,10 @@
+             ScoreboardObjective scoreboardobjective = this.a(astring[i++], false);
+ 
+             scoreboard.resetPlayerScores(s, scoreboardobjective);
+-            a(icommandlistener, this, "commands.scoreboard.players.resetscore.success", new Object[]{scoreboardobjective.getName(), s});
++            a(icommandlistener, this, "commands.scoreboard.players.resetscore.success", new Object[] { scoreboardobjective.getName(), s});
+         } else {
+             scoreboard.resetPlayerScores(s, (ScoreboardObjective) null);
+-            a(icommandlistener, this, "commands.scoreboard.players.reset.success", new Object[]{s});
++            a(icommandlistener, this, "commands.scoreboard.players.reset.success", new Object[] { s});
+         }
+ 
+     }
+@@ -733,17 +741,17 @@
+         String s = d(icommandlistener, astring[i++]);
+ 
+         if (s.length() > 40) {
+-            throw new ExceptionInvalidSyntax("commands.scoreboard.players.name.tooLong", new Object[]{s, 40});
++            throw new ExceptionInvalidSyntax("commands.scoreboard.players.name.tooLong", new Object[] { s, Integer.valueOf(40)});
+         } else {
+             ScoreboardObjective scoreboardobjective = this.a(astring[i], false);
+ 
+             if (scoreboardobjective.getCriteria() != IScoreboardCriteria.c) {
+-                throw new CommandException("commands.scoreboard.players.enable.noTrigger", new Object[]{scoreboardobjective.getName()});
++                throw new CommandException("commands.scoreboard.players.enable.noTrigger", new Object[] { scoreboardobjective.getName()});
+             } else {
+                 ScoreboardScore scoreboardscore = scoreboard.getPlayerScoreForObjective(s, scoreboardobjective);
+ 
+                 scoreboardscore.a(false);
+-                a(icommandlistener, this, "commands.scoreboard.players.enable.success", new Object[]{scoreboardobjective.getName(), s});
++                a(icommandlistener, this, "commands.scoreboard.players.enable.success", new Object[] { scoreboardobjective.getName(), s});
+             }
+         }
+     }
+@@ -753,12 +761,12 @@
+         String s = e(icommandlistener, astring[i++]);
+ 
+         if (s.length() > 40) {
+-            throw new ExceptionInvalidSyntax("commands.scoreboard.players.name.tooLong", new Object[]{s, 40});
++            throw new ExceptionInvalidSyntax("commands.scoreboard.players.name.tooLong", new Object[] { s, Integer.valueOf(40)});
+         } else {
+             ScoreboardObjective scoreboardobjective = this.a(astring[i++], false);
+ 
+             if (!scoreboard.b(s, scoreboardobjective)) {
+-                throw new CommandException("commands.scoreboard.players.test.notFound", new Object[]{scoreboardobjective.getName(), s});
++                throw new CommandException("commands.scoreboard.players.test.notFound", new Object[] { scoreboardobjective.getName(), s});
+             } else {
+                 int j = astring[i].equals("*") ? Integer.MIN_VALUE : a(astring[i]);
+ 
+@@ -767,9 +775,9 @@
+                 ScoreboardScore scoreboardscore = scoreboard.getPlayerScoreForObjective(s, scoreboardobjective);
+ 
+                 if (scoreboardscore.getScore() >= j && scoreboardscore.getScore() <= k) {
+-                    a(icommandlistener, this, "commands.scoreboard.players.test.success", new Object[]{scoreboardscore.getScore(), j, k});
++                    a(icommandlistener, this, "commands.scoreboard.players.test.success", new Object[] { Integer.valueOf(scoreboardscore.getScore()), Integer.valueOf(j), Integer.valueOf(k)});
+                 } else {
+-                    throw new CommandException("commands.scoreboard.players.test.failed", new Object[]{scoreboardscore.getScore(), j, k});
++                    throw new CommandException("commands.scoreboard.players.test.failed", new Object[] { Integer.valueOf(scoreboardscore.getScore()), Integer.valueOf(j), Integer.valueOf(k)});
+                 }
+             }
+         }
+@@ -784,14 +792,14 @@
+         ScoreboardObjective scoreboardobjective1 = this.a(astring[i], false);
+ 
+         if (s.length() > 40) {
+-            throw new ExceptionInvalidSyntax("commands.scoreboard.players.name.tooLong", new Object[]{s, 40});
++            throw new ExceptionInvalidSyntax("commands.scoreboard.players.name.tooLong", new Object[] { s, Integer.valueOf(40)});
+         } else if (s2.length() > 40) {
+-            throw new ExceptionInvalidSyntax("commands.scoreboard.players.name.tooLong", new Object[]{s2, 40});
++            throw new ExceptionInvalidSyntax("commands.scoreboard.players.name.tooLong", new Object[] { s2, Integer.valueOf(40)});
+         } else {
+             ScoreboardScore scoreboardscore = scoreboard.getPlayerScoreForObjective(s, scoreboardobjective);
+ 
+             if (!scoreboard.b(s2, scoreboardobjective1)) {
+-                throw new CommandException("commands.scoreboard.players.operation.notFound", new Object[]{scoreboardobjective1.getName(), s2});
++                throw new CommandException("commands.scoreboard.players.operation.notFound", new Object[] { scoreboardobjective1.getName(), s2});
+             } else {
+                 ScoreboardScore scoreboardscore1 = scoreboard.getPlayerScoreForObjective(s2, scoreboardobjective1);
+ 
+@@ -817,7 +825,7 @@
+                     scoreboardscore.setScore(Math.max(scoreboardscore.getScore(), scoreboardscore1.getScore()));
+                 } else {
+                     if (!s1.equals("><")) {
+-                        throw new CommandException("commands.scoreboard.players.operation.invalidOperation", new Object[]{s1});
++                        throw new CommandException("commands.scoreboard.players.operation.invalidOperation", new Object[] { s1});
+                     }
+ 
+                     int j = scoreboardscore.getScore();
+@@ -833,11 +841,11 @@
+ 
+     public List<String> tabComplete(ICommandListener icommandlistener, String[] astring, BlockPosition blockposition) {
+         if (astring.length == 1) {
+-            return a(astring, new String[]{"objectives", "players", "teams"});
++            return a(astring, new String[] { "objectives", "players", "teams"});
+         } else {
+             if (astring[0].equalsIgnoreCase("objectives")) {
+                 if (astring.length == 2) {
+-                    return a(astring, new String[]{"list", "add", "remove", "setdisplay"});
++                    return a(astring, new String[] { "list", "add", "remove", "setdisplay"});
+                 }
+ 
+                 if (astring[1].equalsIgnoreCase("add")) {
+@@ -861,7 +869,7 @@
+                 }
+             } else if (astring[0].equalsIgnoreCase("players")) {
+                 if (astring.length == 2) {
+-                    return a(astring, new String[]{"set", "add", "remove", "reset", "list", "enable", "test", "operation"});
++                    return a(astring, new String[] { "set", "add", "remove", "reset", "list", "enable", "test", "operation"});
+                 }
+ 
+                 if (!astring[1].equalsIgnoreCase("set") && !astring[1].equalsIgnoreCase("add") && !astring[1].equalsIgnoreCase("remove") && !astring[1].equalsIgnoreCase("reset")) {
+@@ -884,7 +892,7 @@
+                             }
+ 
+                             if (astring.length == 5) {
+-                                return a(astring, new String[]{"+=", "-=", "*=", "/=", "%=", "=", "<", ">", "><"});
++                                return a(astring, new String[] { "+=", "-=", "*=", "/=", "%=", "=", "<", ">", "><"});
+                             }
+ 
+                             if (astring.length == 6) {
+@@ -915,7 +923,7 @@
+                 }
+             } else if (astring[0].equalsIgnoreCase("teams")) {
+                 if (astring.length == 2) {
+-                    return a(astring, new String[]{"add", "remove", "join", "leave", "empty", "list", "option"});
++                    return a(astring, new String[] { "add", "remove", "join", "leave", "empty", "list", "option"});
+                 }
+ 
+                 if (astring[1].equalsIgnoreCase("join")) {
+@@ -938,7 +946,7 @@
+                             }
+ 
+                             if (astring.length == 4) {
+-                                return a(astring, new String[]{"color", "friendlyfire", "seeFriendlyInvisibles", "nametagVisibility", "deathMessageVisibility"});
++                                return a(astring, new String[] { "color", "friendlyfire", "seeFriendlyInvisibles", "nametagVisibility", "deathMessageVisibility"});
+                             }
+ 
+                             if (astring.length == 5) {
+@@ -951,7 +959,7 @@
+                                 }
+ 
+                                 if (astring[3].equalsIgnoreCase("friendlyfire") || astring[3].equalsIgnoreCase("seeFriendlyInvisibles")) {
+-                                    return a(astring, new String[]{"true", "false"});
++                                    return a(astring, new String[] { "true", "false"});
+                                 }
+                             }
+                         }

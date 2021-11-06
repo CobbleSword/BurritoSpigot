@@ -1,0 +1,62 @@
+--- a/net/minecraft/server/PersistentCollection.java
++++ b/net/minecraft/server/PersistentCollection.java
+@@ -18,7 +18,7 @@
+ 
+     private IDataManager b;
+     protected Map<String, PersistentBase> a = Maps.newHashMap();
+-    private List<PersistentBase> c = Lists.newArrayList();
++    public List<PersistentBase> c = Lists.newArrayList(); // Spigot
+     private Map<String, Short> d = Maps.newHashMap();
+ 
+     public PersistentCollection(IDataManager idatamanager) {
+@@ -38,7 +38,7 @@
+ 
+                     if (file != null && file.exists()) {
+                         try {
+-                            persistentbase = (PersistentBase) oclass.getConstructor(String.class).newInstance(s);
++                            persistentbase = (PersistentBase) oclass.getConstructor(new Class[] { String.class}).newInstance(new Object[] { s});
+                         } catch (Exception exception) {
+                             throw new RuntimeException("Failed to instantiate " + oclass.toString(), exception);
+                         }
+@@ -132,7 +132,7 @@
+                         NBTTagShort nbttagshort = (NBTTagShort) nbtbase;
+                         short short0 = nbttagshort.e();
+ 
+-                        this.d.put(s, short0);
++                        this.d.put(s, Short.valueOf(short0));
+                     }
+                 }
+             }
+@@ -148,12 +148,12 @@
+         if (oshort == null) {
+             oshort = Short.valueOf((short) 0);
+         } else {
+-            oshort = (short) (oshort + 1);
++            oshort = Short.valueOf((short) (oshort.shortValue() + 1));
+         }
+ 
+         this.d.put(s, oshort);
+         if (this.b == null) {
+-            return oshort;
++            return oshort.shortValue();
+         } else {
+             try {
+                 File file = this.b.getDataFile("idcounts");
+@@ -164,7 +164,7 @@
+ 
+                     while (iterator.hasNext()) {
+                         String s1 = (String) iterator.next();
+-                        short short0 = (Short) this.d.get(s1);
++                        short short0 = ((Short) this.d.get(s1)).shortValue();
+ 
+                         nbttagcompound.setShort(s1, short0);
+                     }
+@@ -178,7 +178,7 @@
+                 exception.printStackTrace();
+             }
+ 
+-            return oshort;
++            return oshort.shortValue();
+         }
+     }
+ }

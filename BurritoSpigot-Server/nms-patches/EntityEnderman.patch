@@ -1,0 +1,117 @@
+--- a/net/minecraft/server/EntityEnderman.java
++++ b/net/minecraft/server/EntityEnderman.java
+@@ -8,6 +8,12 @@
+ import java.util.Set;
+ import java.util.UUID;
+ 
++// CraftBukkit start
++import org.bukkit.Location;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.event.entity.EntityTeleportEvent;
++// CraftBukkit end
++
+ public class EntityEnderman extends EntityMonster {
+ 
+     private static final UUID a = UUID.fromString("020E0DFB-87AE-4653-9556-831010E291A0");
+@@ -28,7 +34,7 @@
+         this.goalSelector.a(11, new EntityEnderman.PathfinderGoalEndermanPickupBlock(this));
+         this.targetSelector.a(1, new PathfinderGoalHurtByTarget(this, false, new Class[0]));
+         this.targetSelector.a(2, new EntityEnderman.PathfinderGoalPlayerWhoLookedAtTarget(this));
+-        this.targetSelector.a(3, new PathfinderGoalNearestAttackableTarget<>(this, EntityEndermite.class, 10, true, false, new Predicate<EntityEndermite>() {
++        this.targetSelector.a(3, new PathfinderGoalNearestAttackableTarget(this, EntityEndermite.class, 10, true, false, new Predicate() {
+             public boolean a(EntityEndermite entityendermite) {
+                 return entityendermite.n();
+             }
+@@ -99,7 +105,7 @@
+     public void m() {
+         if (this.world.isClientSide) {
+             for (int i = 0; i < 2; ++i) {
+-                this.world.addParticle(EnumParticle.PORTAL, this.locX + (this.random.nextDouble() - 0.5D) * (double) this.width, this.locY + this.random.nextDouble() * (double) this.length - 0.25D, this.locZ + (this.random.nextDouble() - 0.5D) * (double) this.width, (this.random.nextDouble() - 0.5D) * 2.0D, -this.random.nextDouble(), (this.random.nextDouble() - 0.5D) * 2.0D);
++                this.world.addParticle(EnumParticle.PORTAL, this.locX + (this.random.nextDouble() - 0.5D) * (double) this.width, this.locY + this.random.nextDouble() * (double) this.length - 0.25D, this.locZ + (this.random.nextDouble() - 0.5D) * (double) this.width, (this.random.nextDouble() - 0.5D) * 2.0D, -this.random.nextDouble(), (this.random.nextDouble() - 0.5D) * 2.0D, new int[0]);
+             }
+         }
+ 
+@@ -177,7 +183,17 @@
+             }
+ 
+             if (flag1) {
+-                super.enderTeleportTo(this.locX, this.locY, this.locZ);
++                // CraftBukkit start - Teleport event
++                // super.enderTeleportTo(this.locX, this.locY, this.locZ);
++                EntityTeleportEvent teleport = new EntityTeleportEvent(this.getBukkitEntity(), new Location(this.world.getWorld(), d3, d4, d5), new Location(this.world.getWorld(), this.locX, this.locY, this.locZ));
++                this.world.getServer().getPluginManager().callEvent(teleport);
++                if (teleport.isCancelled()) {
++                    return false;
++                }
++
++                Location to = teleport.getTo();
++                this.enderTeleportTo(to.getX(), to.getY(), to.getZ());
++                // CraftBukkit end
+                 if (this.world.getCubes(this, this.getBoundingBox()).isEmpty() && !this.world.containsLiquid(this.getBoundingBox())) {
+                     flag = true;
+                 }
+@@ -199,7 +215,7 @@
+                 double d8 = d4 + (this.locY - d4) * d6 + this.random.nextDouble() * (double) this.length;
+                 double d9 = d5 + (this.locZ - d5) * d6 + (this.random.nextDouble() - 0.5D) * (double) this.width * 2.0D;
+ 
+-                this.world.addParticle(EnumParticle.PORTAL, d7, d8, d9, (double) f, (double) f1, (double) f2);
++                this.world.addParticle(EnumParticle.PORTAL, d7, d8, d9, (double) f, (double) f1, (double) f2, new int[0]);
+             }
+ 
+             this.world.makeSound(d3, d4, d5, "mob.endermen.portal", 1.0F, 1.0F);
+@@ -235,10 +251,17 @@
+             }
+         }
+ 
++        // PaperSpigot start - Drop the block the entity is holding when it dies
++        Item carriedItem = Item.getItemOf(getCarried().getBlock());
++        if (carriedItem != null) {
++            this.a(carriedItem, 1);
++        }
++        // PaperSpigot end
++
+     }
+ 
+     public void setCarried(IBlockData iblockdata) {
+-        this.datawatcher.watch(16, (short) (Block.getCombinedId(iblockdata) & '\uffff'));
++        this.datawatcher.watch(16, Short.valueOf((short) (Block.getCombinedId(iblockdata) & '\uffff')));
+     }
+ 
+     public IBlockData getCarried() {
+@@ -290,7 +313,7 @@
+     }
+ 
+     public void a(boolean flag) {
+-        this.datawatcher.watch(18, (byte) (flag ? 1 : 0));
++        this.datawatcher.watch(18, Byte.valueOf((byte) (flag ? 1 : 0)));
+     }
+ 
+     static {
+@@ -333,8 +356,12 @@
+             Block block = iblockdata.getBlock();
+ 
+             if (EntityEnderman.c.contains(block)) {
+-                this.enderman.setCarried(iblockdata);
+-                world.setTypeUpdate(blockposition, Blocks.AIR.getBlockData());
++                // CraftBukkit start - Pickup event
++                if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.enderman, this.enderman.world.getWorld().getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ()), org.bukkit.Material.AIR).isCancelled()) {
++                    this.enderman.setCarried(iblockdata);
++                    world.setTypeUpdate(blockposition, Blocks.AIR.getBlockData());
++                }
++                // CraftBukkit end
+             }
+ 
+         }
+@@ -363,8 +390,12 @@
+             Block block1 = world.getType(blockposition.down()).getBlock();
+ 
+             if (this.a(world, blockposition, this.a.getCarried().getBlock(), block, block1)) {
++                // CraftBukkit start - Place event
++                if (!org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.a, blockposition.getX(), blockposition.getY(), blockposition.getZ(), this.a.getCarried().getBlock(), this.a.getCarried().getBlock().toLegacyData(this.a.getCarried())).isCancelled()) {
+                 world.setTypeAndData(blockposition, this.a.getCarried(), 3);
+                 this.a.setCarried(Blocks.AIR.getBlockData());
++                }
++                // CraftBukkit end
+             }
+ 
+         }

@@ -1,0 +1,51 @@
+--- a/net/minecraft/server/EntitySnowman.java
++++ b/net/minecraft/server/EntitySnowman.java
+@@ -1,5 +1,11 @@
+ package net.minecraft.server;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.craftbukkit.util.CraftMagicNumbers;
++import org.bukkit.event.block.EntityBlockFormEvent;
++// CraftBukkit end
++
+ public class EntitySnowman extends EntityGolem implements IRangedEntity {
+ 
+     public EntitySnowman(World world) {
+@@ -10,7 +16,7 @@
+         this.goalSelector.a(2, new PathfinderGoalRandomStroll(this, 1.0D));
+         this.goalSelector.a(3, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 6.0F));
+         this.goalSelector.a(4, new PathfinderGoalRandomLookaround(this));
+-        this.targetSelector.a(1, new PathfinderGoalNearestAttackableTarget<>(this, EntityInsentient.class, 10, true, false, IMonster.d));
++        this.targetSelector.a(1, new PathfinderGoalNearestAttackableTarget(this, EntityInsentient.class, 10, true, false, IMonster.d));
+     }
+ 
+     protected void initAttributes() {
+@@ -31,7 +37,7 @@
+             }
+ 
+             if (this.world.getBiome(new BlockPosition(i, 0, k)).a(new BlockPosition(i, j, k)) > 1.0F) {
+-                this.damageEntity(DamageSource.BURN, 1.0F);
++                this.damageEntity(CraftEventFactory.MELTING, 1.0F); // CraftBukkit - DamageSource.BURN -> CraftEventFactory.MELTING
+             }
+ 
+             for (int l = 0; l < 4; ++l) {
+@@ -41,7 +47,17 @@
+                 BlockPosition blockposition = new BlockPosition(i, j, k);
+ 
+                 if (this.world.getType(blockposition).getBlock().getMaterial() == Material.AIR && this.world.getBiome(new BlockPosition(i, 0, k)).a(blockposition) < 0.8F && Blocks.SNOW_LAYER.canPlace(this.world, blockposition)) {
+-                    this.world.setTypeUpdate(blockposition, Blocks.SNOW_LAYER.getBlockData());
++                    // CraftBukkit start
++                    org.bukkit.block.BlockState blockState = this.world.getWorld().getBlockAt(i, j, k).getState();
++                    blockState.setType(CraftMagicNumbers.getMaterial(Blocks.SNOW_LAYER));
++
++                    EntityBlockFormEvent event = new EntityBlockFormEvent(this.getBukkitEntity(), blockState.getBlock(), blockState);
++                    this.world.getServer().getPluginManager().callEvent(event);
++
++                    if(!event.isCancelled()) {
++                        blockState.update(true);
++                    }
++                    // CraftBukkit end
+                 }
+             }
+         }

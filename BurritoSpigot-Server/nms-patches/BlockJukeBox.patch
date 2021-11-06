@@ -1,0 +1,60 @@
+--- a/net/minecraft/server/BlockJukeBox.java
++++ b/net/minecraft/server/BlockJukeBox.java
+@@ -6,14 +6,14 @@
+ 
+     protected BlockJukeBox() {
+         super(Material.WOOD, MaterialMapColor.l);
+-        this.j(this.blockStateList.getBlockData().set(BlockJukeBox.HAS_RECORD, false));
++        this.j(this.blockStateList.getBlockData().set(BlockJukeBox.HAS_RECORD, Boolean.valueOf(false)));
+         this.a(CreativeModeTab.c);
+     }
+ 
+     public boolean interact(World world, BlockPosition blockposition, IBlockData iblockdata, EntityHuman entityhuman, EnumDirection enumdirection, float f, float f1, float f2) {
+-        if ((Boolean) iblockdata.get(BlockJukeBox.HAS_RECORD)) {
++        if (((Boolean) iblockdata.get(BlockJukeBox.HAS_RECORD)).booleanValue()) {
+             this.dropRecord(world, blockposition, iblockdata);
+-            iblockdata = iblockdata.set(BlockJukeBox.HAS_RECORD, false);
++            iblockdata = iblockdata.set(BlockJukeBox.HAS_RECORD, Boolean.valueOf(false));
+             world.setTypeAndData(blockposition, iblockdata, 2);
+             return true;
+         } else {
+@@ -27,7 +27,7 @@
+ 
+             if (tileentity instanceof BlockJukeBox.TileEntityRecordPlayer) {
+                 ((BlockJukeBox.TileEntityRecordPlayer) tileentity).setRecord(new ItemStack(itemstack.getItem(), 1, itemstack.getData()));
+-                world.setTypeAndData(blockposition, iblockdata.set(BlockJukeBox.HAS_RECORD, true), 2);
++                world.setTypeAndData(blockposition, iblockdata.set(BlockJukeBox.HAS_RECORD, Boolean.valueOf(true)), 2);
+             }
+         }
+     }
+@@ -96,15 +96,15 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockJukeBox.HAS_RECORD, i > 0);
++        return this.getBlockData().set(BlockJukeBox.HAS_RECORD, Boolean.valueOf(i > 0));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+-        return (Boolean) iblockdata.get(BlockJukeBox.HAS_RECORD) ? 1 : 0;
++        return ((Boolean) iblockdata.get(BlockJukeBox.HAS_RECORD)).booleanValue() ? 1 : 0;
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockJukeBox.HAS_RECORD});
++        return new BlockStateList(this, new IBlockState[] { BlockJukeBox.HAS_RECORD});
+     }
+ 
+     public static class TileEntityRecordPlayer extends TileEntity {
+@@ -136,6 +136,11 @@
+         }
+ 
+         public void setRecord(ItemStack itemstack) {
++            // CraftBukkit start - There can only be one
++            if (itemstack != null) {
++                itemstack.count = 1;
++            }
++            // CraftBukkit end
+             this.record = itemstack;
+             this.update();
+         }

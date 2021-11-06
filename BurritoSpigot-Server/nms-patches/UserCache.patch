@@ -1,0 +1,115 @@
+--- a/net/minecraft/server/UserCache.java
++++ b/net/minecraft/server/UserCache.java
+@@ -42,13 +42,13 @@
+     public static final SimpleDateFormat a = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss Z");
+     private final Map<String, UserCache.UserCacheEntry> c = Maps.newHashMap();
+     private final Map<UUID, UserCache.UserCacheEntry> d = Maps.newHashMap();
+-    private final LinkedList<GameProfile> e = Lists.newLinkedList();
++    private final java.util.Deque<GameProfile> e = new java.util.concurrent.LinkedBlockingDeque<GameProfile>(); // CraftBukkit
+     private final MinecraftServer f;
+     protected final Gson b;
+     private final File g;
+     private static final ParameterizedType h = new ParameterizedType() {
+         public Type[] getActualTypeArguments() {
+-            return new Type[]{UserCache.UserCacheEntry.class};
++            return new Type[] { UserCache.UserCacheEntry.class};
+         }
+ 
+         public Type getRawType() {
+@@ -65,7 +65,7 @@
+         this.g = file;
+         GsonBuilder gsonbuilder = new GsonBuilder();
+ 
+-        gsonbuilder.registerTypeHierarchyAdapter(UserCache.UserCacheEntry.class, new UserCache.BanEntrySerializer());
++        gsonbuilder.registerTypeHierarchyAdapter(UserCache.UserCacheEntry.class, new UserCache.BanEntrySerializer(null));
+         this.b = gsonbuilder.create();
+         this.b();
+     }
+@@ -82,7 +82,7 @@
+             }
+         };
+ 
+-        minecraftserver.getGameProfileRepository().findProfilesByNames(new String[]{s}, Agent.MINECRAFT, profilelookupcallback);
++        minecraftserver.getGameProfileRepository().findProfilesByNames(new String[] { s}, Agent.MINECRAFT, profilelookupcallback);
+         if (!minecraftserver.getOnlineMode() && agameprofile[0] == null) {
+             UUID uuid = EntityHuman.a(new GameProfile((UUID) null, s));
+             GameProfile gameprofile = new GameProfile(uuid, s);
+@@ -109,7 +109,7 @@
+         }
+ 
+         String s = gameprofile.getName().toLowerCase(Locale.ROOT);
+-        UserCache.UserCacheEntry usercache_usercacheentry = new UserCache.UserCacheEntry(gameprofile, date);
++        UserCache.UserCacheEntry usercache_usercacheentry = new UserCache.UserCacheEntry(gameprofile, date, null);
+ 
+         if (this.d.containsKey(uuid)) {
+             UserCache.UserCacheEntry usercache_usercacheentry1 = (UserCache.UserCacheEntry) this.d.get(uuid);
+@@ -121,7 +121,7 @@
+         this.c.put(gameprofile.getName().toLowerCase(Locale.ROOT), usercache_usercacheentry);
+         this.d.put(uuid, usercache_usercacheentry);
+         this.e.addFirst(gameprofile);
+-        this.c();
++        if( !org.spigotmc.SpigotConfig.saveUserCacheOnStopOnly ) this.c(); // Spigot - skip saving if disabled
+     }
+ 
+     public GameProfile getProfile(String s) {
+@@ -142,14 +142,14 @@
+             this.e.remove(gameprofile);
+             this.e.addFirst(gameprofile);
+         } else {
+-            gameprofile = a(this.f, s1);
++            gameprofile = a(this.f, s); // Spigot - use correct case for offline players
+             if (gameprofile != null) {
+                 this.a(gameprofile);
+                 usercache_usercacheentry = (UserCache.UserCacheEntry) this.c.get(s1);
+             }
+         }
+ 
+-        this.c();
++        if( !org.spigotmc.SpigotConfig.saveUserCacheOnStopOnly ) this.c(); // Spigot - skip saving if disabled
+         return usercache_usercacheentry == null ? null : usercache_usercacheentry.a();
+     }
+ 
+@@ -199,6 +199,11 @@
+             }
+         } catch (FileNotFoundException filenotfoundexception) {
+             ;
++        // Spigot Start
++        } catch (com.google.gson.JsonSyntaxException ex) {
++            JsonList.a.warn( "Usercache.json is corrupted or has bad formatting. Deleting it to prevent further issues." );
++            this.g.delete();
++        // Spigot End
+         } catch (JsonParseException jsonparseexception) {
+             ;
+         } finally {
+@@ -208,7 +213,7 @@
+     }
+ 
+     public void c() {
+-        String s = this.b.toJson(this.a(1000));
++        String s = this.b.toJson(this.a(org.spigotmc.SpigotConfig.userCacheCap));
+         BufferedWriter bufferedwriter = null;
+ 
+         try {
+@@ -309,7 +314,7 @@
+                             return null;
+                         }
+ 
+-                        UserCache.UserCacheEntry usercache_usercacheentry = UserCache.this.new UserCacheEntry(new GameProfile(uuid, s1), date);
++                        UserCache.UserCacheEntry usercache_usercacheentry = UserCache.this.new UserCacheEntry(new GameProfile(uuid, s1), date, null);
+ 
+                         return usercache_usercacheentry;
+                     } else {
+@@ -323,11 +328,11 @@
+             }
+         }
+ 
+-        public JsonElement serialize(Object object, Type type, JsonSerializationContext jsonserializationcontext) {
++        public JsonElement serialize(UserCacheEntry object, Type type, JsonSerializationContext jsonserializationcontext) { // CraftBukkit - decompile error
+             return this.a((UserCache.UserCacheEntry) object, type, jsonserializationcontext);
+         }
+ 
+-        public Object deserialize(JsonElement jsonelement, Type type, JsonDeserializationContext jsondeserializationcontext) throws JsonParseException {
++        public UserCacheEntry deserialize(JsonElement jsonelement, Type type, JsonDeserializationContext jsondeserializationcontext) throws JsonParseException { // CraftBukkit - decompile error
+             return this.a(jsonelement, type, jsondeserializationcontext);
+         }
+ 

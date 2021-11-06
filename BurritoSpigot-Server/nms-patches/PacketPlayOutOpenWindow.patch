@@ -1,0 +1,11 @@
+--- a/net/minecraft/server/PacketPlayOutOpenWindow.java
++++ b/net/minecraft/server/PacketPlayOutOpenWindow.java
+@@ -53,8 +53,4 @@
+         }
+ 
+     }
+-
+-    public void a(PacketListener packetlistener) {
+-        this.a((PacketListenerPlayOut) packetlistener);
+-    }
+ }

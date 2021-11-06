@@ -1,0 +1,37 @@
+--- a/net/minecraft/server/ContainerHorse.java
++++ b/net/minecraft/server/ContainerHorse.java
+@@ -1,11 +1,33 @@
+ package net.minecraft.server;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.inventory.CraftInventory;
++import org.bukkit.craftbukkit.inventory.CraftInventoryView;
++import org.bukkit.inventory.InventoryView;
++// CraftBukkit end
++
+ public class ContainerHorse extends Container {
+ 
+     private IInventory a;
+     private EntityHorse f;
+ 
+-    public ContainerHorse(IInventory iinventory, IInventory iinventory1, final EntityHorse entityhorse, EntityHuman entityhuman) {
++    // CraftBukkit start
++    org.bukkit.craftbukkit.inventory.CraftInventoryView bukkitEntity;
++    PlayerInventory player;
++
++    @Override
++    public InventoryView getBukkitView() {
++        if (bukkitEntity != null) {
++            return bukkitEntity;
++        }
++
++        CraftInventory inventory = new org.bukkit.craftbukkit.inventory.CraftInventoryHorse(this.a);
++        return bukkitEntity = new CraftInventoryView(player.player.getBukkitEntity(), inventory, this);
++    }
++
++    public ContainerHorse(IInventory iinventory, final IInventory iinventory1, final EntityHorse entityhorse, EntityHuman entityhuman) {
++        player = (PlayerInventory) iinventory;
++        // CraftBukkit end
+         this.a = iinventory1;
+         this.f = entityhorse;
+         byte b0 = 3;

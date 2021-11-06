@@ -1,0 +1,65 @@
+--- a/net/minecraft/server/BlockHopper.java
++++ b/net/minecraft/server/BlockHopper.java
+@@ -5,7 +5,7 @@
+ 
+ public class BlockHopper extends BlockContainer {
+ 
+-    public static final BlockStateDirection FACING = BlockStateDirection.of("facing", new Predicate<EnumDirection>() {
++    public static final BlockStateDirection FACING = BlockStateDirection.of("facing", new Predicate() {
+         public boolean a(EnumDirection enumdirection) {
+             return enumdirection != EnumDirection.UP;
+         }
+@@ -18,7 +18,7 @@
+ 
+     public BlockHopper() {
+         super(Material.ORE, MaterialMapColor.m);
+-        this.j(this.blockStateList.getBlockData().set(BlockHopper.FACING, EnumDirection.DOWN).set(BlockHopper.ENABLED, true));
++        this.j(this.blockStateList.getBlockData().set(BlockHopper.FACING, EnumDirection.DOWN).set(BlockHopper.ENABLED, Boolean.valueOf(true)));
+         this.a(CreativeModeTab.d);
+         this.a(0.0F, 0.0F, 0.0F, 1.0F, 1.0F, 1.0F);
+     }
+@@ -50,7 +50,7 @@
+             enumdirection1 = EnumDirection.DOWN;
+         }
+ 
+-        return this.getBlockData().set(BlockHopper.FACING, enumdirection1).set(BlockHopper.ENABLED, true);
++        return this.getBlockData().set(BlockHopper.FACING, enumdirection1).set(BlockHopper.ENABLED, Boolean.valueOf(true));
+     }
+ 
+     public TileEntity a(World world, int i) {
+@@ -95,8 +95,8 @@
+     private void e(World world, BlockPosition blockposition, IBlockData iblockdata) {
+         boolean flag = !world.isBlockIndirectlyPowered(blockposition);
+ 
+-        if (flag != (Boolean) iblockdata.get(BlockHopper.ENABLED)) {
+-            world.setTypeAndData(blockposition, iblockdata.set(BlockHopper.ENABLED, flag), 4);
++        if (flag != ((Boolean) iblockdata.get(BlockHopper.ENABLED)).booleanValue()) {
++            world.setTypeAndData(blockposition, iblockdata.set(BlockHopper.ENABLED, Boolean.valueOf(flag)), 4);
+         }
+ 
+     }
+@@ -141,14 +141,14 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockHopper.FACING, b(i)).set(BlockHopper.ENABLED, f(i));
++        return this.getBlockData().set(BlockHopper.FACING, b(i)).set(BlockHopper.ENABLED, Boolean.valueOf(f(i)));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+         byte b0 = 0;
+         int i = b0 | ((EnumDirection) iblockdata.get(BlockHopper.FACING)).a();
+ 
+-        if (!(Boolean) iblockdata.get(BlockHopper.ENABLED)) {
++        if (!((Boolean) iblockdata.get(BlockHopper.ENABLED)).booleanValue()) {
+             i |= 8;
+         }
+ 
+@@ -156,6 +156,6 @@
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockHopper.FACING, BlockHopper.ENABLED});
++        return new BlockStateList(this, new IBlockState[] { BlockHopper.FACING, BlockHopper.ENABLED});
+     }
+ }

@@ -1,0 +1,34 @@
+--- a/net/minecraft/server/ChunkProviderHell.java
++++ b/net/minecraft/server/ChunkProviderHell.java
+@@ -142,7 +142,10 @@
+                 IBlockData iblockdata1 = Blocks.NETHERRACK.getBlockData();
+ 
+                 for (int l1 = 127; l1 >= 0; --l1) {
+-                    if (l1 < 127 - this.j.nextInt(5) && l1 > this.j.nextInt(5)) {
++                    // PaperSpigot start - Configurable flat bedrock worldgen
++                    if (l1 < 127 - (h.paperSpigotConfig.generateFlatBedrock ? 0 : this.j.nextInt(5)) &&
++                            l1 > (h.paperSpigotConfig.generateFlatBedrock ? 0 : this.j.nextInt(5))) {
++                    // PaperSpigot end
+                         IBlockData iblockdata2 = chunksnapshot.a(i1, l1, l);
+ 
+                         if (iblockdata2.getBlock() != null && iblockdata2.getBlock().getMaterial() != Material.AIR) {
+@@ -198,8 +201,8 @@
+ 
+         this.a(i, j, chunksnapshot);
+         this.b(i, j, chunksnapshot);
+-        this.C.a(this, this.h, i, j, chunksnapshot);
+-        if (this.i) {
++        if (this.h.paperSpigotConfig.generateCaves) this.C.a(this, this.h, i, j, chunksnapshot); // PaperSpigot
++        if (this.i && this.h.paperSpigotConfig.generateFortress) { // PaperSpigot
+             this.B.a(this, this.h, i, j, chunksnapshot);
+         }
+ 
+@@ -384,7 +387,7 @@
+     }
+ 
+     public void recreateStructures(Chunk chunk, int i, int j) {
+-        this.B.a(this, this.h, i, j, (ChunkSnapshot) null);
++        if (this.h.paperSpigotConfig.generateFortress) this.B.a(this, this.h, i, j, (ChunkSnapshot) null); // PaperSpigot
+     }
+ 
+     public Chunk getChunkAt(BlockPosition blockposition) {

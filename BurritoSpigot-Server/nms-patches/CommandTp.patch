@@ -1,0 +1,42 @@
+--- a/net/minecraft/server/CommandTp.java
++++ b/net/minecraft/server/CommandTp.java
+@@ -100,22 +100,16 @@
+                         ((Entity) object).f(f2);
+                     }
+ 
+-                    a(icommandlistener, this, "commands.tp.success.coordinates", new Object[]{((Entity) object).getName(), commandabstract_commandnumber.a(), commandabstract_commandnumber1.a(), commandabstract_commandnumber2.a()});
++                    a(icommandlistener, this, "commands.tp.success.coordinates", new Object[] { ((Entity) object).getName(), Double.valueOf(commandabstract_commandnumber.a()), Double.valueOf(commandabstract_commandnumber1.a()), Double.valueOf(commandabstract_commandnumber2.a())});
+                 }
+             } else {
+                 Entity entity = b(icommandlistener, astring[astring.length - 1]);
+ 
+-                if (entity.world != ((Entity) object).world) {
+-                    throw new CommandException("commands.tp.notSameDimension", new Object[0]);
+-                } else {
+-                    ((Entity) object).mount((Entity) null);
+-                    if (object instanceof EntityPlayer) {
+-                        ((EntityPlayer) object).playerConnection.a(entity.locX, entity.locY, entity.locZ, entity.yaw, entity.pitch);
+-                    } else {
+-                        ((Entity) object).setPositionRotation(entity.locX, entity.locY, entity.locZ, entity.yaw, entity.pitch);
+-                    }
+-
++                // CraftBukkit Start
++                // Use Bukkit teleport method in all cases. It has cross dimensional handling, events
++                if (((Entity) object).getBukkitEntity().teleport(entity.getBukkitEntity(), org.bukkit.event.player.PlayerTeleportEvent.TeleportCause.COMMAND)) {
+                     a(icommandlistener, this, "commands.tp.success", new Object[]{((Entity) object).getName(), entity.getName()});
++                    // CraftBukkit End
+                 }
+             }
+         }
+@@ -128,4 +122,11 @@
+     public boolean isListStart(String[] astring, int i) {
+         return i == 0;
+     }
++
++    // CraftBukkit start - fix decompile error
++    @Override
++    public int compareTo(ICommand o) {
++        return a((ICommand) o);
++    }
++    // CraftBukkit end
+ }

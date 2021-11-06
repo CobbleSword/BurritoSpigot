@@ -1,0 +1,119 @@
+--- a/net/minecraft/server/BlockRedstoneWire.java
++++ b/net/minecraft/server/BlockRedstoneWire.java
+@@ -8,6 +8,8 @@
+ import java.util.Random;
+ import java.util.Set;
+ 
++import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
++
+ public class BlockRedstoneWire extends Block {
+ 
+     public static final BlockStateEnum<BlockRedstoneWire.EnumRedstoneWireConnection> NORTH = BlockStateEnum.of("north", BlockRedstoneWire.EnumRedstoneWireConnection.class);
+@@ -20,7 +22,7 @@
+ 
+     public BlockRedstoneWire() {
+         super(Material.ORIENTABLE);
+-        this.j(this.blockStateList.getBlockData().set(BlockRedstoneWire.NORTH, BlockRedstoneWire.EnumRedstoneWireConnection.NONE).set(BlockRedstoneWire.EAST, BlockRedstoneWire.EnumRedstoneWireConnection.NONE).set(BlockRedstoneWire.SOUTH, BlockRedstoneWire.EnumRedstoneWireConnection.NONE).set(BlockRedstoneWire.WEST, BlockRedstoneWire.EnumRedstoneWireConnection.NONE).set(BlockRedstoneWire.POWER, 0));
++        this.j(this.blockStateList.getBlockData().set(BlockRedstoneWire.NORTH, BlockRedstoneWire.EnumRedstoneWireConnection.NONE).set(BlockRedstoneWire.EAST, BlockRedstoneWire.EnumRedstoneWireConnection.NONE).set(BlockRedstoneWire.SOUTH, BlockRedstoneWire.EnumRedstoneWireConnection.NONE).set(BlockRedstoneWire.WEST, BlockRedstoneWire.EnumRedstoneWireConnection.NONE).set(BlockRedstoneWire.POWER, Integer.valueOf(0)));
+         this.a(0.0F, 0.0F, 0.0F, 1.0F, 0.0625F, 1.0F);
+     }
+ 
+@@ -79,7 +81,7 @@
+ 
+     private IBlockData a(World world, BlockPosition blockposition, BlockPosition blockposition1, IBlockData iblockdata) {
+         IBlockData iblockdata1 = iblockdata;
+-        int i = (Integer) iblockdata.get(BlockRedstoneWire.POWER);
++        int i = ((Integer) iblockdata.get(BlockRedstoneWire.POWER)).intValue();
+         byte b0 = 0;
+         int j = this.getPower(world, blockposition1, b0);
+ 
+@@ -124,13 +126,33 @@
+             j = k;
+         }
+ 
++        // CraftBukkit start
+         if (i != j) {
+-            iblockdata = iblockdata.set(BlockRedstoneWire.POWER, j);
++            BlockRedstoneEvent event = new BlockRedstoneEvent(world.getWorld().getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ()), i, j);
++            world.getServer().getPluginManager().callEvent(event);
++
++            j = event.getNewCurrent();
++        }
++        // CraftBukkit end
++
++        if (i != j) {
++            iblockdata = iblockdata.set(BlockRedstoneWire.POWER, Integer.valueOf(j));
+             if (world.getType(blockposition) == iblockdata1) {
+                 world.setTypeAndData(blockposition, iblockdata, 2);
+             }
+ 
+             this.R.add(blockposition);
++            // PaperSpigot start - Fix cannons
++            if (world.paperSpigotConfig.fixCannons) {
++                this.R.add(blockposition.shift(EnumDirection.WEST));
++                this.R.add(blockposition.shift(EnumDirection.EAST));
++                this.R.add(blockposition.shift(EnumDirection.DOWN));
++                this.R.add(blockposition.shift(EnumDirection.UP));
++                this.R.add(blockposition.shift(EnumDirection.NORTH));
++                this.R.add(blockposition.shift(EnumDirection.SOUTH));
++                return iblockdata;
++            }
++            // PaperSpigot end
+             EnumDirection[] aenumdirection = EnumDirection.values();
+             int i1 = aenumdirection.length;
+ 
+@@ -147,6 +169,17 @@
+     private void e(World world, BlockPosition blockposition) {
+         if (world.getType(blockposition).getBlock() == this) {
+             world.applyPhysics(blockposition, this);
++            // PaperSpigot start - Fix cannons
++            if (world.paperSpigotConfig.fixCannons) {
++                world.applyPhysics(blockposition.shift(EnumDirection.WEST), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.EAST), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.NORTH), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.SOUTH), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.DOWN), this);
++                world.applyPhysics(blockposition.shift(EnumDirection.UP), this);
++                return;
++            }
++            // PaperSpigot end
+             EnumDirection[] aenumdirection = EnumDirection.values();
+             int i = aenumdirection.length;
+ 
+@@ -236,7 +269,7 @@
+         if (world.getType(blockposition).getBlock() != this) {
+             return i;
+         } else {
+-            int j = (Integer) world.getType(blockposition).get(BlockRedstoneWire.POWER);
++            int j = ((Integer) world.getType(blockposition).get(BlockRedstoneWire.POWER)).intValue();
+ 
+             return j > i ? j : i;
+         }
+@@ -266,7 +299,7 @@
+         if (!this.Q) {
+             return 0;
+         } else {
+-            int i = (Integer) iblockdata.get(BlockRedstoneWire.POWER);
++            int i = ((Integer) iblockdata.get(BlockRedstoneWire.POWER)).intValue();
+ 
+             if (i == 0) {
+                 return 0;
+@@ -332,15 +365,15 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockRedstoneWire.POWER, i);
++        return this.getBlockData().set(BlockRedstoneWire.POWER, Integer.valueOf(i));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+-        return (Integer) iblockdata.get(BlockRedstoneWire.POWER);
++        return ((Integer) iblockdata.get(BlockRedstoneWire.POWER)).intValue();
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockRedstoneWire.NORTH, BlockRedstoneWire.EAST, BlockRedstoneWire.SOUTH, BlockRedstoneWire.WEST, BlockRedstoneWire.POWER});
++        return new BlockStateList(this, new IBlockState[] { BlockRedstoneWire.NORTH, BlockRedstoneWire.EAST, BlockRedstoneWire.SOUTH, BlockRedstoneWire.WEST, BlockRedstoneWire.POWER});
+     }
+ 
+     static enum EnumRedstoneWireConnection implements INamable {

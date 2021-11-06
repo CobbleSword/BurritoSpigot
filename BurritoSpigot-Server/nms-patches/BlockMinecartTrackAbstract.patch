@@ -1,0 +1,182 @@
+--- a/net/minecraft/server/BlockMinecartTrackAbstract.java
++++ b/net/minecraft/server/BlockMinecartTrackAbstract.java
+@@ -87,7 +87,7 @@
+                 flag = true;
+             }
+ 
+-            if (flag) {
++            if (flag && !world.isEmpty(blockposition)) { // CraftBukkit - SPIGOT-424, MC-73474
+                 this.b(world, blockposition, iblockdata, 0);
+                 world.setAir(blockposition);
+             } else {
+@@ -122,6 +122,74 @@
+ 
+     public abstract IBlockState<BlockMinecartTrackAbstract.EnumTrackPosition> n();
+ 
++    static class SyntheticClass_1 {
++
++        static final int[] a = new int[BlockMinecartTrackAbstract.EnumTrackPosition.values().length];
++
++        static {
++            try {
++                BlockMinecartTrackAbstract.SyntheticClass_1.a[BlockMinecartTrackAbstract.EnumTrackPosition.NORTH_SOUTH.ordinal()] = 1;
++            } catch (NoSuchFieldError nosuchfielderror) {
++                ;
++            }
++
++            try {
++                BlockMinecartTrackAbstract.SyntheticClass_1.a[BlockMinecartTrackAbstract.EnumTrackPosition.EAST_WEST.ordinal()] = 2;
++            } catch (NoSuchFieldError nosuchfielderror1) {
++                ;
++            }
++
++            try {
++                BlockMinecartTrackAbstract.SyntheticClass_1.a[BlockMinecartTrackAbstract.EnumTrackPosition.ASCENDING_EAST.ordinal()] = 3;
++            } catch (NoSuchFieldError nosuchfielderror2) {
++                ;
++            }
++
++            try {
++                BlockMinecartTrackAbstract.SyntheticClass_1.a[BlockMinecartTrackAbstract.EnumTrackPosition.ASCENDING_WEST.ordinal()] = 4;
++            } catch (NoSuchFieldError nosuchfielderror3) {
++                ;
++            }
++
++            try {
++                BlockMinecartTrackAbstract.SyntheticClass_1.a[BlockMinecartTrackAbstract.EnumTrackPosition.ASCENDING_NORTH.ordinal()] = 5;
++            } catch (NoSuchFieldError nosuchfielderror4) {
++                ;
++            }
++
++            try {
++                BlockMinecartTrackAbstract.SyntheticClass_1.a[BlockMinecartTrackAbstract.EnumTrackPosition.ASCENDING_SOUTH.ordinal()] = 6;
++            } catch (NoSuchFieldError nosuchfielderror5) {
++                ;
++            }
++
++            try {
++                BlockMinecartTrackAbstract.SyntheticClass_1.a[BlockMinecartTrackAbstract.EnumTrackPosition.SOUTH_EAST.ordinal()] = 7;
++            } catch (NoSuchFieldError nosuchfielderror6) {
++                ;
++            }
++
++            try {
++                BlockMinecartTrackAbstract.SyntheticClass_1.a[BlockMinecartTrackAbstract.EnumTrackPosition.SOUTH_WEST.ordinal()] = 8;
++            } catch (NoSuchFieldError nosuchfielderror7) {
++                ;
++            }
++
++            try {
++                BlockMinecartTrackAbstract.SyntheticClass_1.a[BlockMinecartTrackAbstract.EnumTrackPosition.NORTH_WEST.ordinal()] = 9;
++            } catch (NoSuchFieldError nosuchfielderror8) {
++                ;
++            }
++
++            try {
++                BlockMinecartTrackAbstract.SyntheticClass_1.a[BlockMinecartTrackAbstract.EnumTrackPosition.NORTH_EAST.ordinal()] = 10;
++            } catch (NoSuchFieldError nosuchfielderror9) {
++                ;
++            }
++
++        }
++    }
++
+     public static enum EnumTrackPosition implements INamable {
+ 
+         NORTH_SOUTH(0, "north_south"), EAST_WEST(1, "east_west"), ASCENDING_EAST(2, "ascending_east"), ASCENDING_WEST(3, "ascending_west"), ASCENDING_NORTH(4, "ascending_north"), ASCENDING_SOUTH(5, "ascending_south"), SOUTH_EAST(6, "south_east"), SOUTH_WEST(7, "south_west"), NORTH_WEST(8, "north_west"), NORTH_EAST(9, "north_east");
+@@ -194,46 +262,55 @@
+ 
+         private void a(BlockMinecartTrackAbstract.EnumTrackPosition blockminecarttrackabstract_enumtrackposition) {
+             this.g.clear();
+-            switch (blockminecarttrackabstract_enumtrackposition) {
+-                case NORTH_SOUTH:
+-                    this.g.add(this.c.north());
+-                    this.g.add(this.c.south());
+-                    break;
+-                case EAST_WEST:
+-                    this.g.add(this.c.west());
+-                    this.g.add(this.c.east());
+-                    break;
+-                case ASCENDING_EAST:
+-                    this.g.add(this.c.west());
+-                    this.g.add(this.c.east().up());
+-                    break;
+-                case ASCENDING_WEST:
+-                    this.g.add(this.c.west().up());
+-                    this.g.add(this.c.east());
+-                    break;
+-                case ASCENDING_NORTH:
+-                    this.g.add(this.c.north().up());
+-                    this.g.add(this.c.south());
+-                    break;
+-                case ASCENDING_SOUTH:
+-                    this.g.add(this.c.north());
+-                    this.g.add(this.c.south().up());
+-                    break;
+-                case SOUTH_EAST:
+-                    this.g.add(this.c.east());
+-                    this.g.add(this.c.south());
+-                    break;
+-                case SOUTH_WEST:
+-                    this.g.add(this.c.west());
+-                    this.g.add(this.c.south());
+-                    break;
+-                case NORTH_WEST:
+-                    this.g.add(this.c.west());
+-                    this.g.add(this.c.north());
+-                    break;
+-                case NORTH_EAST:
+-                    this.g.add(this.c.east());
+-                    this.g.add(this.c.north());
++            switch (BlockMinecartTrackAbstract.SyntheticClass_1.a[blockminecarttrackabstract_enumtrackposition.ordinal()]) {
++            case 1:
++                this.g.add(this.c.north());
++                this.g.add(this.c.south());
++                break;
++
++            case 2:
++                this.g.add(this.c.west());
++                this.g.add(this.c.east());
++                break;
++
++            case 3:
++                this.g.add(this.c.west());
++                this.g.add(this.c.east().up());
++                break;
++
++            case 4:
++                this.g.add(this.c.west().up());
++                this.g.add(this.c.east());
++                break;
++
++            case 5:
++                this.g.add(this.c.north().up());
++                this.g.add(this.c.south());
++                break;
++
++            case 6:
++                this.g.add(this.c.north());
++                this.g.add(this.c.south().up());
++                break;
++
++            case 7:
++                this.g.add(this.c.east());
++                this.g.add(this.c.south());
++                break;
++
++            case 8:
++                this.g.add(this.c.west());
++                this.g.add(this.c.south());
++                break;
++
++            case 9:
++                this.g.add(this.c.west());
++                this.g.add(this.c.north());
++                break;
++
++            case 10:
++                this.g.add(this.c.east());
++                this.g.add(this.c.north());
+             }
+ 
+         }

@@ -1,0 +1,50 @@
+--- a/net/minecraft/server/Village.java
++++ b/net/minecraft/server/Village.java
+@@ -62,7 +62,7 @@
+                 EntityIronGolem entityirongolem = new EntityIronGolem(this.a);
+ 
+                 entityirongolem.setPosition(vec3d.a, vec3d.b, vec3d.c);
+-                this.a.addEntity(entityirongolem);
++                this.a.addEntity(entityirongolem, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.VILLAGE_DEFENSE); // CraftBukkit
+                 ++this.l;
+             }
+         }
+@@ -346,14 +346,14 @@
+     public int a(String s) {
+         Integer integer = (Integer) this.j.get(s);
+ 
+-        return integer != null ? integer : 0;
++        return integer != null ? integer.intValue() : 0;
+     }
+ 
+     public int a(String s, int i) {
+         int j = this.a(s);
+         int k = MathHelper.clamp(j + i, -30, 10);
+ 
+-        this.j.put(s, k);
++        this.j.put(s, Integer.valueOf(k));
+         return k;
+     }
+ 
+@@ -389,10 +389,10 @@
+                 GameProfile gameprofile = usercache.a(UUID.fromString(nbttagcompound2.getString("UUID")));
+ 
+                 if (gameprofile != null) {
+-                    this.j.put(gameprofile.getName(), nbttagcompound2.getInt("S"));
++                    this.j.put(gameprofile.getName(), Integer.valueOf(nbttagcompound2.getInt("S")));
+                 }
+             } else {
+-                this.j.put(nbttagcompound2.getString("Name"), nbttagcompound2.getInt("S"));
++                this.j.put(nbttagcompound2.getString("Name"), Integer.valueOf(nbttagcompound2.getInt("S")));
+             }
+         }
+ 
+@@ -439,7 +439,7 @@
+ 
+             if (gameprofile != null) {
+                 nbttagcompound2.setString("UUID", gameprofile.getId().toString());
+-                nbttagcompound2.setInt("S", (Integer) this.j.get(s));
++                nbttagcompound2.setInt("S", ((Integer) this.j.get(s)).intValue());
+                 nbttaglist1.add(nbttagcompound2);
+             }
+         }

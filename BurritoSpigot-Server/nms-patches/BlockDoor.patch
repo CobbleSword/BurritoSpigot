@@ -1,0 +1,109 @@
+--- a/net/minecraft/server/BlockDoor.java
++++ b/net/minecraft/server/BlockDoor.java
+@@ -3,6 +3,8 @@
+ import com.google.common.base.Predicate;
+ import java.util.Random;
+ 
++import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
++
+ public class BlockDoor extends Block {
+ 
+     public static final BlockStateDirection FACING = BlockStateDirection.of("facing", (Predicate) EnumDirection.EnumDirectionLimit.HORIZONTAL);
+@@ -13,7 +15,7 @@
+ 
+     protected BlockDoor(Material material) {
+         super(material);
+-        this.j(this.blockStateList.getBlockData().set(BlockDoor.FACING, EnumDirection.NORTH).set(BlockDoor.OPEN, false).set(BlockDoor.HINGE, BlockDoor.EnumDoorHinge.LEFT).set(BlockDoor.POWERED, false).set(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER));
++        this.j(this.blockStateList.getBlockData().set(BlockDoor.FACING, EnumDirection.NORTH).set(BlockDoor.OPEN, Boolean.valueOf(false)).set(BlockDoor.HINGE, BlockDoor.EnumDoorHinge.LEFT).set(BlockDoor.POWERED, Boolean.valueOf(false)).set(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER));
+     }
+ 
+     public String getName() {
+@@ -100,7 +102,7 @@
+                 iblockdata = iblockdata1.a(BlockDoor.OPEN);
+                 world.setTypeAndData(blockposition1, iblockdata, 2);
+                 world.b(blockposition1, blockposition);
+-                world.a(entityhuman, (Boolean) iblockdata.get(BlockDoor.OPEN) ? 1003 : 1006, blockposition, 0);
++                world.a(entityhuman, ((Boolean) iblockdata.get(BlockDoor.OPEN)).booleanValue() ? 1003 : 1006, blockposition, 0);
+                 return true;
+             }
+         }
+@@ -113,8 +115,8 @@
+             BlockPosition blockposition1 = iblockdata.get(BlockDoor.HALF) == BlockDoor.EnumDoorHalf.LOWER ? blockposition : blockposition.down();
+             IBlockData iblockdata1 = blockposition == blockposition1 ? iblockdata : world.getType(blockposition1);
+ 
+-            if (iblockdata1.getBlock() == this && (Boolean) iblockdata1.get(BlockDoor.OPEN) != flag) {
+-                world.setTypeAndData(blockposition1, iblockdata1.set(BlockDoor.OPEN, flag), 2);
++            if (iblockdata1.getBlock() == this && ((Boolean) iblockdata1.get(BlockDoor.OPEN)).booleanValue() != flag) {
++                world.setTypeAndData(blockposition1, iblockdata1.set(BlockDoor.OPEN, Boolean.valueOf(flag)), 2);
+                 world.b(blockposition1, blockposition);
+                 world.a((EntityHuman) null, flag ? 1003 : 1006, blockposition, 0);
+             }
+@@ -155,16 +157,30 @@
+                     this.b(world, blockposition, iblockdata, 0);
+                 }
+             } else {
+-                boolean flag1 = world.isBlockIndirectlyPowered(blockposition) || world.isBlockIndirectlyPowered(blockposition2);
+ 
+-                if ((flag1 || block.isPowerSource()) && block != this && flag1 != (Boolean) iblockdata2.get(BlockDoor.POWERED)) {
+-                    world.setTypeAndData(blockposition2, iblockdata2.set(BlockDoor.POWERED, flag1), 2);
+-                    if (flag1 != (Boolean) iblockdata.get(BlockDoor.OPEN)) {
+-                        world.setTypeAndData(blockposition, iblockdata.set(BlockDoor.OPEN, flag1), 2);
++                // CraftBukkit start
++                org.bukkit.World bworld = world.getWorld();
++                org.bukkit.block.Block bukkitBlock = bworld.getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ());
++                org.bukkit.block.Block blockTop = bworld.getBlockAt(blockposition2.getX(), blockposition2.getY(), blockposition2.getZ());
++
++                int power = bukkitBlock.getBlockPower();
++                int powerTop = blockTop.getBlockPower();
++                if (powerTop > power) power = powerTop;
++                int oldPower = (Boolean)iblockdata2.get(POWERED) ? 15 : 0;
++
++                if (oldPower == 0 ^ power == 0) {
++                    BlockRedstoneEvent eventRedstone = new BlockRedstoneEvent(bukkitBlock, oldPower, power);
++                    world.getServer().getPluginManager().callEvent(eventRedstone);
++
++                    boolean flag1 = eventRedstone.getNewCurrent() > 0;
++                    world.setTypeAndData(blockposition2, iblockdata2.set(BlockDoor.POWERED, Boolean.valueOf(flag1)), 2);
++                    if (flag1 != ((Boolean) iblockdata.get(BlockDoor.OPEN)).booleanValue()) {
++                        world.setTypeAndData(blockposition, iblockdata.set(BlockDoor.OPEN, Boolean.valueOf(flag1)), 2);
+                         world.b(blockposition, blockposition);
+                         world.a((EntityHuman) null, flag1 ? 1003 : 1006, blockposition, 0);
+                     }
+                 }
++                // CraftBukkit end
+             }
+         }
+ 
+@@ -235,7 +251,7 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return (i & 8) > 0 ? this.getBlockData().set(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER).set(BlockDoor.HINGE, (i & 1) > 0 ? BlockDoor.EnumDoorHinge.RIGHT : BlockDoor.EnumDoorHinge.LEFT).set(BlockDoor.POWERED, (i & 2) > 0) : this.getBlockData().set(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER).set(BlockDoor.FACING, EnumDirection.fromType2(i & 3).f()).set(BlockDoor.OPEN, (i & 4) > 0);
++        return (i & 8) > 0 ? this.getBlockData().set(BlockDoor.HALF, BlockDoor.EnumDoorHalf.UPPER).set(BlockDoor.HINGE, (i & 1) > 0 ? BlockDoor.EnumDoorHinge.RIGHT : BlockDoor.EnumDoorHinge.LEFT).set(BlockDoor.POWERED, Boolean.valueOf((i & 2) > 0)) : this.getBlockData().set(BlockDoor.HALF, BlockDoor.EnumDoorHalf.LOWER).set(BlockDoor.FACING, EnumDirection.fromType2(i & 3).f()).set(BlockDoor.OPEN, Boolean.valueOf((i & 4) > 0));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+@@ -248,12 +264,12 @@
+                 i |= 1;
+             }
+ 
+-            if ((Boolean) iblockdata.get(BlockDoor.POWERED)) {
++            if (((Boolean) iblockdata.get(BlockDoor.POWERED)).booleanValue()) {
+                 i |= 2;
+             }
+         } else {
+             i = b0 | ((EnumDirection) iblockdata.get(BlockDoor.FACING)).e().b();
+-            if ((Boolean) iblockdata.get(BlockDoor.OPEN)) {
++            if (((Boolean) iblockdata.get(BlockDoor.OPEN)).booleanValue()) {
+                 i |= 4;
+             }
+         }
+@@ -290,7 +306,7 @@
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockDoor.HALF, BlockDoor.FACING, BlockDoor.OPEN, BlockDoor.HINGE, BlockDoor.POWERED});
++        return new BlockStateList(this, new IBlockState[] { BlockDoor.HALF, BlockDoor.FACING, BlockDoor.OPEN, BlockDoor.HINGE, BlockDoor.POWERED});
+     }
+ 
+     public static enum EnumDoorHinge implements INamable {

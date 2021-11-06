@@ -1,0 +1,20 @@
+--- a/net/minecraft/server/WorldGenForestTree.java
++++ b/net/minecraft/server/WorldGenForestTree.java
+@@ -5,7 +5,7 @@
+ public class WorldGenForestTree extends WorldGenTreeAbstract {
+ 
+     private static final IBlockData a = Blocks.LOG2.getBlockData().set(BlockLog2.VARIANT, BlockWood.EnumLogVariant.DARK_OAK);
+-    private static final IBlockData b = Blocks.LEAVES2.getBlockData().set(BlockLeaves2.VARIANT, BlockWood.EnumLogVariant.DARK_OAK).set(BlockLeaves.CHECK_DECAY, false);
++    private static final IBlockData b = Blocks.LEAVES2.getBlockData().set(BlockLeaves2.VARIANT, BlockWood.EnumLogVariant.DARK_OAK).set(BlockLeaves.CHECK_DECAY, Boolean.valueOf(false));
+ 
+     public WorldGenForestTree(boolean flag) {
+         super(flag);
+@@ -149,7 +149,7 @@
+ 
+             for (int j1 = -b0; j1 <= b0; ++j1) {
+                 for (int k1 = -b0; k1 <= b0; ++k1) {
+-                    if (!this.a(world.getType(blockposition_mutableblockposition.setValues(j + j1, k + i1, l + k1)).getBlock())) {
++                    if (!this.a(world.getType(blockposition_mutableblockposition.c(j + j1, k + i1, l + k1)).getBlock())) {
+                         return false;
+                     }
+                 }

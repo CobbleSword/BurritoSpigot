@@ -32,7 +32,7 @@ jobs:
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ github.job }}
+        tag_name: BurritoSpigot ${{ github.sha }}
         release_name: BurritoSpigot ${{ github.sha }}
         body: BurritoSpigot Update
         draft: false

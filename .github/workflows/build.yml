@@ -25,3 +25,27 @@ jobs:
       with:
         name: Package
         path: ./BurritoSpigot-Server/target/BurritoSpigot.jar
+    - name: Get Hash
+      id: hash
+      run: echo "git_hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_HASH
+      
+    - name: Create Release Draft
+      id: createDraft
+      uses: actions/create-release@v1.1.4
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ env.hash }}
+        release_name: BurritoSpigot ${{ env.hash }}
+        body: BurritoSpigot Update
+        draft: false
+    - name: Upload Release Asset
+      id: upload-release-asset
+      uses: actions/upload-release-asset@v1.0.2
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.createDraft.outputs.upload_url }}
+        asset_path: ./PathToSpigot.jar
+        asset_name: BurritoSpigot.jar
+        asset_content_type: application/zip # use jar mime type instead

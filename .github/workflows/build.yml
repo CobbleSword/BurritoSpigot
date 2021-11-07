@@ -25,18 +25,15 @@ jobs:
       with:
         name: Package
         path: ./BurritoSpigot-Server/target/BurritoSpigot.jar
-    - name: Get Hash
-      id: hash
-      run: echo "git_hash=$(git rev-parse --short "$GITHUB_SHA")" >> $GITHUB_HASH
-      
+        
     - name: Create Release Draft
       id: createDraft
       uses: actions/create-release@v1.1.4
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: ${{ env.hash }}
-        release_name: BurritoSpigot ${{ env.hash }}
+        tag_name: ${{ github.ref }}
+        release_name: BurritoSpigot ${{ github.ref }}
         body: BurritoSpigot Update
         draft: false
     - name: Upload Release Asset

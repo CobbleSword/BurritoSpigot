@@ -33,7 +33,7 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: ${{ github.job }}
-        release_name: BurritoSpigot ${{ github.job }}
+        release_name: BurritoSpigot ${{ github.sha }}
         body: BurritoSpigot Update
         draft: false
     - name: Upload Release Asset
@@ -45,4 +45,4 @@ jobs:
         upload_url: ${{ steps.createDraft.outputs.upload_url }}
         asset_path: ./BurritoSpigot-Server/target/BurritoSpigot.jar
         asset_name: BurritoSpigot.jar
-        asset_content_type: application/zip # use jar mime type instead
+        asset_content_type: application/java-archive

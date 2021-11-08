@@ -1,0 +1,129 @@
+--- a/net/minecraft/server/ChatModifier.java
++++ b/net/minecraft/server/ChatModifier.java
+@@ -115,23 +115,23 @@
+     }
+ 
+     public boolean isBold() {
+-        return this.c == null ? this.o().isBold() : this.c;
++        return this.c == null ? this.o().isBold() : this.c.booleanValue();
+     }
+ 
+     public boolean isItalic() {
+-        return this.d == null ? this.o().isItalic() : this.d;
++        return this.d == null ? this.o().isItalic() : this.d.booleanValue();
+     }
+ 
+     public boolean isStrikethrough() {
+-        return this.f == null ? this.o().isStrikethrough() : this.f;
++        return this.f == null ? this.o().isStrikethrough() : this.f.booleanValue();
+     }
+ 
+     public boolean isUnderlined() {
+-        return this.e == null ? this.o().isUnderlined() : this.e;
++        return this.e == null ? this.o().isUnderlined() : this.e.booleanValue();
+     }
+ 
+     public boolean isRandom() {
+-        return this.g == null ? this.o().isRandom() : this.g;
++        return this.g == null ? this.o().isRandom() : this.g.booleanValue();
+     }
+ 
+     public boolean g() {
+@@ -218,8 +218,7 @@
+             boolean flag;
+ 
+             if (this.isBold() == chatmodifier.isBold() && this.getColor() == chatmodifier.getColor() && this.isItalic() == chatmodifier.isItalic() && this.isRandom() == chatmodifier.isRandom() && this.isStrikethrough() == chatmodifier.isStrikethrough() && this.isUnderlined() == chatmodifier.isUnderlined()) {
+-                label65:
+-                {
++                label65: {
+                     if (this.h() != null) {
+                         if (!this.h().equals(chatmodifier.h())) {
+                             break label65;
+@@ -255,16 +254,18 @@
+     }
+ 
+     public int hashCode() {
+-        int i = this.b.hashCode();
++        // CraftBukkit start - fix npe
++        int i = b == null ? 0 : this.b.hashCode();
+ 
+-        i = 31 * i + this.c.hashCode();
+-        i = 31 * i + this.d.hashCode();
+-        i = 31 * i + this.e.hashCode();
+-        i = 31 * i + this.f.hashCode();
+-        i = 31 * i + this.g.hashCode();
+-        i = 31 * i + this.h.hashCode();
+-        i = 31 * i + this.i.hashCode();
+-        i = 31 * i + this.j.hashCode();
++        i = 31 * i + (c == null ? 0 : this.c.hashCode());
++        i = 31 * i + (d == null ? 0 : this.d.hashCode());
++        i = 31 * i + (e == null ? 0 : this.e.hashCode());
++        i = 31 * i + (f == null ? 0 : this.f.hashCode());
++        i = 31 * i + (g == null ? 0 : this.g.hashCode());
++        i = 31 * i + (h == null ? 0 : this.h.hashCode());
++        i = 31 * i + (this.i == null ? 0 : this.i.hashCode());
++        i = 31 * i + (j == null ? 0 : this.j.hashCode());
++        // CraftBukkit end
+         return i;
+     }
+ 
+@@ -287,11 +288,11 @@
+     public ChatModifier n() {
+         ChatModifier chatmodifier = new ChatModifier();
+ 
+-        chatmodifier.setBold(this.isBold());
+-        chatmodifier.setItalic(this.isItalic());
+-        chatmodifier.setStrikethrough(this.isStrikethrough());
+-        chatmodifier.setUnderline(this.isUnderlined());
+-        chatmodifier.setRandom(this.isRandom());
++        chatmodifier.setBold(Boolean.valueOf(this.isBold()));
++        chatmodifier.setItalic(Boolean.valueOf(this.isItalic()));
++        chatmodifier.setStrikethrough(Boolean.valueOf(this.isStrikethrough()));
++        chatmodifier.setUnderline(Boolean.valueOf(this.isUnderlined()));
++        chatmodifier.setRandom(Boolean.valueOf(this.isRandom()));
+         chatmodifier.setColor(this.getColor());
+         chatmodifier.setChatClickable(this.h());
+         chatmodifier.setChatHoverable(this.i());
+@@ -312,23 +313,23 @@
+                     return null;
+                 } else {
+                     if (jsonobject.has("bold")) {
+-                        chatmodifier.c = jsonobject.get("bold").getAsBoolean();
++                        chatmodifier.c = Boolean.valueOf(jsonobject.get("bold").getAsBoolean());
+                     }
+ 
+                     if (jsonobject.has("italic")) {
+-                        chatmodifier.d = jsonobject.get("italic").getAsBoolean();
++                        chatmodifier.d = Boolean.valueOf(jsonobject.get("italic").getAsBoolean());
+                     }
+ 
+                     if (jsonobject.has("underlined")) {
+-                        chatmodifier.e = jsonobject.get("underlined").getAsBoolean();
++                        chatmodifier.e = Boolean.valueOf(jsonobject.get("underlined").getAsBoolean());
+                     }
+ 
+                     if (jsonobject.has("strikethrough")) {
+-                        chatmodifier.f = jsonobject.get("strikethrough").getAsBoolean();
++                        chatmodifier.f = Boolean.valueOf(jsonobject.get("strikethrough").getAsBoolean());
+                     }
+ 
+                     if (jsonobject.has("obfuscated")) {
+-                        chatmodifier.g = jsonobject.get("obfuscated").getAsBoolean();
++                        chatmodifier.g = Boolean.valueOf(jsonobject.get("obfuscated").getAsBoolean());
+                     }
+ 
+                     if (jsonobject.has("color")) {
+@@ -430,11 +431,11 @@
+             }
+         }
+ 
+-        public JsonElement serialize(Object object, Type type, JsonSerializationContext jsonserializationcontext) {
++        public JsonElement serialize(ChatModifier object, Type type, JsonSerializationContext jsonserializationcontext) { // CraftBukkit - fix decompile error
+             return this.a((ChatModifier) object, type, jsonserializationcontext);
+         }
+ 
+-        public Object deserialize(JsonElement jsonelement, Type type, JsonDeserializationContext jsondeserializationcontext) throws JsonParseException {
++        public ChatModifier deserialize(JsonElement jsonelement, Type type, JsonDeserializationContext jsondeserializationcontext) throws JsonParseException { // CraftBukkit - fix decompile error
+             return this.a(jsonelement, type, jsondeserializationcontext);
+         }
+     }

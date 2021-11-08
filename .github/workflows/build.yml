@@ -20,13 +20,15 @@ jobs:
         distribution: 'temurin'
         cache: maven
     - name: Build with Maven
-      run: mvn clean install
+      run: cd BurritoSpigot-Server && ./burrito build
     - uses: actions/upload-artifact@v2
+      if: ${{ matrix.java == 8 }}
       with:
         name: BurritoSpigot
         path: ./BurritoSpigot-Server/target/BurritoSpigot.jar
         
     - name: Create Release Draft
+      if: ${{ github.event_name != 'pull_request' }}
       id: createDraft
       uses: actions/create-release@v1.1.4
       env:
@@ -37,6 +39,7 @@ jobs:
         body: BurritoSpigot Update
         draft: false
     - name: Upload Release Asset
+      if: ${{ github.event_name != 'pull_request' }}
       id: upload-release-asset
       uses: actions/upload-release-asset@v1.0.2
       env:

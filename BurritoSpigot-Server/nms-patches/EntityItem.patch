@@ -1,0 +1,195 @@
+--- a/net/minecraft/server/EntityItem.java
++++ b/net/minecraft/server/EntityItem.java
+@@ -3,8 +3,16 @@
+ import java.util.Iterator;
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
++import org.bukkit.event.player.PlayerPickupItemEvent; // CraftBukkit
++import net.techcable.tacospigot.HopperPusher; // TacoSpigot
+ 
+-public class EntityItem extends Entity {
++// TacoSpigot start - implement HopperPusher
++public class EntityItem extends Entity implements HopperPusher {
++    @Override
++    public boolean acceptItem(TileEntityHopper hopper) {
++        return TileEntityHopper.a(hopper, this);
++    }
++    // TacoSpigot end
+ 
+     private static final Logger b = LogManager.getLogger();
+     private int age;
+@@ -13,6 +21,7 @@
+     private String f;
+     private String g;
+     public float a;
++    private int lastTick = MinecraftServer.currentTick; // CraftBukkit
+ 
+     public EntityItem(World world, double d0, double d1, double d2) {
+         super(world);
+@@ -28,6 +37,11 @@
+ 
+     public EntityItem(World world, double d0, double d1, double d2, ItemStack itemstack) {
+         this(world, d0, d1, d2);
++        // CraftBukkit start - Can't set null items in the datawatcher
++        if (itemstack == null || itemstack.getItem() == null) {
++            return;
++        }
++        // CraftBukkit end
+         this.setItemStack(itemstack);
+     }
+ 
+@@ -52,9 +66,13 @@
+             this.die();
+         } else {
+             super.t_();
+-            if (this.pickupDelay > 0 && this.pickupDelay != 32767) {
+-                --this.pickupDelay;
+-            }
++            if (tryPutInHopper()) return; // TacoSpigot
++            // CraftBukkit start - Use wall time for pickup and despawn timers
++            int elapsedTicks = MinecraftServer.currentTick - this.lastTick;
++            if (this.pickupDelay != 32767) this.pickupDelay -= elapsedTicks;
++            if (this.age != -32768) this.age += elapsedTicks;
++            this.lastTick = MinecraftServer.currentTick;
++            // CraftBukkit end
+ 
+             this.lastX = this.locX;
+             this.lastY = this.locY;
+@@ -90,20 +108,56 @@
+                 this.motY *= -0.5D;
+             }
+ 
++            /* Craftbukkit start - moved up
+             if (this.age != -32768) {
+                 ++this.age;
+             }
++            // Craftbukkit end */
++
+ 
+             this.W();
+-            if (!this.world.isClientSide && this.age >= 6000) {
++            if (!this.world.isClientSide && this.age >= world.spigotConfig.itemDespawnRate) { // Spigot
++                // CraftBukkit start - fire ItemDespawnEvent
++                if (org.bukkit.craftbukkit.event.CraftEventFactory.callItemDespawnEvent(this).isCancelled()) {
++                    this.age = 0;
++                    return;
++                }
++                // CraftBukkit end
+                 this.die();
+             }
+ 
+         }
+     }
+ 
++    // Spigot start - copied from above
++    @Override
++    public void inactiveTick() {
++        if (tryPutInHopper()) return; // TacoSpigot
++        // CraftBukkit end
++        // CraftBukkit start - Use wall time for pickup and despawn timers
++        int elapsedTicks = MinecraftServer.currentTick - this.lastTick;
++        if (this.pickupDelay != 32767) this.pickupDelay -= elapsedTicks;
++        if (this.age != -32768) this.age += elapsedTicks;
++        this.lastTick = MinecraftServer.currentTick;
++        // CraftBukkit end
++
++        if (!this.world.isClientSide && this.age >= world.spigotConfig.itemDespawnRate) { // Spigot
++            // CraftBukkit start - fire ItemDespawnEvent
++            if (org.bukkit.craftbukkit.event.CraftEventFactory.callItemDespawnEvent(this).isCancelled()) {
++                this.age = 0;
++                return;
++            }
++            // CraftBukkit end
++            this.die();
++        }
++    }
++    // Spigot end
++
+     private void w() {
+-        Iterator iterator = this.world.a(EntityItem.class, this.getBoundingBox().grow(0.5D, 0.0D, 0.5D)).iterator();
++        // Spigot start
++        double radius = world.spigotConfig.itemMerge;
++        Iterator iterator = this.world.a(EntityItem.class, this.getBoundingBox().grow(radius, radius, radius)).iterator();
++        // Spigot end
+ 
+         while (iterator.hasNext()) {
+             EntityItem entityitem = (EntityItem) iterator.next();
+@@ -137,11 +191,14 @@
+                     } else if (itemstack1.count + itemstack.count > itemstack1.getMaxStackSize()) {
+                         return false;
+                     } else {
+-                        itemstack1.count += itemstack.count;
+-                        entityitem.pickupDelay = Math.max(entityitem.pickupDelay, this.pickupDelay);
+-                        entityitem.age = Math.min(entityitem.age, this.age);
+-                        entityitem.setItemStack(itemstack1);
+-                        this.die();
++                        // Spigot start
++                        if (org.bukkit.craftbukkit.event.CraftEventFactory.callItemMergeEvent(entityitem, this).isCancelled()) return false; // CraftBukkit
++                        itemstack.count += itemstack1.count;
++                        this.pickupDelay = Math.max(entityitem.pickupDelay, this.pickupDelay);
++                        this.age = Math.min(entityitem.age, this.age);
++                        this.setItemStack(itemstack);
++                        entityitem.die();
++                        // Spigot end
+                         return true;
+                     }
+                 } else {
+@@ -183,6 +240,11 @@
+         } else if (this.getItemStack() != null && this.getItemStack().getItem() == Items.NETHER_STAR && damagesource.isExplosion()) {
+             return false;
+         } else {
++            // CraftBukkit start
++            if (org.bukkit.craftbukkit.event.CraftEventFactory.handleNonLivingEntityDamageEvent(this, damagesource, f)) {
++                return false;
++            }
++            // CraftBukkit end
+             this.ac();
+             this.e = (int) ((float) this.e - f);
+             if (this.e <= 0) {
+@@ -228,7 +290,18 @@
+ 
+         NBTTagCompound nbttagcompound1 = nbttagcompound.getCompound("Item");
+ 
+-        this.setItemStack(ItemStack.createStack(nbttagcompound1));
++        // CraftBukkit start - Handle missing "Item" compounds
++        if (nbttagcompound1 != null) {
++            ItemStack itemstack = ItemStack.createStack(nbttagcompound1);
++            if (itemstack != null) {
++                this.setItemStack(itemstack);
++            } else {
++                this.die();
++            }
++        } else {
++            this.die();
++        }
++        // CraftBukkit end
+         if (this.getItemStack() == null) {
+             this.die();
+         }
+@@ -240,6 +313,26 @@
+             ItemStack itemstack = this.getItemStack();
+             int i = itemstack.count;
+ 
++            // CraftBukkit start - fire PlayerPickupItemEvent
++            int canHold = entityhuman.inventory.canHold(itemstack);
++            int remaining = itemstack.count - canHold;
++
++            if (this.pickupDelay <= 0 && canHold > 0) {
++                itemstack.count = canHold;
++                PlayerPickupItemEvent event = new PlayerPickupItemEvent((org.bukkit.entity.Player) entityhuman.getBukkitEntity(), (org.bukkit.entity.Item) this.getBukkitEntity(), remaining);
++                // event.setCancelled(!entityhuman.canPickUpLoot); TODO
++                this.world.getServer().getPluginManager().callEvent(event);
++                itemstack.count = canHold + remaining;
++
++                if (event.isCancelled()) {
++                    return;
++                }
++
++                // Possibly < 0; fix here so we do not have to modify code below
++                this.pickupDelay = 0;
++            }
++            // CraftBukkit end
++
+             if (this.pickupDelay == 0 && (this.g == null || 6000 - this.age <= 200 || this.g.equals(entityhuman.getName())) && entityhuman.inventory.pickup(itemstack)) {
+                 if (itemstack.getItem() == Item.getItemOf(Blocks.LOG)) {
+                     entityhuman.b((Statistic) AchievementList.g);

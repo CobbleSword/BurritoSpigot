@@ -1,0 +1,104 @@
+--- a/net/minecraft/server/EntityAgeable.java
++++ b/net/minecraft/server/EntityAgeable.java
+@@ -7,6 +7,32 @@
+     protected int c;
+     private float bm = -1.0F;
+     private float bn;
++    public boolean ageLocked = false; // CraftBukkit
++
++    // Spigot start
++    @Override
++    public void inactiveTick()
++    {
++        super.inactiveTick();
++        if ( this.world.isClientSide || this.ageLocked )
++        { // CraftBukkit
++            this.a( this.isBaby() );
++        } else
++        {
++            int i = this.getAge();
++
++            if ( i < 0 )
++            {
++                ++i;
++                this.setAgeRaw( i );
++            } else if ( i > 0 )
++            {
++                --i;
++                this.setAgeRaw( i );
++            }
++        }
++    }
++    // Spigot end
+ 
+     public EntityAgeable(World world) {
+         super(world);
+@@ -27,14 +53,14 @@
+                     if (entityageable != null) {
+                         entityageable.setAgeRaw(-24000);
+                         entityageable.setPositionRotation(this.locX, this.locY, this.locZ, 0.0F, 0.0F);
+-                        this.world.addEntity(entityageable);
++                        this.world.addEntity(entityageable, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.SPAWNER_EGG); // CraftBukkit
+                         if (itemstack.hasName()) {
+                             entityageable.setCustomName(itemstack.getName());
+                         }
+ 
+                         if (!entityhuman.abilities.canInstantlyBuild) {
+                             --itemstack.count;
+-                            if (itemstack.count <= 0) {
++                            if (itemstack.count == 0) { // CraftBukkit - allow less than 0 stacks as "infinite"
+                                 entityhuman.inventory.setItem(entityhuman.inventory.itemInHandIndex, (ItemStack) null);
+                             }
+                         }
+@@ -50,7 +76,7 @@
+ 
+     protected void h() {
+         super.h();
+-        this.datawatcher.a(12, (byte) 0);
++        this.datawatcher.a(12, Byte.valueOf((byte) 0));
+     }
+ 
+     public int getAge() {
+@@ -90,7 +116,7 @@
+     }
+ 
+     public void setAgeRaw(int i) {
+-        this.datawatcher.watch(12, (byte) MathHelper.clamp(i, -1, 1));
++        this.datawatcher.watch(12, Byte.valueOf((byte) MathHelper.clamp(i, -1, 1)));
+         this.a = i;
+         this.a(this.isBaby());
+     }
+@@ -99,20 +125,22 @@
+         super.b(nbttagcompound);
+         nbttagcompound.setInt("Age", this.getAge());
+         nbttagcompound.setInt("ForcedAge", this.b);
++        nbttagcompound.setBoolean("AgeLocked", this.ageLocked); // CraftBukkit
+     }
+ 
+     public void a(NBTTagCompound nbttagcompound) {
+         super.a(nbttagcompound);
+         this.setAgeRaw(nbttagcompound.getInt("Age"));
+         this.b = nbttagcompound.getInt("ForcedAge");
++        this.ageLocked = nbttagcompound.getBoolean("AgeLocked"); // CraftBukkit
+     }
+ 
+     public void m() {
+         super.m();
+-        if (this.world.isClientSide) {
++        if (this.world.isClientSide || ageLocked) { // CraftBukkit
+             if (this.c > 0) {
+                 if (this.c % 4 == 0) {
+-                    this.world.addParticle(EnumParticle.VILLAGER_HAPPY, this.locX + (double) (this.random.nextFloat() * this.width * 2.0F) - (double) this.width, this.locY + 0.5D + (double) (this.random.nextFloat() * this.length), this.locZ + (double) (this.random.nextFloat() * this.width * 2.0F) - (double) this.width, 0.0D, 0.0D, 0.0D);
++                    this.world.addParticle(EnumParticle.VILLAGER_HAPPY, this.locX + (double) (this.random.nextFloat() * this.width * 2.0F) - (double) this.width, this.locY + 0.5D + (double) (this.random.nextFloat() * this.length), this.locZ + (double) (this.random.nextFloat() * this.width * 2.0F) - (double) this.width, 0.0D, 0.0D, 0.0D, new int[0]);
+                 }
+ 
+                 --this.c;
+@@ -146,7 +174,7 @@
+         this.a(flag ? 0.5F : 1.0F);
+     }
+ 
+-    protected final void setSize(float f, float f1) {
++    public final void setSize(float f, float f1) { // CraftBukkit - protected to public
+         boolean flag = this.bm > 0.0F;
+ 
+         this.bm = f;

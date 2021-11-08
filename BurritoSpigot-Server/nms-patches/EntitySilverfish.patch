@@ -1,0 +1,35 @@
+--- a/net/minecraft/server/EntitySilverfish.java
++++ b/net/minecraft/server/EntitySilverfish.java
+@@ -14,7 +14,7 @@
+         this.goalSelector.a(4, new PathfinderGoalMeleeAttack(this, EntityHuman.class, 1.0D, false));
+         this.goalSelector.a(5, new EntitySilverfish.PathfinderGoalSilverfishHideInBlock(this));
+         this.targetSelector.a(1, new PathfinderGoalHurtByTarget(this, true, new Class[0]));
+-        this.targetSelector.a(2, new PathfinderGoalNearestAttackableTarget<>(this, EntityHuman.class, true));
++        this.targetSelector.a(2, new PathfinderGoalNearestAttackableTarget(this, EntityHuman.class, true));
+     }
+ 
+     public double am() {
+@@ -144,6 +144,11 @@
+                 IBlockData iblockdata = world.getType(blockposition);
+ 
+                 if (BlockMonsterEggs.d(iblockdata)) {
++                    // CraftBukkit start
++                    if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.silverfish, blockposition.getX(), blockposition.getY(), blockposition.getZ(), Blocks.MONSTER_EGG, Block.getId(BlockMonsterEggs.getById(iblockdata.getBlock().toLegacyData(iblockdata)))).isCancelled()) {
++                        return;
++                    }
++                    // CraftBukkit end
+                     world.setTypeAndData(blockposition, Blocks.MONSTER_EGG.getBlockData().set(BlockMonsterEggs.VARIANT, BlockMonsterEggs.EnumMonsterEggVarient.a(iblockdata)), 3);
+                     this.silverfish.y();
+                     this.silverfish.die();
+@@ -187,6 +192,11 @@
+                             IBlockData iblockdata = world.getType(blockposition1);
+ 
+                             if (iblockdata.getBlock() == Blocks.MONSTER_EGG) {
++                                // CraftBukkit start
++                                if (org.bukkit.craftbukkit.event.CraftEventFactory.callEntityChangeBlockEvent(this.silverfish, blockposition1.getX(), blockposition1.getY(), blockposition1.getZ(), Blocks.AIR, 0).isCancelled()) {
++                                    continue;
++                                }
++                                // CraftBukkit end
+                                 if (world.getGameRules().getBoolean("mobGriefing")) {
+                                     world.setAir(blockposition1, true);
+                                 } else {

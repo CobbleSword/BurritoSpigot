@@ -1,0 +1,282 @@
+--- a/net/minecraft/server/TileEntityChest.java
++++ b/net/minecraft/server/TileEntityChest.java
+@@ -3,23 +3,53 @@
+ import java.util.Iterator;
+ import java.util.List;
+ 
+-public class TileEntityChest extends TileEntityContainer implements IUpdatePlayerListBox, IInventory {
++// CraftBukkit start
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++// CraftBukkit end
++
++public class TileEntityChest extends TileEntityContainer implements IInventory { // PaperSpigot - remove IUpdatePlayerListBox
+ 
+     private ItemStack[] items = new ItemStack[27];
+     public boolean a;
+-    public TileEntityChest f;
+-    public TileEntityChest g;
+-    public TileEntityChest h;
+-    public TileEntityChest i;
+-    public float j;
++    public TileEntityChest f; // PaperSpigot - adjacentChestZNeg
++    public TileEntityChest g; // PaperSpigot - adjacentChestXPos
++    public TileEntityChest h; // PaperSpigot - adjacentChestXNeg
++    public TileEntityChest i; // PaperSpigot - adjacentChestZPos
++    public float j; // PaperSpigot - lidAngle
+     public float k;
+-    public int l;
++    public int l; // PaperSpigot - numPlayersUsing
+     private int n;
+     private int o = -1;
+     private String p;
+ 
+     public TileEntityChest() {}
+ 
++    // CraftBukkit start - add fields and methods
++    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++    private int maxStack = MAX_STACK;
++
++    public ItemStack[] getContents() {
++        return this.items;
++    }
++
++    public void onOpen(CraftHumanEntity who) {
++        transaction.add(who);
++    }
++
++    public void onClose(CraftHumanEntity who) {
++        transaction.remove(who);
++    }
++
++    public List<HumanEntity> getViewers() {
++        return transaction;
++    }
++
++    public void setMaxStackSize(int size) {
++        maxStack = size;
++    }
++    // CraftBukkit end
++
+     public int getSize() {
+         return 27;
+     }
+@@ -125,10 +155,11 @@
+     }
+ 
+     public int getMaxStackSize() {
+-        return 64;
++        return maxStack; // CraftBukkit
+     }
+ 
+     public boolean a(EntityHuman entityhuman) {
++        if (this.world == null) return true; // CraftBukkit
+         return this.world.getTileEntity(this.position) != this ? false : entityhuman.e((double) this.position.getX() + 0.5D, (double) this.position.getY() + 0.5D, (double) this.position.getZ() + 0.5D) <= 64.0D;
+     }
+ 
+@@ -141,26 +172,29 @@
+         if (tileentitychest.x()) {
+             this.a = false;
+         } else if (this.a) {
+-            switch (enumdirection) {
+-                case NORTH:
+-                    if (this.f != tileentitychest) {
+-                        this.a = false;
+-                    }
+-                    break;
+-                case SOUTH:
+-                    if (this.i != tileentitychest) {
+-                        this.a = false;
+-                    }
+-                    break;
+-                case EAST:
+-                    if (this.g != tileentitychest) {
+-                        this.a = false;
+-                    }
+-                    break;
+-                case WEST:
+-                    if (this.h != tileentitychest) {
+-                        this.a = false;
+-                    }
++            switch (TileEntityChest.SyntheticClass_1.a[enumdirection.ordinal()]) {
++            case 1:
++                if (this.f != tileentitychest) {
++                    this.a = false;
++                }
++                break;
++
++            case 2:
++                if (this.i != tileentitychest) {
++                    this.a = false;
++                }
++                break;
++
++            case 3:
++                if (this.g != tileentitychest) {
++                    this.a = false;
++                }
++                break;
++
++            case 4:
++                if (this.h != tileentitychest) {
++                    this.a = false;
++                }
+             }
+         }
+ 
+@@ -204,6 +238,8 @@
+     }
+ 
+     public void c() {
++        // PaperSpigot - Move chest sounds out of the tick loop
++        /*
+         this.m();
+         int i = this.position.getX();
+         int j = this.position.getY();
+@@ -284,7 +320,8 @@
+                 this.j = 0.0F;
+             }
+         }
+-
++        */
++        // PaperSpigot end
+     }
+ 
+     public boolean c(int i, int j) {
+@@ -301,9 +338,43 @@
+             if (this.l < 0) {
+                 this.l = 0;
+             }
++            int oldPower = Math.max(0, Math.min(15, this.l)); // CraftBukkit - Get power before new viewer is added
+ 
+             ++this.l;
++            if (this.world == null) return; // CraftBukkit
++
++            // PaperSpigot start - Move chest open sound out of the tick loop
++            this.m();
++
++            if (this.l > 0 && this.j == 0.0F && this.f == null && this.h == null) {
++                this.j = 0.7F;
++
++                double d0 = (double) this.position.getZ() + 0.5D;
++                double d1 = (double) this.position.getX() + 0.5D;
++
++                if (this.i != null) {
++                    d0 += 0.5D;
++                }
++
++                if (this.g != null) {
++                    d1 += 0.5D;
++                }
++
++                this.world.makeSound(d1, (double) this.position.getY() + 0.5D, d0, "random.chestopen", 0.5F, this.world.random.nextFloat() * 0.1F + 0.9F);
++            }
++            // PaperSpigot end
++
+             this.world.playBlockAction(this.position, this.w(), 1, this.l);
++
++            // CraftBukkit start - Call redstone event
++            if (this.w() == Blocks.TRAPPED_CHEST) {
++                int newPower = Math.max(0, Math.min(15, this.l));
++
++                if (oldPower != newPower) {
++                    org.bukkit.craftbukkit.event.CraftEventFactory.callRedstoneChange(world, position.getX(), position.getY(), position.getZ(), oldPower, newPower);
++                }
++            }
++            // CraftBukkit end
+             this.world.applyPhysics(this.position, this.w());
+             this.world.applyPhysics(this.position.down(), this.w());
+         }
+@@ -312,8 +383,47 @@
+ 
+     public void closeContainer(EntityHuman entityhuman) {
+         if (!entityhuman.isSpectator() && this.w() instanceof BlockChest) {
++            int oldPower = Math.max(0, Math.min(15, this.l)); // CraftBukkit - Get power before new viewer is added
+             --this.l;
++            if (this.world == null) return; // CraftBukkit
++
++            // PaperSpigot start - Move chest close sound handling out of the tick loop
++            if (this.l == 0 && this.j > 0.0F || this.l > 0 && this.j < 1.0F) {
++                float f = 0.1F;
++
++                if (this.l > 0) {
++                    this.j += f;
++                } else {
++                    this.j -= f;
++                }
++
++                double d0 = (double) this.getPosition().getX() + 0.5D;
++                double d2 = (double) this.getPosition().getZ() + 0.5D;
++
++                if (this.i != null) {
++                    d2 += 0.5D;
++                }
++
++                if (this.g != null) {
++                    d0 += 0.5D;
++                }
++
++                this.world.makeSound(d0, (double) this.getPosition().getY() + 0.5D, d2, "random.chestclosed", 0.5F, this.world.random.nextFloat() * 0.1F + 0.9F);
++                this.j = 0.0F;
++            }
++            // PaperSpigot end
++
+             this.world.playBlockAction(this.position, this.w(), 1, this.l);
++
++            // CraftBukkit start - Call redstone event
++            if (this.w() == Blocks.TRAPPED_CHEST) {
++                int newPower = Math.max(0, Math.min(15, this.l));
++
++                if (oldPower != newPower) {
++                    org.bukkit.craftbukkit.event.CraftEventFactory.callRedstoneChange(world, position.getX(), position.getY(), position.getZ(), oldPower, newPower);
++                }
++            }
++            // CraftBukkit end
+             this.world.applyPhysics(this.position, this.w());
+             this.world.applyPhysics(this.position.down(), this.w());
+         }
+@@ -366,4 +476,44 @@
+         }
+ 
+     }
++
++    // CraftBukkit start
++    // PAIL
++    @Override
++    public boolean F() {
++        return true;
++    }
++    // CraftBukkit end
++
++    static class SyntheticClass_1 {
++
++        static final int[] a = new int[EnumDirection.values().length];
++
++        static {
++            try {
++                TileEntityChest.SyntheticClass_1.a[EnumDirection.NORTH.ordinal()] = 1;
++            } catch (NoSuchFieldError nosuchfielderror) {
++                ;
++            }
++
++            try {
++                TileEntityChest.SyntheticClass_1.a[EnumDirection.SOUTH.ordinal()] = 2;
++            } catch (NoSuchFieldError nosuchfielderror1) {
++                ;
++            }
++
++            try {
++                TileEntityChest.SyntheticClass_1.a[EnumDirection.EAST.ordinal()] = 3;
++            } catch (NoSuchFieldError nosuchfielderror2) {
++                ;
++            }
++
++            try {
++                TileEntityChest.SyntheticClass_1.a[EnumDirection.WEST.ordinal()] = 4;
++            } catch (NoSuchFieldError nosuchfielderror3) {
++                ;
++            }
++
++        }
++    }
+ }

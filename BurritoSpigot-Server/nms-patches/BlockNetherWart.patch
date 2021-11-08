@@ -1,0 +1,55 @@
+--- a/net/minecraft/server/BlockNetherWart.java
++++ b/net/minecraft/server/BlockNetherWart.java
+@@ -8,7 +8,7 @@
+ 
+     protected BlockNetherWart() {
+         super(Material.PLANT, MaterialMapColor.D);
+-        this.j(this.blockStateList.getBlockData().set(BlockNetherWart.AGE, 0));
++        this.j(this.blockStateList.getBlockData().set(BlockNetherWart.AGE, Integer.valueOf(0)));
+         this.a(true);
+         float f = 0.5F;
+ 
+@@ -25,11 +25,12 @@
+     }
+ 
+     public void b(World world, BlockPosition blockposition, IBlockData iblockdata, Random random) {
+-        int i = (Integer) iblockdata.get(BlockNetherWart.AGE);
++        int i = ((Integer) iblockdata.get(BlockNetherWart.AGE)).intValue();
+ 
+-        if (i < 3 && random.nextInt(10) == 0) {
+-            iblockdata = iblockdata.set(BlockNetherWart.AGE, i + 1);
+-            world.setTypeAndData(blockposition, iblockdata, 2);
++        if (i < 3 && random.nextInt(Math.max(1, (int) world.growthOdds / world.spigotConfig.wartModifier * 10)) == 0) { // Spigot
++            iblockdata = iblockdata.set(BlockNetherWart.AGE, Integer.valueOf(i + 1));
++            // world.setTypeAndData(blockposition, iblockdata, 2); // CraftBukkit
++            org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockGrowEvent(world, blockposition.getX(), blockposition.getY(), blockposition.getZ(), this, toLegacyData(iblockdata)); // CraftBukkit
+         }
+ 
+         super.b(world, blockposition, iblockdata, random);
+@@ -39,7 +40,7 @@
+         if (!world.isClientSide) {
+             int j = 1;
+ 
+-            if ((Integer) iblockdata.get(BlockNetherWart.AGE) >= 3) {
++            if (((Integer) iblockdata.get(BlockNetherWart.AGE)).intValue() >= 3) {
+                 j = 2 + world.random.nextInt(3);
+                 if (i > 0) {
+                     j += world.random.nextInt(i + 1);
+@@ -62,14 +63,14 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockNetherWart.AGE, i);
++        return this.getBlockData().set(BlockNetherWart.AGE, Integer.valueOf(i));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+-        return (Integer) iblockdata.get(BlockNetherWart.AGE);
++        return ((Integer) iblockdata.get(BlockNetherWart.AGE)).intValue();
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockNetherWart.AGE});
++        return new BlockStateList(this, new IBlockState[] { BlockNetherWart.AGE});
+     }
+ }

@@ -1,0 +1,41 @@
+--- a/net/minecraft/server/BlockDropper.java
++++ b/net/minecraft/server/BlockDropper.java
+@@ -1,5 +1,10 @@
+ package net.minecraft.server;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.event.inventory.InventoryMoveItemEvent;
++// CraftBukkit end
++
+ public class BlockDropper extends BlockDispenser {
+ 
+     private final IDispenseBehavior P = new DispenseBehaviorItem();
+@@ -38,8 +43,25 @@
+                             itemstack1 = null;
+                         }
+                     } else {
+-                        itemstack1 = TileEntityHopper.addItem(iinventory, itemstack.cloneItemStack().cloneAndSubtract(1), enumdirection.opposite());
+-                        if (itemstack1 == null) {
++                        // CraftBukkit start - Fire event when pushing items into other inventories
++                        CraftItemStack oitemstack = CraftItemStack.asCraftMirror(itemstack.cloneItemStack().cloneAndSubtract(1));
++
++                        org.bukkit.inventory.Inventory destinationInventory;
++                        // Have to special case large chests as they work oddly
++                        if (iinventory instanceof InventoryLargeChest) {
++                            destinationInventory = new org.bukkit.craftbukkit.inventory.CraftInventoryDoubleChest((InventoryLargeChest) iinventory);
++                        } else {
++                            destinationInventory = iinventory.getOwner().getInventory();
++                        }
++
++                        InventoryMoveItemEvent event = new InventoryMoveItemEvent(tileentitydispenser.getOwner().getInventory(), oitemstack.clone(), destinationInventory, true);
++                        world.getServer().getPluginManager().callEvent(event);
++                        if (event.isCancelled()) {
++                            return;
++                        }
++                        itemstack1 = TileEntityHopper.addItem(iinventory, CraftItemStack.asNMSCopy(event.getItem()), enumdirection.opposite());
++                        if (event.getItem().equals(oitemstack) && itemstack1 == null) {
++                            // CraftBukkit end
+                             itemstack1 = itemstack.cloneItemStack();
+                             if (--itemstack1.count <= 0) {
+                                 itemstack1 = null;

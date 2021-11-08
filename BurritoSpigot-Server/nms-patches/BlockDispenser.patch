@@ -1,0 +1,86 @@
+--- a/net/minecraft/server/BlockDispenser.java
++++ b/net/minecraft/server/BlockDispenser.java
+@@ -6,12 +6,13 @@
+ 
+     public static final BlockStateDirection FACING = BlockStateDirection.of("facing");
+     public static final BlockStateBoolean TRIGGERED = BlockStateBoolean.of("triggered");
+-    public static final RegistryDefault<Item, IDispenseBehavior> REGISTRY = new RegistryDefault<>(new DispenseBehaviorItem());
++    public static final RegistryDefault<Item, IDispenseBehavior> REGISTRY = new RegistryDefault(new DispenseBehaviorItem());
+     protected Random O = new Random();
++    public static boolean eventFired = false; // CraftBukkit
+ 
+     protected BlockDispenser() {
+         super(Material.STONE);
+-        this.j(this.blockStateList.getBlockData().set(BlockDispenser.FACING, EnumDirection.NORTH).set(BlockDispenser.TRIGGERED, false));
++        this.j(this.blockStateList.getBlockData().set(BlockDispenser.FACING, EnumDirection.NORTH).set(BlockDispenser.TRIGGERED, Boolean.valueOf(false)));
+         this.a(CreativeModeTab.d);
+     }
+ 
+@@ -45,7 +46,7 @@
+                 }
+             }
+ 
+-            world.setTypeAndData(blockposition, iblockdata.set(BlockDispenser.FACING, enumdirection).set(BlockDispenser.TRIGGERED, false), 2);
++            world.setTypeAndData(blockposition, iblockdata.set(BlockDispenser.FACING, enumdirection).set(BlockDispenser.TRIGGERED, Boolean.valueOf(false)), 2);
+         }
+     }
+ 
+@@ -83,6 +84,7 @@
+ 
+                 if (idispensebehavior != IDispenseBehavior.NONE) {
+                     ItemStack itemstack1 = idispensebehavior.a(sourceblock, itemstack);
++                    eventFired = false; // CraftBukkit - reset event status
+ 
+                     tileentitydispenser.setItem(i, itemstack1.count <= 0 ? null : itemstack1);
+                 }
+@@ -97,13 +99,13 @@
+ 
+     public void doPhysics(World world, BlockPosition blockposition, IBlockData iblockdata, Block block) {
+         boolean flag = world.isBlockIndirectlyPowered(blockposition) || world.isBlockIndirectlyPowered(blockposition.up());
+-        boolean flag1 = (Boolean) iblockdata.get(BlockDispenser.TRIGGERED);
++        boolean flag1 = ((Boolean) iblockdata.get(BlockDispenser.TRIGGERED)).booleanValue();
+ 
+         if (flag && !flag1) {
+             world.a(blockposition, (Block) this, this.a(world));
+-            world.setTypeAndData(blockposition, iblockdata.set(BlockDispenser.TRIGGERED, true), 4);
++            world.setTypeAndData(blockposition, iblockdata.set(BlockDispenser.TRIGGERED, Boolean.valueOf(true)), 4);
+         } else if (!flag && flag1) {
+-            world.setTypeAndData(blockposition, iblockdata.set(BlockDispenser.TRIGGERED, false), 4);
++            world.setTypeAndData(blockposition, iblockdata.set(BlockDispenser.TRIGGERED, Boolean.valueOf(false)), 4);
+         }
+ 
+     }
+@@ -120,7 +122,7 @@
+     }
+ 
+     public IBlockData getPlacedState(World world, BlockPosition blockposition, EnumDirection enumdirection, float f, float f1, float f2, int i, EntityLiving entityliving) {
+-        return this.getBlockData().set(BlockDispenser.FACING, BlockPiston.a(world, blockposition, entityliving)).set(BlockDispenser.TRIGGERED, false);
++        return this.getBlockData().set(BlockDispenser.FACING, BlockPiston.a(world, blockposition, entityliving)).set(BlockDispenser.TRIGGERED, Boolean.valueOf(false));
+     }
+ 
+     public void postPlace(World world, BlockPosition blockposition, IBlockData iblockdata, EntityLiving entityliving, ItemStack itemstack) {
+@@ -172,14 +174,14 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockDispenser.FACING, b(i)).set(BlockDispenser.TRIGGERED, (i & 8) > 0);
++        return this.getBlockData().set(BlockDispenser.FACING, b(i)).set(BlockDispenser.TRIGGERED, Boolean.valueOf((i & 8) > 0));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+         byte b0 = 0;
+         int i = b0 | ((EnumDirection) iblockdata.get(BlockDispenser.FACING)).a();
+ 
+-        if ((Boolean) iblockdata.get(BlockDispenser.TRIGGERED)) {
++        if (((Boolean) iblockdata.get(BlockDispenser.TRIGGERED)).booleanValue()) {
+             i |= 8;
+         }
+ 
+@@ -187,6 +189,6 @@
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockDispenser.FACING, BlockDispenser.TRIGGERED});
++        return new BlockStateList(this, new IBlockState[] { BlockDispenser.FACING, BlockDispenser.TRIGGERED});
+     }
+ }

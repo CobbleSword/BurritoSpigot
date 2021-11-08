@@ -1,0 +1,44 @@
+--- a/net/minecraft/server/EntityTracker.java
++++ b/net/minecraft/server/EntityTracker.java
+@@ -14,7 +14,7 @@
+     private static final Logger a = LogManager.getLogger();
+     private final WorldServer world;
+     private Set<EntityTrackerEntry> c = Sets.newHashSet();
+-    public IntHashMap<EntityTrackerEntry> trackedEntities = new IntHashMap<>();
++    public IntHashMap<EntityTrackerEntry> trackedEntities = new IntHashMap();
+     private int e;
+ 
+     public EntityTracker(WorldServer worldserver) {
+@@ -94,6 +94,8 @@
+     }
+ 
+     public void addEntity(Entity entity, int i, final int j, boolean flag) {
++        org.spigotmc.AsyncCatcher.catchOp( "entity track"); // Spigot
++        i = org.spigotmc.TrackingRange.getEntityTrackingRange(entity, i); // Spigot
+         if (i > this.e) {
+             i = this.e;
+         }
+@@ -113,11 +115,12 @@
+             CrashReportSystemDetails crashreportsystemdetails = crashreport.a("Entity To Track");
+ 
+             crashreportsystemdetails.a("Tracking range", (Object) (i + " blocks"));
+-            crashreportsystemdetails.a("Update interval", new Callable<String>() {
++            final int finalI = i; // CraftBukkit - fix decompile error
++            crashreportsystemdetails.a("Update interval", new Callable() {
+                 public String a() throws Exception {
+-                    String s = "Once per " + j + " ticks";
++                    String s = "Once per " + finalI + " ticks"; // CraftBukkit
+ 
+-                    if (j == Integer.MAX_VALUE) {
++                    if (finalI == Integer.MAX_VALUE) { // CraftBukkit
+                         s = "Maximum (" + s + ")";
+                     }
+ 
+@@ -143,6 +146,7 @@
+     }
+ 
+     public void untrackEntity(Entity entity) {
++        org.spigotmc.AsyncCatcher.catchOp( "entity untrack"); // Spigot
+         if (entity instanceof EntityPlayer) {
+             EntityPlayer entityplayer = (EntityPlayer) entity;
+             Iterator iterator = this.c.iterator();

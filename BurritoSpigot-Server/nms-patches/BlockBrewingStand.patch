@@ -1,0 +1,42 @@
+--- a/net/minecraft/server/BlockBrewingStand.java
++++ b/net/minecraft/server/BlockBrewingStand.java
+@@ -5,11 +5,11 @@
+ 
+ public class BlockBrewingStand extends BlockContainer {
+ 
+-    public static final BlockStateBoolean[] HAS_BOTTLE = new BlockStateBoolean[]{BlockStateBoolean.of("has_bottle_0"), BlockStateBoolean.of("has_bottle_1"), BlockStateBoolean.of("has_bottle_2")};
++    public static final BlockStateBoolean[] HAS_BOTTLE = new BlockStateBoolean[] { BlockStateBoolean.of("has_bottle_0"), BlockStateBoolean.of("has_bottle_1"), BlockStateBoolean.of("has_bottle_2")};
+ 
+     public BlockBrewingStand() {
+         super(Material.ORE);
+-        this.j(this.blockStateList.getBlockData().set(BlockBrewingStand.HAS_BOTTLE[0], false).set(BlockBrewingStand.HAS_BOTTLE[1], false).set(BlockBrewingStand.HAS_BOTTLE[2], false));
++        this.j(this.blockStateList.getBlockData().set(BlockBrewingStand.HAS_BOTTLE[0], Boolean.valueOf(false)).set(BlockBrewingStand.HAS_BOTTLE[1], Boolean.valueOf(false)).set(BlockBrewingStand.HAS_BOTTLE[2], Boolean.valueOf(false)));
+     }
+ 
+     public String getName() {
+@@ -95,7 +95,7 @@
+         IBlockData iblockdata = this.getBlockData();
+ 
+         for (int j = 0; j < 3; ++j) {
+-            iblockdata = iblockdata.set(BlockBrewingStand.HAS_BOTTLE[j], (i & 1 << j) > 0);
++            iblockdata = iblockdata.set(BlockBrewingStand.HAS_BOTTLE[j], Boolean.valueOf((i & 1 << j) > 0));
+         }
+ 
+         return iblockdata;
+@@ -105,7 +105,7 @@
+         int i = 0;
+ 
+         for (int j = 0; j < 3; ++j) {
+-            if ((Boolean) iblockdata.get(BlockBrewingStand.HAS_BOTTLE[j])) {
++            if (((Boolean) iblockdata.get(BlockBrewingStand.HAS_BOTTLE[j])).booleanValue()) {
+                 i |= 1 << j;
+             }
+         }
+@@ -114,6 +114,6 @@
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockBrewingStand.HAS_BOTTLE[0], BlockBrewingStand.HAS_BOTTLE[1], BlockBrewingStand.HAS_BOTTLE[2]});
++        return new BlockStateList(this, new IBlockState[] { BlockBrewingStand.HAS_BOTTLE[0], BlockBrewingStand.HAS_BOTTLE[1], BlockBrewingStand.HAS_BOTTLE[2]});
+     }
+ }

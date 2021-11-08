@@ -1,0 +1,68 @@
+--- a/net/minecraft/server/TileEntityPiston.java
++++ b/net/minecraft/server/TileEntityPiston.java
+@@ -67,15 +67,17 @@
+                     Entity entity = (Entity) iterator.next();
+ 
+                     if (this.a.getBlock() == Blocks.SLIME && this.g) {
+-                        switch (this.f.k()) {
+-                            case X:
+-                                entity.motX = (double) this.f.getAdjacentX();
+-                                break;
+-                            case Y:
+-                                entity.motY = (double) this.f.getAdjacentY();
+-                                break;
+-                            case Z:
+-                                entity.motZ = (double) this.f.getAdjacentZ();
++                        switch (TileEntityPiston.SyntheticClass_1.a[this.f.k().ordinal()]) {
++                        case 1:
++                            entity.motX = (double) this.f.getAdjacentX();
++                            break;
++
++                        case 2:
++                            entity.motY = (double) this.f.getAdjacentY();
++                            break;
++
++                        case 3:
++                            entity.motZ = (double) this.f.getAdjacentZ();
+                         }
+                     } else {
+                         entity.move((double) (f1 * (float) this.f.getAdjacentX()), (double) (f1 * (float) this.f.getAdjacentY()), (double) (f1 * (float) this.f.getAdjacentZ()));
+@@ -102,6 +104,7 @@
+     }
+ 
+     public void c() {
++        if (this.world == null) return; // CraftBukkit
+         this.j = this.i;
+         if (this.j >= 1.0F) {
+             this.a(1.0F, 0.25F);
+@@ -141,4 +144,30 @@
+         nbttagcompound.setFloat("progress", this.j);
+         nbttagcompound.setBoolean("extending", this.g);
+     }
++
++    static class SyntheticClass_1 {
++
++        static final int[] a = new int[EnumDirection.EnumAxis.values().length];
++
++        static {
++            try {
++                TileEntityPiston.SyntheticClass_1.a[EnumDirection.EnumAxis.X.ordinal()] = 1;
++            } catch (NoSuchFieldError nosuchfielderror) {
++                ;
++            }
++
++            try {
++                TileEntityPiston.SyntheticClass_1.a[EnumDirection.EnumAxis.Y.ordinal()] = 2;
++            } catch (NoSuchFieldError nosuchfielderror1) {
++                ;
++            }
++
++            try {
++                TileEntityPiston.SyntheticClass_1.a[EnumDirection.EnumAxis.Z.ordinal()] = 3;
++            } catch (NoSuchFieldError nosuchfielderror2) {
++                ;
++            }
++
++        }
++    }
+ }

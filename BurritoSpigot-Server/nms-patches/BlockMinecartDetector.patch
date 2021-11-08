@@ -1,0 +1,132 @@
+--- a/net/minecraft/server/BlockMinecartDetector.java
++++ b/net/minecraft/server/BlockMinecartDetector.java
+@@ -4,9 +4,11 @@
+ import java.util.List;
+ import java.util.Random;
+ 
++import org.bukkit.event.block.BlockRedstoneEvent; // CraftBukkit
++
+ public class BlockMinecartDetector extends BlockMinecartTrackAbstract {
+ 
+-    public static final BlockStateEnum<BlockMinecartTrackAbstract.EnumTrackPosition> SHAPE = BlockStateEnum.a("shape", BlockMinecartTrackAbstract.EnumTrackPosition.class, new Predicate<BlockMinecartTrackAbstract.EnumTrackPosition>() {
++    public static final BlockStateEnum<BlockMinecartTrackAbstract.EnumTrackPosition> SHAPE = BlockStateEnum.a("shape", BlockMinecartTrackAbstract.EnumTrackPosition.class, new Predicate() {
+         public boolean a(BlockMinecartTrackAbstract.EnumTrackPosition blockminecarttrackabstract_enumtrackposition) {
+             return blockminecarttrackabstract_enumtrackposition != BlockMinecartTrackAbstract.EnumTrackPosition.NORTH_EAST && blockminecarttrackabstract_enumtrackposition != BlockMinecartTrackAbstract.EnumTrackPosition.NORTH_WEST && blockminecarttrackabstract_enumtrackposition != BlockMinecartTrackAbstract.EnumTrackPosition.SOUTH_EAST && blockminecarttrackabstract_enumtrackposition != BlockMinecartTrackAbstract.EnumTrackPosition.SOUTH_WEST;
+         }
+@@ -19,7 +21,7 @@
+ 
+     public BlockMinecartDetector() {
+         super(true);
+-        this.j(this.blockStateList.getBlockData().set(BlockMinecartDetector.POWERED, false).set(BlockMinecartDetector.SHAPE, BlockMinecartTrackAbstract.EnumTrackPosition.NORTH_SOUTH));
++        this.j(this.blockStateList.getBlockData().set(BlockMinecartDetector.POWERED, Boolean.valueOf(false)).set(BlockMinecartDetector.SHAPE, BlockMinecartTrackAbstract.EnumTrackPosition.NORTH_SOUTH));
+         this.a(true);
+     }
+ 
+@@ -33,7 +35,7 @@
+ 
+     public void a(World world, BlockPosition blockposition, IBlockData iblockdata, Entity entity) {
+         if (!world.isClientSide) {
+-            if (!(Boolean) iblockdata.get(BlockMinecartDetector.POWERED)) {
++            if (!((Boolean) iblockdata.get(BlockMinecartDetector.POWERED)).booleanValue()) {
+                 this.e(world, blockposition, iblockdata);
+             }
+         }
+@@ -42,37 +44,48 @@
+     public void a(World world, BlockPosition blockposition, IBlockData iblockdata, Random random) {}
+ 
+     public void b(World world, BlockPosition blockposition, IBlockData iblockdata, Random random) {
+-        if (!world.isClientSide && (Boolean) iblockdata.get(BlockMinecartDetector.POWERED)) {
++        if (!world.isClientSide && ((Boolean) iblockdata.get(BlockMinecartDetector.POWERED)).booleanValue()) {
+             this.e(world, blockposition, iblockdata);
+         }
+     }
+ 
+     public int a(IBlockAccess iblockaccess, BlockPosition blockposition, IBlockData iblockdata, EnumDirection enumdirection) {
+-        return (Boolean) iblockdata.get(BlockMinecartDetector.POWERED) ? 15 : 0;
++        return ((Boolean) iblockdata.get(BlockMinecartDetector.POWERED)).booleanValue() ? 15 : 0;
+     }
+ 
+     public int b(IBlockAccess iblockaccess, BlockPosition blockposition, IBlockData iblockdata, EnumDirection enumdirection) {
+-        return !(Boolean) iblockdata.get(BlockMinecartDetector.POWERED) ? 0 : (enumdirection == EnumDirection.UP ? 15 : 0);
++        return !((Boolean) iblockdata.get(BlockMinecartDetector.POWERED)).booleanValue() ? 0 : (enumdirection == EnumDirection.UP ? 15 : 0);
+     }
+ 
+     private void e(World world, BlockPosition blockposition, IBlockData iblockdata) {
+-        boolean flag = (Boolean) iblockdata.get(BlockMinecartDetector.POWERED);
++        boolean flag = ((Boolean) iblockdata.get(BlockMinecartDetector.POWERED)).booleanValue();
+         boolean flag1 = false;
+-        List list = this.a(world, blockposition, EntityMinecartAbstract.class);
++        List list = this.a(world, blockposition, EntityMinecartAbstract.class, new Predicate[0]);
+ 
+         if (!list.isEmpty()) {
+             flag1 = true;
+         }
+ 
++       // CraftBukkit start
++        if (flag != flag1) {
++            org.bukkit.block.Block block = world.getWorld().getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ());
++
++            BlockRedstoneEvent eventRedstone = new BlockRedstoneEvent(block, flag ? 15 : 0, flag1 ? 15 : 0);
++            world.getServer().getPluginManager().callEvent(eventRedstone);
++
++            flag1 = eventRedstone.getNewCurrent() > 0;
++        }
++        // CraftBukkit end
++
+         if (flag1 && !flag) {
+-            world.setTypeAndData(blockposition, iblockdata.set(BlockMinecartDetector.POWERED, true), 3);
++            world.setTypeAndData(blockposition, iblockdata.set(BlockMinecartDetector.POWERED, Boolean.valueOf(true)), 3);
+             world.applyPhysics(blockposition, this);
+             world.applyPhysics(blockposition.down(), this);
+             world.b(blockposition, blockposition);
+         }
+ 
+         if (!flag1 && flag) {
+-            world.setTypeAndData(blockposition, iblockdata.set(BlockMinecartDetector.POWERED, false), 3);
++            world.setTypeAndData(blockposition, iblockdata.set(BlockMinecartDetector.POWERED, Boolean.valueOf(false)), 3);
+             world.applyPhysics(blockposition, this);
+             world.applyPhysics(blockposition.down(), this);
+             world.b(blockposition, blockposition);
+@@ -99,14 +112,14 @@
+     }
+ 
+     public int l(World world, BlockPosition blockposition) {
+-        if ((Boolean) world.getType(blockposition).get(BlockMinecartDetector.POWERED)) {
+-            List list = this.a(world, blockposition, EntityMinecartCommandBlock.class);
++        if (((Boolean) world.getType(blockposition).get(BlockMinecartDetector.POWERED)).booleanValue()) {
++            List list = this.a(world, blockposition, EntityMinecartCommandBlock.class, new Predicate[0]);
+ 
+             if (!list.isEmpty()) {
+                 return ((EntityMinecartCommandBlock) list.get(0)).getCommandBlock().j();
+             }
+ 
+-            List list1 = this.a(world, blockposition, EntityMinecartAbstract.class, IEntitySelector.c);
++            List list1 = this.a(world, blockposition, EntityMinecartAbstract.class, new Predicate[] { IEntitySelector.c});
+ 
+             if (!list1.isEmpty()) {
+                 return Container.b((IInventory) list1.get(0));
+@@ -129,14 +142,14 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockMinecartDetector.SHAPE, BlockMinecartTrackAbstract.EnumTrackPosition.a(i & 7)).set(BlockMinecartDetector.POWERED, (i & 8) > 0);
++        return this.getBlockData().set(BlockMinecartDetector.SHAPE, BlockMinecartTrackAbstract.EnumTrackPosition.a(i & 7)).set(BlockMinecartDetector.POWERED, Boolean.valueOf((i & 8) > 0));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+         byte b0 = 0;
+         int i = b0 | ((BlockMinecartTrackAbstract.EnumTrackPosition) iblockdata.get(BlockMinecartDetector.SHAPE)).a();
+ 
+-        if ((Boolean) iblockdata.get(BlockMinecartDetector.POWERED)) {
++        if (((Boolean) iblockdata.get(BlockMinecartDetector.POWERED)).booleanValue()) {
+             i |= 8;
+         }
+ 
+@@ -144,6 +157,6 @@
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockMinecartDetector.SHAPE, BlockMinecartDetector.POWERED});
++        return new BlockStateList(this, new IBlockState[] { BlockMinecartDetector.SHAPE, BlockMinecartDetector.POWERED});
+     }
+ }

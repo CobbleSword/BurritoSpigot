@@ -1,0 +1,24 @@
+--- a/net/minecraft/server/CommandDispatcher.java
++++ b/net/minecraft/server/CommandDispatcher.java
+@@ -79,10 +79,10 @@
+             flag = false;
+         }
+ 
+-        ChatMessage chatmessage = new ChatMessage("chat.type.admin", new Object[]{icommandlistener.getName(), new ChatMessage(s, aobject)});
++        ChatMessage chatmessage = new ChatMessage("chat.type.admin", new Object[] { icommandlistener.getName(), new ChatMessage(s, aobject)});
+ 
+         chatmessage.getChatModifier().setColor(EnumChatFormat.GRAY);
+-        chatmessage.getChatModifier().setItalic(true);
++        chatmessage.getChatModifier().setItalic(Boolean.valueOf(true));
+         if (flag) {
+             Iterator iterator = minecraftserver.getPlayerList().v().iterator();
+ 
+@@ -100,7 +100,7 @@
+             }
+         }
+ 
+-        if (icommandlistener != minecraftserver && minecraftserver.worldServer[0].getGameRules().getBoolean("logAdminCommands")) {
++        if (icommandlistener != minecraftserver && minecraftserver.worldServer[0].getGameRules().getBoolean("logAdminCommands") && !org.spigotmc.SpigotConfig.silentCommandBlocks) { // Spigot
+             minecraftserver.sendMessage(chatmessage);
+         }
+ 

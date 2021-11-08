@@ -1,0 +1,162 @@
+--- a/net/minecraft/server/BlockPosition.java
++++ b/net/minecraft/server/BlockPosition.java
+@@ -127,30 +127,30 @@
+         final BlockPosition blockposition2 = new BlockPosition(Math.min(blockposition.getX(), blockposition1.getX()), Math.min(blockposition.getY(), blockposition1.getY()), Math.min(blockposition.getZ(), blockposition1.getZ()));
+         final BlockPosition blockposition3 = new BlockPosition(Math.max(blockposition.getX(), blockposition1.getX()), Math.max(blockposition.getY(), blockposition1.getY()), Math.max(blockposition.getZ(), blockposition1.getZ()));
+ 
+-        return new Iterable<BlockPosition>() {
++        return new Iterable() {
+             public Iterator<BlockPosition> iterator() {
+-                return new AbstractIterator<BlockPosition>() {
++                return new AbstractIterator() {
+                     private BlockPosition b = null;
+ 
+                     protected BlockPosition a() {
+                         if (this.b == null) {
+-                            this.b = blockposition2;
++                            this.b = blockposition;
+                             return this.b;
+-                        } else if (this.b.equals(blockposition3)) {
++                        } else if (this.b.equals(blockposition1)) {
+                             return (BlockPosition) this.endOfData();
+                         } else {
+                             int i = this.b.getX();
+                             int j = this.b.getY();
+                             int k = this.b.getZ();
+ 
+-                            if (i < blockposition3.getX()) {
++                            if (i < blockposition1.getX()) {
+                                 ++i;
+-                            } else if (j < blockposition3.getY()) {
+-                                i = blockposition2.getX();
++                            } else if (j < blockposition1.getY()) {
++                                i = blockposition.getX();
+                                 ++j;
+-                            } else if (k < blockposition3.getZ()) {
+-                                i = blockposition2.getX();
+-                                j = blockposition2.getY();
++                            } else if (k < blockposition1.getZ()) {
++                                i = blockposition.getX();
++                                j = blockposition.getY();
+                                 ++k;
+                             }
+ 
+@@ -171,36 +171,38 @@
+         final BlockPosition blockposition2 = new BlockPosition(Math.min(blockposition.getX(), blockposition1.getX()), Math.min(blockposition.getY(), blockposition1.getY()), Math.min(blockposition.getZ(), blockposition1.getZ()));
+         final BlockPosition blockposition3 = new BlockPosition(Math.max(blockposition.getX(), blockposition1.getX()), Math.max(blockposition.getY(), blockposition1.getY()), Math.max(blockposition.getZ(), blockposition1.getZ()));
+ 
+-        return new Iterable<BlockPosition.MutableBlockPosition>() {
++        return new Iterable() {
+             public Iterator<BlockPosition.MutableBlockPosition> iterator() {
+-                return new AbstractIterator<BlockPosition.MutableBlockPosition>() {
++                return new AbstractIterator() {
+                     private BlockPosition.MutableBlockPosition b = null;
+ 
+                     protected BlockPosition.MutableBlockPosition a() {
+                         if (this.b == null) {
+-                            this.b = new BlockPosition.MutableBlockPosition(blockposition2.getX(), blockposition2.getY(), blockposition2.getZ());
++                            this.b = new BlockPosition.MutableBlockPosition(blockposition.getX(), blockposition.getY(), blockposition.getZ());
+                             return this.b;
+-                        } else if (this.b.equals(blockposition3)) {
++                        } else if (this.b.equals(blockposition1)) {
+                             return (BlockPosition.MutableBlockPosition) this.endOfData();
+                         } else {
+                             int i = this.b.getX();
+                             int j = this.b.getY();
+                             int k = this.b.getZ();
+ 
+-                            if (i < blockposition3.getX()) {
++                            if (i < blockposition1.getX()) {
+                                 ++i;
+-                            } else if (j < blockposition3.getY()) {
+-                                i = blockposition2.getX();
++                            } else if (j < blockposition1.getY()) {
++                                i = blockposition.getX();
+                                 ++j;
+-                            } else if (k < blockposition3.getZ()) {
+-                                i = blockposition2.getX();
+-                                j = blockposition2.getY();
++                            } else if (k < blockposition1.getZ()) {
++                                i = blockposition.getX();
++                                j = blockposition.getY();
+                                 ++k;
+                             }
+ 
+-                            this.b.c = i;
+-                            this.b.d = j;
+-                            this.b.e = k;
++                            // PaperSpigot start
++                            this.b.setX(i);
++                            this.b.setY(j);
++                            this.b.setZ(k);
++                            // PaperSpigot stop
+                             return this.b;
+                         }
+                     }
+@@ -219,9 +221,25 @@
+ 
+     public static final class MutableBlockPosition extends BlockPosition {
+ 
++        // PaperSpigot start - remove our overriding variables
++        /*
+         private int c;
+         private int d;
+         private int e;
++        */
++
++        public void setX(int x) {
++            ((BaseBlockPosition) this).a = x;
++        }
++
++        public void setY(int y) {
++            ((BaseBlockPosition) this).c = y;
++        }
++
++        public void setZ(int z) {
++            ((BaseBlockPosition) this).d = z;
++        }
++        // PaperSpigot end
+ 
+         public MutableBlockPosition() {
+             this(0, 0, 0);
+@@ -229,11 +247,13 @@
+ 
+         public MutableBlockPosition(int i, int j, int k) {
+             super(0, 0, 0);
+-            this.c = i;
+-            this.d = j;
+-            this.e = k;
++            // PaperSpigot start - modify base x,y,z
++            this.setX(i);
++            this.setY(j);
++            this.setZ(k);
+         }
+ 
++        /*
+         public int getX() {
+             return this.c;
+         }
+@@ -245,11 +265,19 @@
+         public int getZ() {
+             return this.e;
+         }
++        */
+ 
+-        public BlockPosition.MutableBlockPosition setValues(int i, int j, int k) {
+-            this.c = i;
+-            this.d = j;
+-            this.e = k;
++        // TacoSpigot start - OBFHELPER
++        public BlockPosition.MutableBlockPosition setValues(int x, int y, int z) {
++            return c(x, y, z);
++        }
++        // TacoSpigot end
++
++        public BlockPosition.MutableBlockPosition c(int i, int j, int k) {
++            setX(i);
++            setY(j);
++            setZ(k);
++            // PaperSpigot end
+             return this;
+         }
+ 

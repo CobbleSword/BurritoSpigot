@@ -1,0 +1,171 @@
+--- a/net/minecraft/server/TileEntityBeacon.java
++++ b/net/minecraft/server/TileEntityBeacon.java
+@@ -5,9 +5,22 @@
+ import java.util.Iterator;
+ import java.util.List;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++// CraftBukkit end
++
++// PaperSpigot start
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++import org.bukkit.entity.Player;
++import org.bukkit.potion.PotionEffect;
++import org.bukkit.potion.PotionEffectType;
++import org.github.paperspigot.event.block.BeaconEffectEvent;
++// PaperSpigot end
++
+ public class TileEntityBeacon extends TileEntityContainer implements IUpdatePlayerListBox, IInventory {
+ 
+-    public static final MobEffectList[][] a = new MobEffectList[][]{{MobEffectList.FASTER_MOVEMENT, MobEffectList.FASTER_DIG}, {MobEffectList.RESISTANCE, MobEffectList.JUMP}, {MobEffectList.INCREASE_DAMAGE}, {MobEffectList.REGENERATION}};
++    public static final MobEffectList[][] a = new MobEffectList[][] { { MobEffectList.FASTER_MOVEMENT, MobEffectList.FASTER_DIG}, { MobEffectList.RESISTANCE, MobEffectList.JUMP}, { MobEffectList.INCREASE_DAMAGE}, { MobEffectList.REGENERATION}};
+     private final List<TileEntityBeacon.BeaconColorTracker> f = Lists.newArrayList();
+     private boolean i;
+     private int j = -1;
+@@ -15,6 +28,30 @@
+     private int l;
+     private ItemStack inventorySlot;
+     private String n;
++    // CraftBukkit start - add fields and methods
++    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++    private int maxStack = MAX_STACK;
++
++    public ItemStack[] getContents() {
++        return new ItemStack[] { this.inventorySlot };
++    }
++
++    public void onOpen(CraftHumanEntity who) {
++        transaction.add(who);
++    }
++
++    public void onClose(CraftHumanEntity who) {
++        transaction.remove(who);
++    }
++
++    public List<HumanEntity> getViewers() {
++        return transaction;
++    }
++
++    public void setMaxStackSize(int size) {
++        maxStack = size;
++    }
++    // CraftBukkit end
+ 
+     public TileEntityBeacon() {}
+ 
+@@ -47,18 +84,35 @@
+             Iterator iterator = list.iterator();
+ 
+             EntityHuman entityhuman;
++            // PaperSpigot start
++            org.bukkit.block.Block block = world.getWorld().getBlockAt(position.getX(), position.getY(), position.getZ());
++            PotionEffect primaryEffect = new PotionEffect(PotionEffectType.getById(this.k), 180, b0, true, true);
++            // PaperSpigot end
+ 
+             while (iterator.hasNext()) {
+                 entityhuman = (EntityHuman) iterator.next();
+-                entityhuman.addEffect(new MobEffect(this.k, 180, b0, true, true));
++                // PaperSpigot start - BeaconEffectEvent
++                BeaconEffectEvent event = new BeaconEffectEvent(block, primaryEffect, (Player) entityhuman.getBukkitEntity(), true);
++                if (CraftEventFactory.callEvent(event).isCancelled()) continue;
++
++                PotionEffect effect = event.getEffect();
++                entityhuman.addEffect(new MobEffect(effect.getType().getId(), effect.getDuration(), effect.getAmplifier(), effect.isAmbient(), effect.hasParticles()));
++                // PaperSpigot end
+             }
+ 
+             if (this.j >= 4 && this.k != this.l && this.l > 0) {
+                 iterator = list.iterator();
++                PotionEffect secondaryEffect = new PotionEffect(PotionEffectType.getById(this.l), 180, 0, true, true); // PaperSpigot
+ 
+                 while (iterator.hasNext()) {
+                     entityhuman = (EntityHuman) iterator.next();
+-                    entityhuman.addEffect(new MobEffect(this.l, 180, 0, true, true));
++                    // PaperSpigot start - BeaconEffectEvent
++                    BeaconEffectEvent event = new BeaconEffectEvent(block, secondaryEffect, (Player) entityhuman.getBukkitEntity(), false);
++                    if (CraftEventFactory.callEvent(event).isCancelled()) continue;
++
++                    PotionEffect effect = event.getEffect();
++                    entityhuman.addEffect(new MobEffect(effect.getType().getId(), effect.getDuration(), effect.getAmplifier(), effect.isAmbient(), effect.hasParticles()));
++                    // PaperSpigot end
+                 }
+             }
+         }
+@@ -83,7 +137,7 @@
+         int i1;
+ 
+         for (i1 = k + 1; i1 < 256; ++i1) {
+-            IBlockData iblockdata = this.world.getType(blockposition_mutableblockposition.setValues(j, i1, l));
++            IBlockData iblockdata = this.world.getType(blockposition_mutableblockposition.c(j, i1, l));
+             float[] afloat;
+ 
+             if (iblockdata.getBlock() == Blocks.STAINED_GLASS) {
+@@ -104,7 +158,7 @@
+             }
+ 
+             if (!flag) {
+-                afloat = new float[]{(tileentitybeacon_beaconcolortracker.b()[0] + afloat[0]) / 2.0F, (tileentitybeacon_beaconcolortracker.b()[1] + afloat[1]) / 2.0F, (tileentitybeacon_beaconcolortracker.b()[2] + afloat[2]) / 2.0F};
++                afloat = new float[] { (tileentitybeacon_beaconcolortracker.b()[0] + afloat[0]) / 2.0F, (tileentitybeacon_beaconcolortracker.b()[1] + afloat[1]) / 2.0F, (tileentitybeacon_beaconcolortracker.b()[2] + afloat[2]) / 2.0F};
+             }
+ 
+             if (Arrays.equals(afloat, tileentitybeacon_beaconcolortracker.b())) {
+@@ -246,7 +300,7 @@
+     }
+ 
+     public int getMaxStackSize() {
+-        return 1;
++        return maxStack; // CraftBukkit
+     }
+ 
+     public boolean a(EntityHuman entityhuman) {
+@@ -271,27 +325,32 @@
+ 
+     public int getProperty(int i) {
+         switch (i) {
+-            case 0:
+-                return this.j;
+-            case 1:
+-                return this.k;
+-            case 2:
+-                return this.l;
+-            default:
+-                return 0;
++        case 0:
++            return this.j;
++
++        case 1:
++            return this.k;
++
++        case 2:
++            return this.l;
++
++        default:
++            return 0;
+         }
+     }
+ 
+     public void b(int i, int j) {
+         switch (i) {
+-            case 0:
+-                this.j = j;
+-                break;
+-            case 1:
+-                this.k = this.h(j);
+-                break;
+-            case 2:
+-                this.l = this.h(j);
++        case 0:
++            this.j = j;
++            break;
++
++        case 1:
++            this.k = this.h(j);
++            break;
++
++        case 2:
++            this.l = this.h(j);
+         }
+ 
+     }

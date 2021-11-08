@@ -1,0 +1,23 @@
+--- a/net/minecraft/server/PacketPlayOutMapChunk.java
++++ b/net/minecraft/server/PacketPlayOutMapChunk.java
+@@ -18,7 +18,8 @@
+         this.a = chunk.locX;
+         this.b = chunk.locZ;
+         this.d = flag;
+-        this.c = a(chunk, flag, !chunk.getWorld().worldProvider.o(), i);
++        this.c = chunk.getChunkMap(flag, i); // PaperSpigot
++        chunk.world.spigotConfig.antiXrayInstance.obfuscateSync(chunk.locX, chunk.locZ, c.b, c.a, chunk.world);
+     }
+ 
+     public void a(PacketDataSerializer packetdataserializer) throws IOException {
+@@ -109,10 +110,6 @@
+         return i + abyte.length;
+     }
+ 
+-    public void a(PacketListener packetlistener) {
+-        this.a((PacketListenerPlayOut) packetlistener);
+-    }
+-
+     public static class ChunkMap {
+ 
+         public byte[] a;

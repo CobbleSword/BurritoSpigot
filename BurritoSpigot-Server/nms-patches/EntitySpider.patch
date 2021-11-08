@@ -1,0 +1,31 @@
+--- a/net/minecraft/server/EntitySpider.java
++++ b/net/minecraft/server/EntitySpider.java
+@@ -15,8 +15,8 @@
+         this.goalSelector.a(6, new PathfinderGoalLookAtPlayer(this, EntityHuman.class, 8.0F));
+         this.goalSelector.a(6, new PathfinderGoalRandomLookaround(this));
+         this.targetSelector.a(1, new PathfinderGoalHurtByTarget(this, false, new Class[0]));
+-        this.targetSelector.a(2, new EntitySpider.PathfinderGoalSpiderNearestAttackableTarget<>(this, EntityHuman.class));
+-        this.targetSelector.a(3, new EntitySpider.PathfinderGoalSpiderNearestAttackableTarget<>(this, EntityIronGolem.class));
++        this.targetSelector.a(2, new EntitySpider.PathfinderGoalSpiderNearestAttackableTarget(this, EntityHuman.class));
++        this.targetSelector.a(3, new EntitySpider.PathfinderGoalSpiderNearestAttackableTarget(this, EntityIronGolem.class));
+     }
+ 
+     public double an() {
+@@ -101,7 +101,7 @@
+             b0 &= -2;
+         }
+ 
+-        this.datawatcher.watch(16, b0);
++        this.datawatcher.watch(16, Byte.valueOf(b0));
+     }
+ 
+     public GroupDataEntity prepare(DifficultyDamageScaler difficultydamagescaler, GroupDataEntity groupdataentity) {
+@@ -112,7 +112,7 @@
+ 
+             entityskeleton.setPositionRotation(this.locX, this.locY, this.locZ, this.yaw, 0.0F);
+             entityskeleton.prepare(difficultydamagescaler, (GroupDataEntity) null);
+-            this.world.addEntity(entityskeleton);
++            this.world.addEntity(entityskeleton, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.JOCKEY); // CraftBukkit - add SpawnReason
+             entityskeleton.mount(this);
+         }
+ 

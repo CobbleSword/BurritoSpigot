@@ -1,0 +1,101 @@
+--- a/net/minecraft/server/EnchantmentManager.java
++++ b/net/minecraft/server/EnchantmentManager.java
+@@ -13,10 +13,10 @@
+ public class EnchantmentManager {
+ 
+     private static final Random a = new Random();
+-    private static final EnchantmentManager.EnchantmentModifierProtection b = new EnchantmentManager.EnchantmentModifierProtection();
+-    private static final EnchantmentManager.EnchantmentModifierDamage c = new EnchantmentManager.EnchantmentModifierDamage();
+-    private static final EnchantmentManager.EnchantmentModifierThorns d = new EnchantmentManager.EnchantmentModifierThorns();
+-    private static final EnchantmentManager.EnchantmentModifierArthropods e = new EnchantmentManager.EnchantmentModifierArthropods();
++    private static final EnchantmentManager.EnchantmentModifierProtection b = new EnchantmentManager.EnchantmentModifierProtection((EnchantmentManager.SyntheticClass_1) null);
++    private static final EnchantmentManager.EnchantmentModifierDamage c = new EnchantmentManager.EnchantmentModifierDamage((EnchantmentManager.SyntheticClass_1) null);
++    private static final EnchantmentManager.EnchantmentModifierThorns d = new EnchantmentManager.EnchantmentModifierThorns((EnchantmentManager.SyntheticClass_1) null);
++    private static final EnchantmentManager.EnchantmentModifierArthropods e = new EnchantmentManager.EnchantmentModifierArthropods((EnchantmentManager.SyntheticClass_1) null);
+ 
+     public static int getEnchantmentLevel(int i, ItemStack itemstack) {
+         if (itemstack == null) {
+@@ -62,17 +62,17 @@
+         Iterator iterator = map.keySet().iterator();
+ 
+         while (iterator.hasNext()) {
+-            int i = (Integer) iterator.next();
++            int i = ((Integer) iterator.next()).intValue();
+             Enchantment enchantment = Enchantment.getById(i);
+ 
+             if (enchantment != null) {
+                 NBTTagCompound nbttagcompound = new NBTTagCompound();
+ 
+                 nbttagcompound.setShort("id", (short) i);
+-                nbttagcompound.setShort("lvl", (short) (Integer) map.get(i));
++                nbttagcompound.setShort("lvl", (short) ((Integer) map.get(Integer.valueOf(i))).intValue());
+                 nbttaglist.add(nbttagcompound);
+                 if (itemstack.getItem() == Items.ENCHANTED_BOOK) {
+-                    Items.ENCHANTED_BOOK.a(itemstack, new WeightedRandomEnchant(enchantment, (Integer) map.get(i)));
++                    Items.ENCHANTED_BOOK.a(itemstack, new WeightedRandomEnchant(enchantment, ((Integer) map.get(Integer.valueOf(i))).intValue()));
+                 }
+             }
+         }
+@@ -324,7 +324,7 @@
+                                 if (iterator1.hasNext()) {
+                                     WeightedRandomEnchant weightedrandomenchant1 = (WeightedRandomEnchant) iterator1.next();
+ 
+-                                    if (weightedrandomenchant1.enchantment.a(Enchantment.getById(integer))) {
++                                    if (weightedrandomenchant1.enchantment.a(Enchantment.getById(integer.intValue()))) {
+                                         continue;
+                                     }
+ 
+@@ -368,7 +368,7 @@
+                             hashmap = Maps.newHashMap();
+                         }
+ 
+-                        hashmap.put(enchantment.id, new WeightedRandomEnchant(enchantment, l));
++                        hashmap.put(Integer.valueOf(enchantment.id), new WeightedRandomEnchant(enchantment, l));
+                     }
+                 }
+             }
+@@ -377,6 +377,8 @@
+         return hashmap;
+     }
+ 
++    static class SyntheticClass_1 {    }
++
+     static final class EnchantmentModifierArthropods implements EnchantmentManager.EnchantmentModifier {
+ 
+         public EntityLiving a;
+@@ -388,7 +390,7 @@
+             enchantment.a(this.a, this.b, i);
+         }
+ 
+-        EnchantmentModifierArthropods(Object object) {
++        EnchantmentModifierArthropods(EnchantmentManager.SyntheticClass_1 enchantmentmanager_syntheticclass_1) {
+             this();
+         }
+     }
+@@ -404,7 +406,7 @@
+             enchantment.b(this.a, this.b, i);
+         }
+ 
+-        EnchantmentModifierThorns(Object object) {
++        EnchantmentModifierThorns(EnchantmentManager.SyntheticClass_1 enchantmentmanager_syntheticclass_1) {
+             this();
+         }
+     }
+@@ -420,7 +422,7 @@
+             this.a += enchantment.a(i, this.b);
+         }
+ 
+-        EnchantmentModifierDamage(Object object) {
++        EnchantmentModifierDamage(EnchantmentManager.SyntheticClass_1 enchantmentmanager_syntheticclass_1) {
+             this();
+         }
+     }
+@@ -436,7 +438,7 @@
+             this.a += enchantment.a(i, this.b);
+         }
+ 
+-        EnchantmentModifierProtection(Object object) {
++        EnchantmentModifierProtection(EnchantmentManager.SyntheticClass_1 enchantmentmanager_syntheticclass_1) {
+             this();
+         }
+     }

@@ -1,0 +1,26 @@
+--- a/net/minecraft/server/WorldGenLargeFeature.java
++++ b/net/minecraft/server/WorldGenLargeFeature.java
+@@ -5,12 +5,12 @@
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+-import java.util.Map.Entry;
+ import java.util.Random;
++import java.util.Map.Entry;
+ 
+ public class WorldGenLargeFeature extends StructureGenerator {
+ 
+-    private static final List<BiomeBase> d = Arrays.asList(BiomeBase.DESERT, BiomeBase.DESERT_HILLS, BiomeBase.JUNGLE, BiomeBase.JUNGLE_HILLS, BiomeBase.SWAMPLAND);
++    private static final List<BiomeBase> d = Arrays.asList(new BiomeBase[] { BiomeBase.DESERT, BiomeBase.DESERT_HILLS, BiomeBase.JUNGLE, BiomeBase.JUNGLE_HILLS, BiomeBase.SWAMPLAND});
+     private List<BiomeBase.BiomeMeta> f;
+     private int g;
+     private int h;
+@@ -54,7 +54,7 @@
+ 
+         int i1 = i / this.g;
+         int j1 = j / this.g;
+-        Random random = this.c.a(i1, j1, 14357617);
++        Random random = this.c.a(i1, j1, this.c.spigotConfig.largeFeatureSeed); // Spigot
+ 
+         i1 *= this.g;
+         j1 *= this.g;

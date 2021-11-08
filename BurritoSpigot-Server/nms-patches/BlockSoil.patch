@@ -1,0 +1,101 @@
+--- a/net/minecraft/server/BlockSoil.java
++++ b/net/minecraft/server/BlockSoil.java
+@@ -3,13 +3,18 @@
+ import java.util.Iterator;
+ import java.util.Random;
+ 
++// CraftBukkit start
++import org.bukkit.event.entity.EntityInteractEvent;
++import org.bukkit.craftbukkit.event.CraftEventFactory;
++// CraftBukkit end
++
+ public class BlockSoil extends Block {
+ 
+     public static final BlockStateInteger MOISTURE = BlockStateInteger.of("moisture", 0, 7);
+ 
+     protected BlockSoil() {
+         super(Material.EARTH);
+-        this.j(this.blockStateList.getBlockData().set(BlockSoil.MOISTURE, 0));
++        this.j(this.blockStateList.getBlockData().set(BlockSoil.MOISTURE, Integer.valueOf(0)));
+         this.a(true);
+         this.a(0.0F, 0.0F, 0.0F, 1.0F, 0.9375F, 1.0F);
+         this.e(255);
+@@ -28,31 +33,56 @@
+     }
+ 
+     public void b(World world, BlockPosition blockposition, IBlockData iblockdata, Random random) {
+-        int i = (Integer) iblockdata.get(BlockSoil.MOISTURE);
++        int i = ((Integer) iblockdata.get(BlockSoil.MOISTURE)).intValue();
+ 
+         if (!this.f(world, blockposition) && !world.isRainingAt(blockposition.up())) {
+             if (i > 0) {
+-                world.setTypeAndData(blockposition, iblockdata.set(BlockSoil.MOISTURE, i - 1), 2);
++                world.setTypeAndData(blockposition, iblockdata.set(BlockSoil.MOISTURE, Integer.valueOf(i - 1)), 2);
+             } else if (!this.e(world, blockposition)) {
++                // CraftBukkit start
++                org.bukkit.block.Block block = world.getWorld().getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ());
++                if (CraftEventFactory.callBlockFadeEvent(block, Blocks.DIRT).isCancelled()) {
++                    return;
++                }
++                // CraftBukkit end
+                 world.setTypeUpdate(blockposition, Blocks.DIRT.getBlockData());
+             }
+         } else if (i < 7) {
+-            world.setTypeAndData(blockposition, iblockdata.set(BlockSoil.MOISTURE, 7), 2);
++            world.setTypeAndData(blockposition, iblockdata.set(BlockSoil.MOISTURE, Integer.valueOf(7)), 2);
+         }
+ 
+     }
+ 
+     public void fallOn(World world, BlockPosition blockposition, Entity entity, float f) {
++        super.fallOn(world, blockposition, entity, f); // CraftBukkit - moved here as game rules / events shouldn't affect fall damage.
+         if (entity instanceof EntityLiving) {
+             if (!world.isClientSide && world.random.nextFloat() < f - 0.5F) {
+                 if (!(entity instanceof EntityHuman) && !world.getGameRules().getBoolean("mobGriefing")) {
+                     return;
+                 }
+ 
++                // CraftBukkit start - Interact soil
++                org.bukkit.event.Cancellable cancellable;
++                if (entity instanceof EntityHuman) {
++                    cancellable = CraftEventFactory.callPlayerInteractEvent((EntityHuman) entity, org.bukkit.event.block.Action.PHYSICAL, blockposition, null, null);
++                } else {
++                    cancellable = new EntityInteractEvent(entity.getBukkitEntity(), world.getWorld().getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ()));
++                    world.getServer().getPluginManager().callEvent((EntityInteractEvent) cancellable);
++                }
++
++                if (cancellable.isCancelled()) {
++                    return;
++                }
++
++                if (CraftEventFactory.callEntityChangeBlockEvent(entity, blockposition.getX(), blockposition.getY(), blockposition.getZ(), Blocks.DIRT, 0).isCancelled()) {
++                    return;
++                }
++                // CraftBukkit end
++
+                 world.setTypeUpdate(blockposition, Blocks.DIRT.getBlockData());
+             }
+ 
+-            super.fallOn(world, blockposition, entity, f);
++            // super.fallOn(world, blockposition, entity, f); // CraftBukkit - moved up
+         }
+     }
+ 
+@@ -91,14 +121,14 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockSoil.MOISTURE, i & 7);
++        return this.getBlockData().set(BlockSoil.MOISTURE, Integer.valueOf(i & 7));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+-        return (Integer) iblockdata.get(BlockSoil.MOISTURE);
++        return ((Integer) iblockdata.get(BlockSoil.MOISTURE)).intValue();
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockSoil.MOISTURE});
++        return new BlockStateList(this, new IBlockState[] { BlockSoil.MOISTURE});
+     }
+ }

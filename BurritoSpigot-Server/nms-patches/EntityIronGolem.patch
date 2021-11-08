@@ -1,0 +1,65 @@
+--- a/net/minecraft/server/EntityIronGolem.java
++++ b/net/minecraft/server/EntityIronGolem.java
+@@ -23,12 +23,12 @@
+         this.goalSelector.a(8, new PathfinderGoalRandomLookaround(this));
+         this.targetSelector.a(1, new PathfinderGoalDefendVillage(this));
+         this.targetSelector.a(2, new PathfinderGoalHurtByTarget(this, false, new Class[0]));
+-        this.targetSelector.a(3, new EntityIronGolem.PathfinderGoalNearestGolemTarget<>(this, EntityInsentient.class, 10, false, true, IMonster.e));
++        this.targetSelector.a(3, new EntityIronGolem.PathfinderGoalNearestGolemTarget(this, EntityInsentient.class, 10, false, true, IMonster.e));
+     }
+ 
+     protected void h() {
+         super.h();
+-        this.datawatcher.a(16, (byte) 0);
++        this.datawatcher.a(16, Byte.valueOf((byte) 0));
+     }
+ 
+     protected void E() {
+@@ -59,7 +59,7 @@
+ 
+     protected void s(Entity entity) {
+         if (entity instanceof IMonster && !(entity instanceof EntityCreeper) && this.bc().nextInt(20) == 0) {
+-            this.setGoalTarget((EntityLiving) entity);
++            this.setGoalTarget((EntityLiving) entity, org.bukkit.event.entity.EntityTargetLivingEntityEvent.TargetReason.COLLISION, true); // CraftBukkit - set reason
+         }
+ 
+         super.s(entity);
+@@ -83,7 +83,7 @@
+             Block block = iblockdata.getBlock();
+ 
+             if (block.getMaterial() != Material.AIR) {
+-                this.world.addParticle(EnumParticle.BLOCK_CRACK, this.locX + ((double) this.random.nextFloat() - 0.5D) * (double) this.width, this.getBoundingBox().b + 0.1D, this.locZ + ((double) this.random.nextFloat() - 0.5D) * (double) this.width, 4.0D * ((double) this.random.nextFloat() - 0.5D), 0.5D, ((double) this.random.nextFloat() - 0.5D) * 4.0D, Block.getCombinedId(iblockdata));
++                this.world.addParticle(EnumParticle.BLOCK_CRACK, this.locX + ((double) this.random.nextFloat() - 0.5D) * (double) this.width, this.getBoundingBox().b + 0.1D, this.locZ + ((double) this.random.nextFloat() - 0.5D) * (double) this.width, 4.0D * ((double) this.random.nextFloat() - 0.5D), 0.5D, ((double) this.random.nextFloat() - 0.5D) * 4.0D, new int[] { Block.getCombinedId(iblockdata)});
+             }
+         }
+ 
+@@ -167,9 +167,9 @@
+         byte b0 = this.datawatcher.getByte(16);
+ 
+         if (flag) {
+-            this.datawatcher.watch(16, (byte) (b0 | 1));
++            this.datawatcher.watch(16, Byte.valueOf((byte) (b0 | 1)));
+         } else {
+-            this.datawatcher.watch(16, (byte) (b0 & -2));
++            this.datawatcher.watch(16, Byte.valueOf((byte) (b0 & -2)));
+         }
+ 
+     }
+@@ -186,7 +186,7 @@
+ 
+         public PathfinderGoalNearestGolemTarget(final EntityCreature entitycreature, Class<T> oclass, int i, boolean flag, boolean flag1, final Predicate<? super T> predicate) {
+             super(entitycreature, oclass, i, flag, flag1, predicate);
+-            this.c = new Predicate<T>() {
++            this.c = new Predicate() {
+                 public boolean a(T t0) {
+                     if (predicate != null && !predicate.apply(t0)) {
+                         return false;
+@@ -220,7 +220,7 @@
+                 }
+ 
+                 public boolean apply(Object object) {
+-                    return this.a((EntityLiving) object);
++                    return this.a((T) object); // CraftBukkit - fix decompiler error
+                 }
+             };
+         }

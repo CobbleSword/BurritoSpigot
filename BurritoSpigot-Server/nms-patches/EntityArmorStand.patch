@@ -1,0 +1,146 @@
+--- a/net/minecraft/server/EntityArmorStand.java
++++ b/net/minecraft/server/EntityArmorStand.java
+@@ -2,6 +2,15 @@
+ 
+ import java.util.List;
+ 
++// CraftBukkit start
++import org.bukkit.inventory.EquipmentSlot;
++import org.bukkit.craftbukkit.CraftEquipmentSlot;
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.entity.ArmorStand;
++import org.bukkit.entity.Player;
++import org.bukkit.event.player.PlayerArmorStandManipulateEvent;
++// CraftBukkit end
++
+ public class EntityArmorStand extends EntityLiving {
+ 
+     private static final Vector3f a = new Vector3f(0.0F, 0.0F, 0.0F);
+@@ -47,7 +56,7 @@
+ 
+     protected void h() {
+         super.h();
+-        this.datawatcher.a(10, (byte) 0);
++        this.datawatcher.a(10, Byte.valueOf((byte) 0));
+         this.datawatcher.a(11, EntityArmorStand.a);
+         this.datawatcher.a(12, EntityArmorStand.b);
+         this.datawatcher.a(13, EntityArmorStand.c);
+@@ -332,6 +341,22 @@
+                 ItemStack itemstack1 = entityhuman.inventory.getItem(j);
+                 ItemStack itemstack2;
+ 
++                // CraftBukkit start
++                org.bukkit.inventory.ItemStack armorStandItem = CraftItemStack.asCraftMirror(itemstack);
++                org.bukkit.inventory.ItemStack playerHeldItem = CraftItemStack.asCraftMirror(itemstack1);
++
++                Player player = (Player) entityhuman.getBukkitEntity();
++                ArmorStand self = (ArmorStand) this.getBukkitEntity();
++
++                EquipmentSlot slot = CraftEquipmentSlot.getSlot(i);
++                PlayerArmorStandManipulateEvent armorStandManipulateEvent = new PlayerArmorStandManipulateEvent(player,self,playerHeldItem,armorStandItem,slot);
++                this.world.getServer().getPluginManager().callEvent(armorStandManipulateEvent);
++
++                if (armorStandManipulateEvent.isCancelled()) {
++                    return;
++                }
++                // CraftBukkit end
++
+                 if (entityhuman.abilities.canInstantlyBuild && (itemstack == null || itemstack.getItem() == Item.getItemOf(Blocks.AIR)) && itemstack1 != null) {
+                     itemstack2 = itemstack1.cloneItemStack();
+                     itemstack2.count = 1;
+@@ -352,9 +377,14 @@
+     }
+ 
+     public boolean damageEntity(DamageSource damagesource, float f) {
+-        if (this.world.isClientSide) {
++        // CraftBukkit start
++        if (org.bukkit.craftbukkit.event.CraftEventFactory.handleNonLivingEntityDamageEvent(this, damagesource, f)) {
+             return false;
+-        } else if (DamageSource.OUT_OF_WORLD.equals(damagesource)) {
++        }
++        // CraftBukkit end
++        if (this.world.isClientSide || this.dead) {
++            return false;
++        } else if (DamageSource.OUT_OF_WORLD.equals(damagesource)) { // PaperSpigot
+             this.die();
+             return false;
+         } else if (!this.isInvulnerable(damagesource) && !this.h && !this.s()) {
+@@ -412,7 +442,7 @@
+ 
+     private void A() {
+         if (this.world instanceof WorldServer) {
+-            ((WorldServer) this.world).a(EnumParticle.BLOCK_DUST, this.locX, this.locY + (double) this.length / 1.5D, this.locZ, 10, (double) (this.width / 4.0F), (double) (this.length / 4.0F), (double) (this.width / 4.0F), 0.05D, Block.getCombinedId(Blocks.PLANKS.getBlockData()));
++            ((WorldServer) this.world).a(EnumParticle.BLOCK_DUST, this.locX, this.locY + (double) this.length / 1.5D, this.locZ, 10, (double) (this.width / 4.0F), (double) (this.length / 4.0F), (double) (this.width / 4.0F), 0.05D, new int[] { Block.getCombinedId(Blocks.PLANKS.getBlockData())});
+         }
+ 
+     }
+@@ -561,7 +591,7 @@
+             b0 &= -2;
+         }
+ 
+-        this.datawatcher.watch(10, b0);
++        this.datawatcher.watch(10, Byte.valueOf(b0));
+     }
+ 
+     public boolean isSmall() {
+@@ -577,7 +607,7 @@
+             b0 &= -3;
+         }
+ 
+-        this.datawatcher.watch(10, b0);
++        this.datawatcher.watch(10, Byte.valueOf(b0));
+     }
+ 
+     public boolean hasGravity() {
+@@ -593,7 +623,7 @@
+             b0 &= -5;
+         }
+ 
+-        this.datawatcher.watch(10, b0);
++        this.datawatcher.watch(10, Byte.valueOf(b0));
+     }
+ 
+     public boolean hasArms() {
+@@ -609,14 +639,15 @@
+             b0 &= -9;
+         }
+ 
+-        this.datawatcher.watch(10, b0);
++        this.datawatcher.watch(10, Byte.valueOf(b0));
+     }
+ 
+     public boolean hasBasePlate() {
+         return (this.datawatcher.getByte(10) & 8) != 0;
+     }
+ 
+-    private void n(boolean flag) {
++    // PAIL
++    public void n(boolean flag) { // CraftBukkit - public
+         byte b0 = this.datawatcher.getByte(10);
+ 
+         if (flag) {
+@@ -625,9 +656,10 @@
+             b0 &= -17;
+         }
+ 
+-        this.datawatcher.watch(10, b0);
++        this.datawatcher.watch(10, Byte.valueOf(b0));
+     }
+ 
++    // PAIL
+     public boolean s() {
+         return (this.datawatcher.getByte(10) & 16) != 0;
+     }
+@@ -673,4 +705,12 @@
+     public boolean ad() {
+         return super.ad() && !this.s();
+     }
++
++    // TacoSpigot start - add an option to make armor stands not move
++    @Override
++    public void move(double motX, double motY, double motZ) {
++        if (getWorld().tacoSpigotConfig.optimizeArmorStandMovement) return;
++        super.move(motX, motY, motZ);
++    }
++    // TacoSpigot end
+ }

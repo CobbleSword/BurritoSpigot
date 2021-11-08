@@ -1,0 +1,202 @@
+--- a/net/minecraft/server/ContainerAnvil.java
++++ b/net/minecraft/server/ContainerAnvil.java
+@@ -6,6 +6,8 @@
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+ 
++import org.bukkit.craftbukkit.inventory.CraftInventoryView; // CraftBukkit
++
+ public class ContainerAnvil extends Container {
+ 
+     private static final Logger f = LogManager.getLogger();
+@@ -22,8 +24,13 @@
+     private int k;
+     private String l;
+     private final EntityHuman m;
++    // CraftBukkit start
++    private CraftInventoryView bukkitEntity = null;
++    private PlayerInventory player;
++    // CraftBukkit end
+ 
+     public ContainerAnvil(PlayerInventory playerinventory, final World world, final BlockPosition blockposition, EntityHuman entityhuman) {
++        this.player = playerinventory; // CraftBukkit
+         this.j = blockposition;
+         this.i = world;
+         this.m = entityhuman;
+@@ -34,13 +41,13 @@
+                 return false;
+             }
+ 
+-            public boolean isAllowed(EntityHuman entityhuman1) {
+-                return (entityhuman1.abilities.canInstantlyBuild || entityhuman1.expLevel >= ContainerAnvil.this.a) && ContainerAnvil.this.a > 0 && this.hasItem();
++            public boolean isAllowed(EntityHuman entityhuman) {
++                return (entityhuman.abilities.canInstantlyBuild || entityhuman.expLevel >= ContainerAnvil.this.a) && ContainerAnvil.this.a > 0 && this.hasItem();
+             }
+ 
+-            public void a(EntityHuman entityhuman1, ItemStack itemstack) {
+-                if (!entityhuman1.abilities.canInstantlyBuild) {
+-                    entityhuman1.levelDown(-ContainerAnvil.this.a);
++            public void a(EntityHuman entityhuman, ItemStack itemstack) {
++                if (!entityhuman.abilities.canInstantlyBuild) {
++                    entityhuman.levelDown(-ContainerAnvil.this.a);
+                 }
+ 
+                 ContainerAnvil.this.h.setItem(0, (ItemStack) null);
+@@ -60,15 +67,15 @@
+                 ContainerAnvil.this.a = 0;
+                 IBlockData iblockdata = world.getType(blockposition);
+ 
+-                if (!entityhuman1.abilities.canInstantlyBuild && !world.isClientSide && iblockdata.getBlock() == Blocks.ANVIL && entityhuman1.bc().nextFloat() < 0.12F) {
+-                    int i = (Integer) iblockdata.get(BlockAnvil.DAMAGE);
++                if (!entityhuman.abilities.canInstantlyBuild && !world.isClientSide && iblockdata.getBlock() == Blocks.ANVIL && entityhuman.bc().nextFloat() < 0.12F) {
++                    int i = ((Integer) iblockdata.get(BlockAnvil.DAMAGE)).intValue();
+ 
+                     ++i;
+                     if (i > 2) {
+                         world.setAir(blockposition);
+                         world.triggerEffect(1020, blockposition, 0);
+                     } else {
+-                        world.setTypeAndData(blockposition, iblockdata.set(BlockAnvil.DAMAGE, i), 2);
++                        world.setTypeAndData(blockposition, iblockdata.set(BlockAnvil.DAMAGE, Integer.valueOf(i)), 2);
+                         world.triggerEffect(1021, blockposition, 0);
+                     }
+                 } else if (!world.isClientSide) {
+@@ -141,14 +148,14 @@
+                         return;
+                     }
+ 
+-                    for (i1 = 0; k > 0 && i1 < itemstack2.count; ++i1) {
+-                        l = itemstack1.h() - k;
+-                        itemstack1.setData(l);
++                    for (l = 0; k > 0 && l < itemstack2.count; ++l) {
++                        i1 = itemstack1.h() - k;
++                        itemstack1.setData(i1);
+                         ++i;
+                         k = Math.min(itemstack1.h(), itemstack1.j() / 4);
+                     }
+ 
+-                    this.k = i1;
++                    this.k = l;
+                 } else {
+                     if (!flag7 && (itemstack1.getItem() != itemstack2.getItem() || !itemstack1.e())) {
+                         this.g.setItem(0, (ItemStack) null);
+@@ -160,9 +167,9 @@
+ 
+                     if (itemstack1.e() && !flag7) {
+                         k = itemstack.j() - itemstack.h();
+-                        i1 = itemstack2.j() - itemstack2.h();
+-                        l = i1 + itemstack1.j() * 12 / 100;
+-                        int k1 = k + l;
++                        l = itemstack2.j() - itemstack2.h();
++                        i1 = l + itemstack1.j() * 12 / 100;
++                        int k1 = k + i1;
+ 
+                         j1 = itemstack1.j() - k1;
+                         if (j1 < 0) {
+@@ -179,12 +186,12 @@
+                     Iterator iterator = map1.keySet().iterator();
+ 
+                     while (iterator.hasNext()) {
+-                        l = (Integer) iterator.next();
+-                        Enchantment enchantment = Enchantment.getById(l);
++                        i1 = ((Integer) iterator.next()).intValue();
++                        Enchantment enchantment = Enchantment.getById(i1);
+ 
+                         if (enchantment != null) {
+-                            j1 = map.containsKey(l) ? (Integer) map.get(l) : 0;
+-                            int l1 = (Integer) map1.get(l);
++                            j1 = map.containsKey(Integer.valueOf(i1)) ? ((Integer) map.get(Integer.valueOf(i1))).intValue() : 0;
++                            int l1 = ((Integer) map1.get(Integer.valueOf(i1))).intValue();
+                             int i2;
+ 
+                             if (j1 == l1) {
+@@ -204,9 +211,9 @@
+                             Iterator iterator1 = map.keySet().iterator();
+ 
+                             while (iterator1.hasNext()) {
+-                                int j2 = (Integer) iterator1.next();
++                                int j2 = ((Integer) iterator1.next()).intValue();
+ 
+-                                if (j2 != l && !enchantment.a(Enchantment.getById(j2))) {
++                                if (j2 != i1 && !enchantment.a(Enchantment.getById(j2))) {
+                                     flag8 = false;
+                                     ++i;
+                                 }
+@@ -217,28 +224,32 @@
+                                     l1 = enchantment.getMaxLevel();
+                                 }
+ 
+-                                map.put(l, l1);
++                                map.put(Integer.valueOf(i1), Integer.valueOf(l1));
+                                 int k2 = 0;
+ 
+                                 switch (enchantment.getRandomWeight()) {
+-                                    case 1:
+-                                        k2 = 8;
+-                                        break;
+-                                    case 2:
+-                                        k2 = 4;
+-                                    case 3:
+-                                    case 4:
+-                                    case 6:
+-                                    case 7:
+-                                    case 8:
+-                                    case 9:
+-                                    default:
+-                                        break;
+-                                    case 5:
+-                                        k2 = 2;
+-                                        break;
+-                                    case 10:
+-                                        k2 = 1;
++                                case 1:
++                                    k2 = 8;
++                                    break;
++
++                                case 2:
++                                    k2 = 4;
++
++                                case 3:
++                                case 4:
++                                case 6:
++                                case 7:
++                                case 8:
++                                case 9:
++                                default:
++                                    break;
++
++                                case 5:
++                                    k2 = 2;
++                                    break;
++
++                                case 10:
++                                    k2 = 1;
+                                 }
+ 
+                                 if (flag7) {
+@@ -313,6 +324,7 @@
+     }
+ 
+     public boolean a(EntityHuman entityhuman) {
++        if (!this.checkReachable) return true; // CraftBukkit
+         return this.i.getType(this.j).getBlock() != Blocks.ANVIL ? false : entityhuman.e((double) this.j.getX() + 0.5D, (double) this.j.getY() + 0.5D, (double) this.j.getZ() + 0.5D) <= 64.0D;
+     }
+ 
+@@ -368,4 +380,17 @@
+ 
+         this.e();
+     }
++
++    // CraftBukkit start
++    @Override
++    public CraftInventoryView getBukkitView() {
++        if (bukkitEntity != null) {
++            return bukkitEntity;
++        }
++
++        org.bukkit.craftbukkit.inventory.CraftInventory inventory = new org.bukkit.craftbukkit.inventory.CraftInventoryAnvil(this.h, this.g);
++        bukkitEntity = new CraftInventoryView(this.player.player.getBukkitEntity(), inventory, this);
++        return bukkitEntity;
++    }
++    // CraftBukkit end
+ }

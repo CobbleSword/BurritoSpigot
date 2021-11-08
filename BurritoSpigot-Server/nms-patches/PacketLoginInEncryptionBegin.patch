@@ -1,0 +1,27 @@
+--- a/net/minecraft/server/PacketLoginInEncryptionBegin.java
++++ b/net/minecraft/server/PacketLoginInEncryptionBegin.java
+@@ -12,8 +12,10 @@
+     public PacketLoginInEncryptionBegin() {}
+ 
+     public void a(PacketDataSerializer packetdataserializer) throws IOException {
+-        this.a = packetdataserializer.a();
+-        this.b = packetdataserializer.a();
++        // TacoSpigot start - limit to 256 bytes
++        this.a = packetdataserializer.readByteArray(256);
++        this.b = packetdataserializer.readByteArray(256);
++        // TacoSpigot end
+     }
+ 
+     public void b(PacketDataSerializer packetdataserializer) throws IOException {
+@@ -33,7 +35,11 @@
+         return privatekey == null ? this.b : MinecraftEncryption.b(privatekey, this.b);
+     }
+ 
++    // TacoSpigot start - fernflower is gud at generics
++    /*
+     public void a(PacketListener packetlistener) {
+         this.a((PacketLoginInListener) packetlistener);
+     }
++    */
++    // TacoSpigot end
+ }

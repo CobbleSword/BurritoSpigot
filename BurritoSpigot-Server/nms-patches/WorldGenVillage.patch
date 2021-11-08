@@ -1,0 +1,26 @@
+--- a/net/minecraft/server/WorldGenVillage.java
++++ b/net/minecraft/server/WorldGenVillage.java
+@@ -4,12 +4,12 @@
+ import java.util.Iterator;
+ import java.util.List;
+ import java.util.Map;
+-import java.util.Map.Entry;
+ import java.util.Random;
++import java.util.Map.Entry;
+ 
+ public class WorldGenVillage extends StructureGenerator {
+ 
+-    public static final List<BiomeBase> d = Arrays.asList(BiomeBase.PLAINS, BiomeBase.DESERT, BiomeBase.SAVANNA);
++    public static final List<BiomeBase> d = Arrays.asList(new BiomeBase[] { BiomeBase.PLAINS, BiomeBase.DESERT, BiomeBase.SAVANNA});
+     private int f;
+     private int g;
+     private int h;
+@@ -53,7 +53,7 @@
+ 
+         int i1 = i / this.g;
+         int j1 = j / this.g;
+-        Random random = this.c.a(i1, j1, 10387312);
++        Random random = this.c.a(i1, j1, this.c.spigotConfig.villageSeed); // Spigot
+ 
+         i1 *= this.g;
+         j1 *= this.g;

@@ -1,0 +1,20 @@
+--- a/net/minecraft/server/PacketHandshakingInSetProtocol.java
++++ b/net/minecraft/server/PacketHandshakingInSetProtocol.java
+@@ -13,7 +13,7 @@
+ 
+     public void a(PacketDataSerializer packetdataserializer) throws IOException {
+         this.a = packetdataserializer.e();
+-        this.hostname = packetdataserializer.c(255);
++        this.hostname = packetdataserializer.c(Short.MAX_VALUE); // Spigot
+         this.port = packetdataserializer.readUnsignedShort();
+         this.d = EnumProtocol.a(packetdataserializer.e());
+     }
+@@ -36,8 +36,4 @@
+     public int b() {
+         return this.a;
+     }
+-
+-    public void a(PacketListener packetlistener) {
+-        this.a((PacketHandshakingInListener) packetlistener);
+-    }
+ }

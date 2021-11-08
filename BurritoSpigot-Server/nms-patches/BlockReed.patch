@@ -1,0 +1,54 @@
+--- a/net/minecraft/server/BlockReed.java
++++ b/net/minecraft/server/BlockReed.java
+@@ -9,7 +9,7 @@
+ 
+     protected BlockReed() {
+         super(Material.PLANT);
+-        this.j(this.blockStateList.getBlockData().set(BlockReed.AGE, 0));
++        this.j(this.blockStateList.getBlockData().set(BlockReed.AGE, Integer.valueOf(0)));
+         float f = 0.375F;
+ 
+         this.a(0.5F - f, 0.0F, 0.5F - f, 0.5F + f, 1.0F, 0.5F + f);
+@@ -25,14 +25,18 @@
+                     ;
+                 }
+ 
+-                if (i < 3) {
+-                    int j = (Integer) iblockdata.get(BlockReed.AGE);
++                if (i < world.paperSpigotConfig.reedMaxHeight) { // PaperSpigot - Configurable max growth height for reed blocks) {
++                    int j = ((Integer) iblockdata.get(BlockReed.AGE)).intValue();
+ 
+-                    if (j == 15) {
+-                        world.setTypeUpdate(blockposition.up(), this.getBlockData());
+-                        world.setTypeAndData(blockposition, iblockdata.set(BlockReed.AGE, 0), 4);
++                    if (j >= (byte) range(3, (world.growthOdds / world.spigotConfig.caneModifier * 15) + 0.5F, 15)) { // Spigot
++                        // CraftBukkit start
++                        // world.setTypeUpdate(blockposition.up(), this.getBlockData()); // CraftBukkit
++                        BlockPosition upPos = blockposition.up();
++                        org.bukkit.craftbukkit.event.CraftEventFactory.handleBlockGrowEvent(world, upPos.getX(), upPos.getY(), upPos.getZ(), this, 0);
++                        world.setTypeAndData(blockposition, iblockdata.set(BlockReed.AGE, Integer.valueOf(0)), 4);
++                        // CraftBukkit end
+                     } else {
+-                        world.setTypeAndData(blockposition, iblockdata.set(BlockReed.AGE, j + 1), 4);
++                        world.setTypeAndData(blockposition, iblockdata.set(BlockReed.AGE, Integer.valueOf(j + 1)), 4);
+                     }
+                 }
+             }
+@@ -99,14 +103,14 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockReed.AGE, i);
++        return this.getBlockData().set(BlockReed.AGE, Integer.valueOf(i));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+-        return (Integer) iblockdata.get(BlockReed.AGE);
++        return ((Integer) iblockdata.get(BlockReed.AGE)).intValue();
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockReed.AGE});
++        return new BlockStateList(this, new IBlockState[] { BlockReed.AGE});
+     }
+ }

@@ -1,0 +1,19 @@
+--- a/net/minecraft/server/NBTTagByteArray.java
++++ b/net/minecraft/server/NBTTagByteArray.java
+@@ -23,6 +23,7 @@
+     void load(DataInput datainput, int i, NBTReadLimiter nbtreadlimiter) throws IOException {
+         nbtreadlimiter.a(192L);
+         int j = datainput.readInt();
++       com.google.common.base.Preconditions.checkArgument( j < 1 << 24);
+ 
+         nbtreadlimiter.a((long) (8 * j));
+         this.data = new byte[j];
+@@ -30,7 +31,7 @@
+     }
+ 
+     public byte getTypeId() {
+-        return 7;
++        return (byte) 7;
+     }
+ 
+     public String toString() {

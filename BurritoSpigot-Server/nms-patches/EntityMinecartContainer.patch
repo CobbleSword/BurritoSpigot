@@ -1,0 +1,101 @@
+--- a/net/minecraft/server/EntityMinecartContainer.java
++++ b/net/minecraft/server/EntityMinecartContainer.java
+@@ -1,10 +1,57 @@
+ package net.minecraft.server;
+ 
+-public abstract class EntityMinecartContainer extends EntityMinecartAbstract implements ITileInventory {
++// CraftBukkit start
++import java.util.List;
+ 
+-    private ItemStack[] items = new ItemStack[36];
++import org.bukkit.craftbukkit.entity.CraftHumanEntity;
++import org.bukkit.entity.HumanEntity;
++import org.bukkit.inventory.InventoryHolder;
++// CraftBukkit end
++import net.techcable.tacospigot.HopperPusher; // TacoSpigot
++
++// TacoSpigot start - HopperPusher
++public abstract class EntityMinecartContainer extends EntityMinecartAbstract implements ITileInventory, HopperPusher {
++
++    @Override
++    public boolean acceptItem(TileEntityHopper hopper) {
++        return TileEntityHopper.acceptItem(hopper, this);
++    }
++    // TacoSpigot end
++
++    private ItemStack[] items = new ItemStack[27]; // CraftBukkit - 36 -> 27
+     private boolean b = true;
+ 
++    // CraftBukkit start
++    public List<HumanEntity> transaction = new java.util.ArrayList<HumanEntity>();
++    private int maxStack = MAX_STACK;
++
++    public ItemStack[] getContents() {
++        return this.items;
++    }
++
++    public void onOpen(CraftHumanEntity who) {
++        transaction.add(who);
++    }
++
++    public void onClose(CraftHumanEntity who) {
++        transaction.remove(who);
++    }
++
++    public List<HumanEntity> getViewers() {
++        return transaction;
++    }
++
++    public InventoryHolder getOwner() {
++        org.bukkit.entity.Entity cart = getBukkitEntity();
++        if(cart instanceof InventoryHolder) return (InventoryHolder) cart;
++        return null;
++    }
++
++    public void setMaxStackSize(int size) {
++        maxStack = size;
++    }
++    // CraftBukkit end
++
+     public EntityMinecartContainer(World world) {
+         super(world);
+     }
+@@ -21,6 +68,20 @@
+ 
+     }
+ 
++    // TacoSpigot start
++    @Override
++    public void t_() {
++        super.t_();
++        tryPutInHopper();
++    }
++
++    @Override
++    public void inactiveTick() {
++        super.inactiveTick();
++        tryPutInHopper();
++    }
++    // TacoSpigot end
++
+     public ItemStack getItem(int i) {
+         return this.items[i];
+     }
+@@ -84,10 +145,16 @@
+     }
+ 
+     public int getMaxStackSize() {
+-        return 64;
++        return maxStack; // CraftBukkit
+     }
+ 
+     public void c(int i) {
++        // Spigot Start
++        for ( HumanEntity human : new java.util.ArrayList<HumanEntity>( transaction ) )
++        {
++            human.closeInventory();
++        }
++        // Spigot End
+         this.b = false;
+         super.c(i);
+     }

@@ -1,0 +1,170 @@
+--- a/net/minecraft/server/PacketDataSerializer.java
++++ b/net/minecraft/server/PacketDataSerializer.java
+@@ -21,11 +21,29 @@
+ import java.nio.charset.Charset;
+ import java.util.UUID;
+ 
++import org.bukkit.Bukkit;
++import org.bukkit.craftbukkit.inventory.CraftItemStack; // CraftBukkit
++// TacoSpigot start
++import net.techcable.tacospigot.CompatHacks;
++// TacoSpigot end
++
+ public class PacketDataSerializer extends ByteBuf {
+ 
+     private final ByteBuf a;
+ 
++    // TacoSpigot start
++    private final boolean allowLargePackets;
+     public PacketDataSerializer(ByteBuf bytebuf) {
++        /*
++         * By default, we limit the size of the received byte array to Short.MAX_VALUE, which is 31 KB.
++         * However, we make an exception when ProtocolSupport is installed, to allow 1.7 clients to work,
++         * and limit them to 31 MEGABYTES as they seem to need to send larger packets sometimes.
++         * Although a 31 MB limit leaves the server slightly vulnerable,
++         * it's still much better than the old system of having no limit,
++         * which would leave the server vulnerable to packets up to 2 GIGABYTES in size.
++         */
++        this.allowLargePackets = CompatHacks.hasProtocolSupport();
++        // TacoSpigot end
+         this.a = bytebuf;
+     }
+ 
+@@ -44,9 +62,20 @@
+         this.writeBytes(abyte);
+     }
+ 
++    // TacoSpigot start
++    private static final int DEFAULT_LIMIT = Short.MAX_VALUE;
++    private static final int LARGE_PACKET_LIMIT = Short.MAX_VALUE * 1024;
+     public byte[] a() {
+-        byte[] abyte = new byte[this.e()];
++        // TacoSpigot start
++        int limit = allowLargePackets ? LARGE_PACKET_LIMIT : DEFAULT_LIMIT;
++        return readByteArray(limit);
++    }
+ 
++    public byte[] readByteArray(int limit) {
++        int len = this.e();
++        if (len > limit) throw new DecoderException("The received a byte array longer than allowed " + len + " > " + limit);
++        byte[] abyte = new byte[len];
++        // TacoSpigot end
+         this.readBytes(abyte);
+         return abyte;
+     }
+@@ -68,7 +97,7 @@
+     }
+ 
+     public <T extends Enum<T>> T a(Class<T> oclass) {
+-        return ((Enum[]) oclass.getEnumConstants())[this.e()];
++        return ((T[]) oclass.getEnumConstants())[this.e()]; // CraftBukkit - fix decompile error
+     }
+ 
+     public void a(Enum<?> oenum) {
+@@ -142,14 +171,16 @@
+         } else {
+             try {
+                 NBTCompressedStreamTools.a(nbttagcompound, (DataOutput) (new ByteBufOutputStream(this)));
+-            } catch (IOException ioexception) {
++            } catch (Exception ioexception) { // CraftBukkit - IOException -> Exception
+                 throw new EncoderException(ioexception);
+             }
+         }
+ 
+     }
+ 
+-    public NBTTagCompound h() throws IOException {
++    public NBTTagCompound h() throws IOException
++    {
++
+         int i = this.readerIndex();
+         byte b0 = this.readByte();
+ 
+@@ -157,12 +188,19 @@
+             return null;
+         } else {
+             this.readerIndex(i);
+-            return NBTCompressedStreamTools.a((DataInput) (new ByteBufInputStream(this)), new NBTReadLimiter(2097152L));
++            try {
++                // Burrito: Update NBTReadLimiter from ~2MB limit to a ~0.05MB limit on NBT 
++                // Credit: bob7l
++                // Ref: https://github.com/CobbleSword/NachoSpigot/commit/64b8084cb8516df77d362512fe76dc54b17ba594#diff-bdf0fffb21f6af459eae96bc2932b5d223bdac20282b590af4b1fabf22276805
++                return NBTCompressedStreamTools.a((DataInput) (new ByteBufInputStream(this)), new NBTReadLimiter(50000L));
++            } catch (IOException ioexception) {
++                throw new EncoderException(ioexception);
++            }
+         }
+     }
+ 
+     public void a(ItemStack itemstack) {
+-        if (itemstack == null) {
++        if (itemstack == null || itemstack.getItem() == null) { // CraftBukkit - NPE fix itemstack.getItem()
+             this.writeShort(-1);
+         } else {
+             this.writeShort(Item.getId(itemstack.getItem()));
+@@ -171,6 +209,10 @@
+             NBTTagCompound nbttagcompound = null;
+ 
+             if (itemstack.getItem().usesDurability() || itemstack.getItem().p()) {
++                // Spigot start - filter
++                itemstack = itemstack.cloneItemStack();
++                CraftItemStack.setItemMeta(itemstack, CraftItemStack.getItemMeta(itemstack));
++                // Spigot end
+                 nbttagcompound = itemstack.getTag();
+             }
+ 
+@@ -179,18 +221,30 @@
+ 
+     }
+ 
+-    public ItemStack i() throws IOException {
++    public ItemStack i() throws IOException
++    {
++        return this.decodeItemStack();
++    }
++
++    public ItemStack decodeItemStack() throws IOException
++    {
+         ItemStack itemstack = null;
+-        short short0 = this.readShort();
++        short itemId = this.readShort();
+ 
+-        if (short0 >= 0) {
+-            byte b0 = this.readByte();
+-            short short1 = this.readShort();
++        if (itemId >= 0)
++        {
++            byte amount = this.readByte();
++            short data = this.readShort();
+ 
+-            itemstack = new ItemStack(Item.getById(short0), b0, short1);
++            itemstack = new ItemStack(Item.getById(itemId), amount, data);
+             itemstack.setTag(this.h());
++            // CraftBukkit start
++            if (itemstack.getTag() != null)
++            {
++                CraftItemStack.setItemMeta(itemstack, CraftItemStack.getItemMeta(itemstack));
++            }
++            // CraftBukkit end
+         }
+-
+         return itemstack;
+     }
+ 
+@@ -803,16 +857,4 @@
+     public boolean release(int i) {
+         return this.a.release(i);
+     }
+-
+-    public ReferenceCounted retain(int i) {
+-        return this.retain(i);
+-    }
+-
+-    public ReferenceCounted retain() {
+-        return this.retain();
+-    }
+-
+-    public int compareTo(Object object) {
+-        return this.compareTo((ByteBuf) object);
+-    }
+ }

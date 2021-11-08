@@ -1,0 +1,87 @@
+--- a/net/minecraft/server/BlockSnow.java
++++ b/net/minecraft/server/BlockSnow.java
+@@ -8,7 +8,7 @@
+ 
+     protected BlockSnow() {
+         super(Material.PACKED_ICE);
+-        this.j(this.blockStateList.getBlockData().set(BlockSnow.LAYERS, 1));
++        this.j(this.blockStateList.getBlockData().set(BlockSnow.LAYERS, Integer.valueOf(1)));
+         this.a(0.0F, 0.0F, 0.0F, 1.0F, 0.125F, 1.0F);
+         this.a(true);
+         this.a(CreativeModeTab.c);
+@@ -16,11 +16,11 @@
+     }
+ 
+     public boolean b(IBlockAccess iblockaccess, BlockPosition blockposition) {
+-        return (Integer) iblockaccess.getType(blockposition).get(BlockSnow.LAYERS) < 5;
++        return ((Integer) iblockaccess.getType(blockposition).get(BlockSnow.LAYERS)).intValue() < 5;
+     }
+ 
+     public AxisAlignedBB a(World world, BlockPosition blockposition, IBlockData iblockdata) {
+-        int i = (Integer) iblockdata.get(BlockSnow.LAYERS) - 1;
++        int i = ((Integer) iblockdata.get(BlockSnow.LAYERS)).intValue() - 1;
+         float f = 0.125F;
+ 
+         return new AxisAlignedBB((double) blockposition.getX() + this.minX, (double) blockposition.getY() + this.minY, (double) blockposition.getZ() + this.minZ, (double) blockposition.getX() + this.maxX, (double) ((float) blockposition.getY() + (float) i * f), (double) blockposition.getZ() + this.maxZ);
+@@ -41,7 +41,7 @@
+     public void updateShape(IBlockAccess iblockaccess, BlockPosition blockposition) {
+         IBlockData iblockdata = iblockaccess.getType(blockposition);
+ 
+-        this.b((Integer) iblockdata.get(BlockSnow.LAYERS));
++        this.b(((Integer) iblockdata.get(BlockSnow.LAYERS)).intValue());
+     }
+ 
+     protected void b(int i) {
+@@ -52,7 +52,7 @@
+         IBlockData iblockdata = world.getType(blockposition.down());
+         Block block = iblockdata.getBlock();
+ 
+-        return block != Blocks.ICE && block != Blocks.PACKED_ICE ? (block.getMaterial() == Material.LEAVES ? true : (block == this && (Integer) iblockdata.get(BlockSnow.LAYERS) >= 7 ? true : block.c() && block.material.isSolid())) : false;
++        return block != Blocks.ICE && block != Blocks.PACKED_ICE ? (block.getMaterial() == Material.LEAVES ? true : (block == this && ((Integer) iblockdata.get(BlockSnow.LAYERS)).intValue() >= 7 ? true : block.c() && block.material.isSolid())) : false;
+     }
+ 
+     public void doPhysics(World world, BlockPosition blockposition, IBlockData iblockdata, Block block) {
+@@ -70,7 +70,7 @@
+     }
+ 
+     public void a(World world, EntityHuman entityhuman, BlockPosition blockposition, IBlockData iblockdata, TileEntity tileentity) {
+-        a(world, blockposition, new ItemStack(Items.SNOWBALL, (Integer) iblockdata.get(BlockSnow.LAYERS) + 1, 0));
++        a(world, blockposition, new ItemStack(Items.SNOWBALL, ((Integer) iblockdata.get(BlockSnow.LAYERS)).intValue() + 1, 0));
+         world.setAir(blockposition);
+         entityhuman.b(StatisticList.MINE_BLOCK_COUNT[Block.getId(this)]);
+     }
+@@ -85,6 +85,11 @@
+ 
+     public void b(World world, BlockPosition blockposition, IBlockData iblockdata, Random random) {
+         if (world.b(EnumSkyBlock.BLOCK, blockposition) > 11) {
++            // CraftBukkit start
++            if (org.bukkit.craftbukkit.event.CraftEventFactory.callBlockFadeEvent(world.getWorld().getBlockAt(blockposition.getX(), blockposition.getY(), blockposition.getZ()), Blocks.AIR).isCancelled()) {
++                return;
++            }
++            // CraftBukkit end
+             this.b(world, blockposition, world.getType(blockposition), 0);
+             world.setAir(blockposition);
+         }
+@@ -92,18 +97,18 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockSnow.LAYERS, (i & 7) + 1);
++        return this.getBlockData().set(BlockSnow.LAYERS, Integer.valueOf((i & 7) + 1));
+     }
+ 
+     public boolean a(World world, BlockPosition blockposition) {
+-        return (Integer) world.getType(blockposition).get(BlockSnow.LAYERS) == 1;
++        return ((Integer) world.getType(blockposition).get(BlockSnow.LAYERS)).intValue() == 1;
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+-        return (Integer) iblockdata.get(BlockSnow.LAYERS) - 1;
++        return ((Integer) iblockdata.get(BlockSnow.LAYERS)).intValue() - 1;
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockSnow.LAYERS});
++        return new BlockStateList(this, new IBlockState[] { BlockSnow.LAYERS});
+     }
+ }

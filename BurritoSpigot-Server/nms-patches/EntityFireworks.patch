@@ -1,0 +1,32 @@
+--- a/net/minecraft/server/EntityFireworks.java
++++ b/net/minecraft/server/EntityFireworks.java
+@@ -5,6 +5,15 @@
+     private int ticksFlown;
+     public int expectedLifespan;
+ 
++    // Spigot Start
++    @Override
++    public void inactiveTick()
++    {
++        this.ticksFlown += 1;
++        super.inactiveTick();
++    }
++    // Spigot End
++
+     public EntityFireworks(World world) {
+         super(world);
+         this.setSize(0.25F, 0.25F);
+@@ -74,11 +83,11 @@
+ 
+         ++this.ticksFlown;
+         if (this.world.isClientSide && this.ticksFlown % 2 < 2) {
+-            this.world.addParticle(EnumParticle.FIREWORKS_SPARK, this.locX, this.locY - 0.3D, this.locZ, this.random.nextGaussian() * 0.05D, -this.motY * 0.5D, this.random.nextGaussian() * 0.05D);
++            this.world.addParticle(EnumParticle.FIREWORKS_SPARK, this.locX, this.locY - 0.3D, this.locZ, this.random.nextGaussian() * 0.05D, -this.motY * 0.5D, this.random.nextGaussian() * 0.05D, new int[0]);
+         }
+ 
+         if (!this.world.isClientSide && this.ticksFlown > this.expectedLifespan) {
+-            this.world.broadcastEntityEffect(this, (byte) 17);
++            if (!org.bukkit.craftbukkit.event.CraftEventFactory.callFireworkExplodeEvent(this).isCancelled()) this.world.broadcastEntityEffect(this, (byte) 17);
+             this.die();
+         }
+ 

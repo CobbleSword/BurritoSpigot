@@ -1,0 +1,83 @@
+--- a/net/minecraft/server/ItemArmor.java
++++ b/net/minecraft/server/ItemArmor.java
+@@ -3,10 +3,15 @@
+ import com.google.common.base.Predicates;
+ import java.util.List;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.inventory.CraftItemStack;
++import org.bukkit.event.block.BlockDispenseEvent;
++// CraftBukkit end
++
+ public class ItemArmor extends Item {
+ 
+-    private static final int[] k = new int[]{11, 16, 15, 13};
+-    public static final String[] a = new String[]{"minecraft:items/empty_armor_slot_helmet", "minecraft:items/empty_armor_slot_chestplate", "minecraft:items/empty_armor_slot_leggings", "minecraft:items/empty_armor_slot_boots"};
++    private static final int[] k = new int[] { 11, 16, 15, 13};
++    public static final String[] a = new String[] { "minecraft:items/empty_armor_slot_helmet", "minecraft:items/empty_armor_slot_chestplate", "minecraft:items/empty_armor_slot_leggings", "minecraft:items/empty_armor_slot_boots"};
+     private static final IDispenseBehavior l = new DispenseBehaviorItem() {
+         protected ItemStack b(ISourceBlock isourceblock, ItemStack itemstack) {
+             BlockPosition blockposition = isourceblock.getBlockPosition().shift(BlockDispenser.b(isourceblock.f()));
+@@ -20,7 +25,34 @@
+                 EntityLiving entityliving = (EntityLiving) list.get(0);
+                 int l = entityliving instanceof EntityHuman ? 1 : 0;
+                 int i1 = EntityInsentient.c(itemstack);
+-                ItemStack itemstack1 = itemstack.cloneItemStack();
++
++                // CraftBukkit start
++                ItemStack itemstack1 = itemstack.cloneAndSubtract(1);
++                World world = isourceblock.getWorld();
++                org.bukkit.block.Block block = world.getWorld().getBlockAt(isourceblock.getBlockPosition().getX(), isourceblock.getBlockPosition().getY(), isourceblock.getBlockPosition().getZ());
++                CraftItemStack craftItem = CraftItemStack.asCraftMirror(itemstack1);
++
++                BlockDispenseEvent event = new BlockDispenseEvent(block, craftItem.clone(), new org.bukkit.util.Vector(0, 0, 0));
++                if (!BlockDispenser.eventFired) {
++                    world.getServer().getPluginManager().callEvent(event);
++                }
++
++                if (event.isCancelled()) {
++                    itemstack.count++;
++                    return itemstack;
++                }
++
++                if (!event.getItem().equals(craftItem)) {
++                    itemstack.count++;
++                    // Chain to handler for new item
++                    ItemStack eventStack = CraftItemStack.asNMSCopy(event.getItem());
++                    IDispenseBehavior idispensebehavior = (IDispenseBehavior) BlockDispenser.REGISTRY.get(eventStack.getItem());
++                    if (idispensebehavior != IDispenseBehavior.NONE && idispensebehavior != this) {
++                        idispensebehavior.a(isourceblock, eventStack);
++                        return itemstack;
++                    }
++                }
++                // CraftBukkit end
+ 
+                 itemstack1.count = 1;
+                 entityliving.setEquipment(i1 - l, itemstack1);
+@@ -28,7 +60,7 @@
+                     ((EntityInsentient) entityliving).a(i1, 2.0F);
+                 }
+ 
+-                --itemstack.count;
++                // --itemstack.count; // CraftBukkit - handled above
+                 return itemstack;
+             } else {
+                 return super.b(isourceblock, itemstack);
+@@ -98,7 +130,7 @@
+ 
+     public void b(ItemStack itemstack, int i) {
+         if (this.m != ItemArmor.EnumArmorMaterial.LEATHER) {
+-            throw new UnsupportedOperationException("Can't dye non-leather!");
++            throw new UnsupportedOperationException("Can\'t dye non-leather!");
+         } else {
+             NBTTagCompound nbttagcompound = itemstack.getTag();
+ 
+@@ -135,7 +167,7 @@
+ 
+     public static enum EnumArmorMaterial {
+ 
+-        LEATHER("leather", 5, new int[]{1, 3, 2, 1}, 15), CHAIN("chainmail", 15, new int[]{2, 5, 4, 1}, 12), IRON("iron", 15, new int[]{2, 6, 5, 2}, 9), GOLD("gold", 7, new int[]{2, 5, 3, 1}, 25), DIAMOND("diamond", 33, new int[]{3, 8, 6, 3}, 10);
++        LEATHER("leather", 5, new int[] { 1, 3, 2, 1}, 15), CHAIN("chainmail", 15, new int[] { 2, 5, 4, 1}, 12), IRON("iron", 15, new int[] { 2, 6, 5, 2}, 9), GOLD("gold", 7, new int[] { 2, 5, 3, 1}, 25), DIAMOND("diamond", 33, new int[] { 3, 8, 6, 3}, 10);
+ 
+         private final String f;
+         private final int g;

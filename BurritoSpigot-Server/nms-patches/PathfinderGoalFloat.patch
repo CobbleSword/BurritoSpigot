@@ -1,0 +1,10 @@
+--- a/net/minecraft/server/PathfinderGoalFloat.java
++++ b/net/minecraft/server/PathfinderGoalFloat.java
+@@ -6,6 +6,7 @@
+ 
+     public PathfinderGoalFloat(EntityInsentient entityinsentient) {
+         this.a = entityinsentient;
++        entityinsentient.goalFloat = this; // PaperSpigot
+         this.a(4);
+         ((Navigation) entityinsentient.getNavigation()).d(true);
+     }

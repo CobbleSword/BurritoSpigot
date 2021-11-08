@@ -1,0 +1,77 @@
+--- a/net/minecraft/server/RecipesBanner.java
++++ b/net/minecraft/server/RecipesBanner.java
+@@ -11,16 +11,22 @@
+         for (int j = 0; j < i; ++j) {
+             EnumColor enumcolor = aenumcolor[j];
+ 
+-            craftingmanager.registerShapedRecipe(new ItemStack(Items.BANNER, 1, enumcolor.getInvColorIndex()), "###", "###", " | ", '#', new ItemStack(Blocks.WOOL, 1, enumcolor.getColorIndex()), '|', Items.STICK);
++            craftingmanager.registerShapedRecipe(new ItemStack(Items.BANNER, 1, enumcolor.getInvColorIndex()), new Object[] { "###", "###", " | ", Character.valueOf('#'), new ItemStack(Blocks.WOOL, 1, enumcolor.getColorIndex()), Character.valueOf('|'), Items.STICK});
+         }
+ 
+-        craftingmanager.a(new RecipesBanner.DuplicateRecipe());
+-        craftingmanager.a(new RecipesBanner.AddRecipe());
++        craftingmanager.a(new RecipesBanner.DuplicateRecipe((RecipesBanner.SyntheticClass_1) null));
++        craftingmanager.a(new RecipesBanner.AddRecipe((RecipesBanner.SyntheticClass_1) null));
+     }
+ 
+-    static class AddRecipe implements IRecipe {
++    static class SyntheticClass_1 {    }
+ 
+-        private AddRecipe() {}
++    static class AddRecipe extends ShapelessRecipes implements IRecipe { // CraftBukkit - added extends
++
++        // CraftBukkit start - Delegate to new parent class with bogus info
++        private AddRecipe() {
++            super(new ItemStack(Items.BANNER, 0, 0), java.util.Arrays.asList(new ItemStack(Items.BANNER)));
++        }
++        // CraftBukkit end
+ 
+         public boolean a(InventoryCrafting inventorycrafting, World world) {
+             boolean flag = false;
+@@ -181,13 +187,13 @@
+                                     break;
+                                 }
+ 
+-                                if (tileentitybanner_enumbannerpatterntype.c()[k].charAt(j1) == ' ') {
++                                if (tileentitybanner_enumbannerpatterntype.c()[k].charAt(j1) == 32) {
+                                     flag = false;
+                                     break;
+                                 }
+ 
+                                 l = itemstack1.getData();
+-                            } else if (tileentitybanner_enumbannerpatterntype.c()[k].charAt(j1) != ' ') {
++                            } else if (tileentitybanner_enumbannerpatterntype.c()[k].charAt(j1) != 32) {
+                                 flag = false;
+                                 break;
+                             }
+@@ -203,14 +209,18 @@
+             return null;
+         }
+ 
+-        AddRecipe(Object object) {
++        AddRecipe(RecipesBanner.SyntheticClass_1 recipesbanner_syntheticclass_1) {
+             this();
+         }
+     }
+ 
+-    static class DuplicateRecipe implements IRecipe {
++    static class DuplicateRecipe extends ShapelessRecipes implements IRecipe { // CraftBukkit - added extends
+ 
+-        private DuplicateRecipe() {}
++        // CraftBukkit start - Delegate to new parent class with bogus info
++        private DuplicateRecipe() {
++            super(new ItemStack(Items.BANNER, 0, 0), java.util.Arrays.asList(new ItemStack(Items.DYE, 0, 5)));
++        }
++        // CraftBukkit end
+ 
+         public boolean a(InventoryCrafting inventorycrafting, World world) {
+             ItemStack itemstack = null;
+@@ -304,7 +314,7 @@
+             return aitemstack;
+         }
+ 
+-        DuplicateRecipe(Object object) {
++        DuplicateRecipe(RecipesBanner.SyntheticClass_1 recipesbanner_syntheticclass_1) {
+             this();
+         }
+     }

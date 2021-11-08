@@ -1,0 +1,24 @@
+--- a/net/minecraft/server/EntitySquid.java
++++ b/net/minecraft/server/EntitySquid.java
+@@ -67,9 +67,11 @@
+ 
+     }
+ 
++    /* CraftBukkit start - Delegate to Entity to use existing inWater value
+     public boolean V() {
+         return this.world.a(this.getBoundingBox().grow(0.0D, -0.6000000238418579D, 0.0D), Material.WATER, (Entity) this);
+     }
++    // CraftBukkit end */
+ 
+     public void m() {
+         super.m();
+@@ -139,7 +141,8 @@
+     }
+ 
+     public boolean bR() {
+-        return this.locY > 45.0D && this.locY < (double) this.world.F() && super.bR();
++        // PaperSpigot - Configurable squid spawn range
++        return this.locY > this.world.paperSpigotConfig.squidMinSpawnHeight && this.locY < (double) this.world.paperSpigotConfig.squidMaxSpawnHeight && super.bR();
+     }
+ 
+     public void b(float f, float f1, float f2) {

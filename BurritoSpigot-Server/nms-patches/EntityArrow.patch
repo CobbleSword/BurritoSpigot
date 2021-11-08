@@ -1,0 +1,195 @@
+--- a/net/minecraft/server/EntityArrow.java
++++ b/net/minecraft/server/EntityArrow.java
+@@ -2,6 +2,17 @@
+ 
+ import java.util.List;
+ 
++// CraftBukkit start
++import org.bukkit.entity.LivingEntity;
++import org.bukkit.event.entity.EntityCombustByEntityEvent;
++import org.bukkit.event.player.PlayerPickupItemEvent;
++// CraftBukkit end
++// TacoSpigot start
++import net.techcable.tacospigot.event.entity.ArrowCollideEvent;
++import org.bukkit.Bukkit;
++import org.bukkit.entity.Arrow;
++// TacoSpigot end
++
+ public class EntityArrow extends Entity implements IProjectile {
+ 
+     private int d = -1;
+@@ -9,7 +20,7 @@
+     private int f = -1;
+     private Block g;
+     private int h;
+-    private boolean inGround;
++    public boolean inGround = false; // Spigot - private -> public
+     public int fromPlayer;
+     public int shake;
+     public Entity shooter;
+@@ -18,6 +29,18 @@
+     private double damage = 2.0D;
+     public int knockbackStrength;
+ 
++    // Spigot Start
++    @Override
++    public void inactiveTick()
++    {
++        if ( this.inGround )
++        {
++            this.ar += 1; // Despawn counter. First int after shooter
++        }
++        super.inactiveTick();
++    }
++    // Spigot End
++
+     public EntityArrow(World world) {
+         super(world);
+         this.j = 10.0D;
+@@ -35,6 +58,7 @@
+         super(world);
+         this.j = 10.0D;
+         this.shooter = entityliving;
++        this.projectileSource = (LivingEntity) entityliving.getBukkitEntity(); // CraftBukkit
+         if (entityliving instanceof EntityHuman) {
+             this.fromPlayer = 1;
+         }
+@@ -62,6 +86,7 @@
+         super(world);
+         this.j = 10.0D;
+         this.shooter = entityliving;
++        this.projectileSource = (LivingEntity) entityliving.getBukkitEntity(); // CraftBukkit
+         if (entityliving instanceof EntityHuman) {
+             this.fromPlayer = 1;
+         }
+@@ -79,7 +104,7 @@
+     }
+ 
+     protected void h() {
+-        this.datawatcher.a(16, (byte) 0);
++        this.datawatcher.a(16, Byte.valueOf((byte) 0));
+     }
+ 
+     public void shoot(double d0, double d1, double d2, float f, float f1) {
+@@ -135,7 +160,7 @@
+ 
+             if (block == this.g && i == this.h) {
+                 ++this.ar;
+-                if (this.ar >= 1200) {
++                if (this.ar >= world.spigotConfig.arrowDespawnRate) { // Spigot - First int after shooter
+                     this.die();
+                 }
+             } else {
+@@ -200,7 +225,22 @@
+             float f2;
+             float f3;
+ 
++            // PaperSpigot start - Allow arrows to fly through vanished players the shooter can't see
++            if (movingobjectposition != null && movingobjectposition.entity instanceof EntityPlayer && shooter != null && shooter instanceof EntityPlayer) {
++                if (!((EntityPlayer) shooter).getBukkitEntity().canSee(((EntityPlayer) movingobjectposition.entity).getBukkitEntity())) {
++                    movingobjectposition = null;
++                }
++            }
++            // PaperSpigot end
++            // TacoSpigot start - call better event
++            if (movingobjectposition != null && movingobjectposition.entity != null) {
++                ArrowCollideEvent collideEvent = new ArrowCollideEvent((Arrow) getBukkitEntity(), movingobjectposition.entity.getBukkitEntity());
++                Bukkit.getPluginManager().callEvent(collideEvent);
++                if (collideEvent.isCancelled()) movingobjectposition = null;
++            }
++            // TacoSpigot end
+             if (movingobjectposition != null) {
++                org.bukkit.craftbukkit.event.CraftEventFactory.callProjectileHitEvent(this); // CraftBukkit - Call event
+                 if (movingobjectposition.entity != null) {
+                     f2 = MathHelper.sqrt(this.motX * this.motX + this.motY * this.motY + this.motZ * this.motZ);
+                     int k = MathHelper.f((double) f2 * this.damage);
+@@ -217,16 +257,23 @@
+                         damagesource = DamageSource.arrow(this, this.shooter);
+                     }
+ 
+-                    if (this.isBurning() && !(movingobjectposition.entity instanceof EntityEnderman)) {
+-                        movingobjectposition.entity.setOnFire(5);
++                    // CraftBukkit start - Moved damage call
++                    if (movingobjectposition.entity.damageEntity(damagesource, (float) k)) {
++                    if (this.isBurning() && !(movingobjectposition.entity instanceof EntityEnderman) && (!(movingobjectposition.entity instanceof EntityPlayer) || !(this.shooter instanceof EntityPlayer) || this.world.pvpMode)) { // CraftBukkit - abide by pvp setting if destination is a player
++                        EntityCombustByEntityEvent combustEvent = new EntityCombustByEntityEvent(this.getBukkitEntity(), entity.getBukkitEntity(), 5);
++                        org.bukkit.Bukkit.getPluginManager().callEvent(combustEvent);
++                        if (!combustEvent.isCancelled()) {
++                            movingobjectposition.entity.setOnFire(combustEvent.getDuration());
++                        }
++                        // CraftBukkit end
+                     }
+ 
+-                    if (movingobjectposition.entity.damageEntity(damagesource, (float) k)) {
++                    // if (movingobjectposition.entity.damageEntity(damagesource, (float) k)) { // CraftBukkit - moved up
+                         if (movingobjectposition.entity instanceof EntityLiving) {
+                             EntityLiving entityliving = (EntityLiving) movingobjectposition.entity;
+ 
+                             if (!this.world.isClientSide) {
+-                                entityliving.setArrowsStuck(entityliving.getArrowsStuck() + 1);
++                                entityliving.o(entityliving.bv() + 1);
+                             }
+ 
+                             if (this.knockbackStrength > 0) {
+@@ -287,7 +334,7 @@
+ 
+             if (this.isCritical()) {
+                 for (j = 0; j < 4; ++j) {
+-                    this.world.addParticle(EnumParticle.CRIT, this.locX + this.motX * (double) j / 4.0D, this.locY + this.motY * (double) j / 4.0D, this.locZ + this.motZ * (double) j / 4.0D, -this.motX, -this.motY + 0.2D, -this.motZ);
++                    this.world.addParticle(EnumParticle.CRIT, this.locX + this.motX * (double) j / 4.0D, this.locY + this.motY * (double) j / 4.0D, this.locZ + this.motZ * (double) j / 4.0D, -this.motX, -this.motY + 0.2D, -this.motZ, new int[0]);
+                 }
+             }
+ 
+@@ -321,7 +368,7 @@
+             if (this.V()) {
+                 for (int l = 0; l < 4; ++l) {
+                     f3 = 0.25F;
+-                    this.world.addParticle(EnumParticle.WATER_BUBBLE, this.locX - this.motX * (double) f3, this.locY - this.motY * (double) f3, this.locZ - this.motZ * (double) f3, this.motX, this.motY, this.motZ);
++                    this.world.addParticle(EnumParticle.WATER_BUBBLE, this.locX - this.motX * (double) f3, this.locY - this.motY * (double) f3, this.locZ - this.motZ * (double) f3, this.motX, this.motY, this.motZ, new int[0]);
+                 }
+ 
+                 f4 = 0.6F;
+@@ -383,6 +430,20 @@
+ 
+     public void d(EntityHuman entityhuman) {
+         if (!this.world.isClientSide && this.inGround && this.shake <= 0) {
++            // CraftBukkit start
++            ItemStack itemstack = new ItemStack(Items.ARROW);
++            if (this.fromPlayer == 1 && entityhuman.inventory.canHold(itemstack) > 0) {
++                EntityItem item = new EntityItem(this.world, this.locX, this.locY, this.locZ, itemstack);
++
++                PlayerPickupItemEvent event = new PlayerPickupItemEvent((org.bukkit.entity.Player) entityhuman.getBukkitEntity(), new org.bukkit.craftbukkit.entity.CraftItem(this.world.getServer(), this, item), 0);
++                // event.setCancelled(!entityhuman.canPickUpLoot); TODO
++                this.world.getServer().getPluginManager().callEvent(event);
++
++                if (event.isCancelled()) {
++                    return;
++                }
++            }
++            // CraftBukkit end
+             boolean flag = this.fromPlayer == 1 || this.fromPlayer == 2 && entityhuman.abilities.canInstantlyBuild;
+ 
+             if (this.fromPlayer == 1 && !entityhuman.inventory.pickup(new ItemStack(Items.ARROW, 1))) {
+@@ -426,9 +487,9 @@
+         byte b0 = this.datawatcher.getByte(16);
+ 
+         if (flag) {
+-            this.datawatcher.watch(16, (byte) (b0 | 1));
++            this.datawatcher.watch(16, Byte.valueOf((byte) (b0 | 1)));
+         } else {
+-            this.datawatcher.watch(16, (byte) (b0 & -2));
++            this.datawatcher.watch(16, Byte.valueOf((byte) (b0 & -2)));
+         }
+ 
+     }
+@@ -438,4 +499,10 @@
+ 
+         return (b0 & 1) != 0;
+     }
++
++    // CraftBukkit start
++    public boolean isInGround() {
++        return inGround;
++    }
++    // CraftBukkit end
+ }

@@ -1,0 +1,54 @@
+--- a/net/minecraft/server/EntityPig.java
++++ b/net/minecraft/server/EntityPig.java
+@@ -1,5 +1,7 @@
+ package net.minecraft.server;
+ 
++import org.bukkit.craftbukkit.event.CraftEventFactory; // CraftBukkit
++
+ public class EntityPig extends EntityAnimal {
+ 
+     private final PathfinderGoalPassengerCarrotStick bm;
+@@ -34,7 +36,7 @@
+ 
+     protected void h() {
+         super.h();
+-        this.datawatcher.a(16, (byte) 0);
++        this.datawatcher.a(16, Byte.valueOf((byte) 0));
+     }
+ 
+     public void b(NBTTagCompound nbttagcompound) {
+@@ -101,9 +103,9 @@
+ 
+     public void setSaddle(boolean flag) {
+         if (flag) {
+-            this.datawatcher.watch(16, (byte) 1);
++            this.datawatcher.watch(16, Byte.valueOf((byte) 1));
+         } else {
+-            this.datawatcher.watch(16, (byte) 0);
++            this.datawatcher.watch(16, Byte.valueOf((byte) 0));
+         }
+ 
+     }
+@@ -112,6 +114,12 @@
+         if (!this.world.isClientSide && !this.dead) {
+             EntityPigZombie entitypigzombie = new EntityPigZombie(this.world);
+ 
++            // CraftBukkit start
++            if (CraftEventFactory.callPigZapEvent(this, entitylightning, entitypigzombie).isCancelled()) {
++                return;
++            }
++            // CraftBukkit end
++
+             entitypigzombie.setEquipment(0, new ItemStack(Items.GOLDEN_SWORD));
+             entitypigzombie.setPositionRotation(this.locX, this.locY, this.locZ, this.yaw, this.pitch);
+             entitypigzombie.k(this.ce());
+@@ -120,7 +128,8 @@
+                 entitypigzombie.setCustomNameVisible(this.getCustomNameVisible());
+             }
+ 
+-            this.world.addEntity(entitypigzombie);
++            // CraftBukkit - added a reason for spawning this creature
++            this.world.addEntity(entitypigzombie, org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason.LIGHTNING);
+             this.die();
+         }
+     }

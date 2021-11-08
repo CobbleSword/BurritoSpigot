@@ -1,0 +1,44 @@
+--- a/net/minecraft/server/EntityProjectile.java
++++ b/net/minecraft/server/EntityProjectile.java
+@@ -26,6 +26,7 @@
+     public EntityProjectile(World world, EntityLiving entityliving) {
+         super(world);
+         this.shooter = entityliving;
++        this.projectileSource = (org.bukkit.entity.LivingEntity) entityliving.getBukkitEntity(); // CraftBukkit
+         this.setSize(0.25F, 0.25F);
+         this.setPositionRotation(entityliving.locX, entityliving.locY + (double) entityliving.getHeadHeight(), entityliving.locZ, entityliving.yaw, entityliving.pitch);
+         this.locX -= (double) (MathHelper.cos(this.yaw / 180.0F * 3.1415927F) * 0.16F);
+@@ -146,11 +147,24 @@
+             }
+         }
+ 
++        // PaperSpigot start - Allow projectiles to fly through vanished players the shooter can't see
++        if (movingobjectposition != null && movingobjectposition.entity instanceof EntityPlayer && shooter != null && shooter instanceof EntityPlayer) {
++            if (!((EntityPlayer) shooter).getBukkitEntity().canSee(((EntityPlayer) movingobjectposition.entity).getBukkitEntity())) {
++                movingobjectposition = null;
++            }
++        }
++        // PaperSpigot end
++
+         if (movingobjectposition != null) {
+             if (movingobjectposition.type == MovingObjectPosition.EnumMovingObjectType.BLOCK && this.world.getType(movingobjectposition.a()).getBlock() == Blocks.PORTAL) {
+                 this.d(movingobjectposition.a());
+             } else {
+                 this.a(movingobjectposition);
++                // CraftBukkit start
++                if (this.dead) {
++                    org.bukkit.craftbukkit.event.CraftEventFactory.callProjectileHitEvent(this);
++                }
++                // CraftBukkit end
+             }
+         }
+ 
+@@ -186,7 +200,7 @@
+             for (int j = 0; j < 4; ++j) {
+                 float f4 = 0.25F;
+ 
+-                this.world.addParticle(EnumParticle.WATER_BUBBLE, this.locX - this.motX * (double) f4, this.locY - this.motY * (double) f4, this.locZ - this.motZ * (double) f4, this.motX, this.motY, this.motZ);
++                this.world.addParticle(EnumParticle.WATER_BUBBLE, this.locX - this.motX * (double) f4, this.locY - this.motY * (double) f4, this.locZ - this.motZ * (double) f4, this.motX, this.motY, this.motZ, new int[0]);
+             }
+ 
+             f2 = 0.8F;

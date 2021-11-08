@@ -1,0 +1,52 @@
+--- a/net/minecraft/server/BlockAnvil.java
++++ b/net/minecraft/server/BlockAnvil.java
+@@ -9,7 +9,7 @@
+ 
+     protected BlockAnvil() {
+         super(Material.HEAVY);
+-        this.j(this.blockStateList.getBlockData().set(BlockAnvil.FACING, EnumDirection.NORTH).set(BlockAnvil.DAMAGE, 0));
++        this.j(this.blockStateList.getBlockData().set(BlockAnvil.FACING, EnumDirection.NORTH).set(BlockAnvil.DAMAGE, Integer.valueOf(0)));
+         this.e(0);
+         this.a(CreativeModeTab.c);
+     }
+@@ -25,7 +25,7 @@
+     public IBlockData getPlacedState(World world, BlockPosition blockposition, EnumDirection enumdirection, float f, float f1, float f2, int i, EntityLiving entityliving) {
+         EnumDirection enumdirection1 = entityliving.getDirection().e();
+ 
+-        return super.getPlacedState(world, blockposition, enumdirection, f, f1, f2, i, entityliving).set(BlockAnvil.FACING, enumdirection1).set(BlockAnvil.DAMAGE, i >> 2);
++        return super.getPlacedState(world, blockposition, enumdirection, f, f1, f2, i, entityliving).set(BlockAnvil.FACING, enumdirection1).set(BlockAnvil.DAMAGE, Integer.valueOf(i >> 2));
+     }
+ 
+     public boolean interact(World world, BlockPosition blockposition, IBlockData iblockdata, EntityHuman entityhuman, EnumDirection enumdirection, float f, float f1, float f2) {
+@@ -37,7 +37,7 @@
+     }
+ 
+     public int getDropData(IBlockData iblockdata) {
+-        return (Integer) iblockdata.get(BlockAnvil.DAMAGE);
++        return ((Integer) iblockdata.get(BlockAnvil.DAMAGE)).intValue();
+     }
+ 
+     public void updateShape(IBlockAccess iblockaccess, BlockPosition blockposition) {
+@@ -60,19 +60,19 @@
+     }
+ 
+     public IBlockData fromLegacyData(int i) {
+-        return this.getBlockData().set(BlockAnvil.FACING, EnumDirection.fromType2(i & 3)).set(BlockAnvil.DAMAGE, (i & 15) >> 2);
++        return this.getBlockData().set(BlockAnvil.FACING, EnumDirection.fromType2(i & 3)).set(BlockAnvil.DAMAGE, Integer.valueOf((i & 15) >> 2));
+     }
+ 
+     public int toLegacyData(IBlockData iblockdata) {
+         byte b0 = 0;
+         int i = b0 | ((EnumDirection) iblockdata.get(BlockAnvil.FACING)).b();
+ 
+-        i |= (Integer) iblockdata.get(BlockAnvil.DAMAGE) << 2;
++        i |= ((Integer) iblockdata.get(BlockAnvil.DAMAGE)).intValue() << 2;
+         return i;
+     }
+ 
+     protected BlockStateList getStateList() {
+-        return new BlockStateList(this, new IBlockState[]{BlockAnvil.FACING, BlockAnvil.DAMAGE});
++        return new BlockStateList(this, new IBlockState[] { BlockAnvil.FACING, BlockAnvil.DAMAGE});
+     }
+ 
+     public static class TileEntityContainerAnvil implements ITileEntityContainer {

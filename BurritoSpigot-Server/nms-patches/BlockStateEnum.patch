@@ -1,0 +1,66 @@
+--- a/net/minecraft/server/BlockStateEnum.java
++++ b/net/minecraft/server/BlockStateEnum.java
+@@ -18,14 +18,14 @@
+     protected BlockStateEnum(String s, Class<T> oclass, Collection<T> collection) {
+         super(s, oclass);
+         this.a = ImmutableSet.copyOf(collection);
+-        Iterator iterator = collection.iterator();
++        Iterator<T> iterator = collection.iterator(); // TacoSpigot - generic iterator
+ 
+         while (iterator.hasNext()) {
+-            Enum oenum = (Enum) iterator.next();
++            T oenum = iterator.next(); // TacoSpigot - generics
+             String s1 = ((INamable) oenum).getName();
+ 
+             if (this.b.containsKey(s1)) {
+-                throw new IllegalArgumentException("Multiple values have the same name '" + s1 + "'");
++                throw new IllegalArgumentException("Multiple values have the same name \'" + s1 + "\'");
+             }
+ 
+             this.b.put(s1, oenum);
+@@ -36,11 +36,28 @@
+     public Collection<T> c() {
+         return this.a;
+     }
+-
+     public String a(T t0) {
+         return ((INamable) t0).getName();
+     }
+ 
++    // TacoSpigot start
++    @Override
++    public int
++getValueId(T value) {
++        return value.ordinal();
++    }
++
++    @Override
++    public T getByValueId(int id) {
++        T[] values = this.b().getEnumConstants();
++        if (id >= 0 && id < values.length) {
++            return values[id];
++        } else {
++            throw new IllegalArgumentException("Invalid id: " + id);
++        }
++    }
++    // TacoSpigot end
++
+     public static <T extends Enum<T> & INamable> BlockStateEnum<T> of(String s, Class<T> oclass) {
+         return a(s, oclass, Predicates.alwaysTrue());
+     }
+@@ -54,10 +71,14 @@
+     }
+ 
+     public static <T extends Enum<T> & INamable> BlockStateEnum<T> a(String s, Class<T> oclass, Collection<T> collection) {
+-        return new BlockStateEnum<>(s, oclass, collection);
++        return new BlockStateEnum(s, oclass, collection);
+     }
+ 
++    // TacoSpigot start - fix stupid generic thingies
++    /*
+     public String a(Comparable comparable) {
+         return this.a((Enum) comparable);
+     }
++    */
++    // TacoSpigot end
+ }

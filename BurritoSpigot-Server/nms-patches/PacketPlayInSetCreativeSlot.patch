@@ -1,0 +1,52 @@
+--- a/net/minecraft/server/PacketPlayInSetCreativeSlot.java
++++ b/net/minecraft/server/PacketPlayInSetCreativeSlot.java
+@@ -2,25 +2,30 @@
+ 
+ import java.io.IOException;
+ 
+-public class PacketPlayInSetCreativeSlot implements Packet<PacketListenerPlayIn> {
+-
++public class PacketPlayInSetCreativeSlot implements Packet<PacketListenerPlayIn>
++{
+     private int slot;
+     private ItemStack b;
+ 
+     public PacketPlayInSetCreativeSlot() {}
+ 
+-    public void a(PacketListenerPlayIn packetlistenerplayin) {
+-        packetlistenerplayin.a(this);
++    @Override
++    public void a(PacketDataSerializer packetDataSerializer) throws IOException {
++        this.slot = packetDataSerializer.readShort();
++        this.b = packetDataSerializer.decodeItemStack();
+     }
+ 
+-    public void a(PacketDataSerializer packetdataserializer) throws IOException {
+-        this.slot = packetdataserializer.readShort();
+-        this.b = packetdataserializer.i();
++    @Override
++    public void b(PacketDataSerializer packetDataSerializer) throws IOException {
++
++        packetDataSerializer.writeShort(this.slot);
++        packetDataSerializer.a(this.b);
+     }
+ 
+-    public void b(PacketDataSerializer packetdataserializer) throws IOException {
+-        packetdataserializer.writeShort(this.slot);
+-        packetdataserializer.a(this.b);
++    @Override
++    public void a(PacketListenerPlayIn packetListenerPlayIn)
++    {
++        packetListenerPlayIn.a(this);
+     }
+ 
+     public int a() {
+@@ -30,8 +35,4 @@
+     public ItemStack getItemStack() {
+         return this.b;
+     }
+-
+-    public void a(PacketListener packetlistener) {
+-        this.a((PacketListenerPlayIn) packetlistener);
+-    }
+ }

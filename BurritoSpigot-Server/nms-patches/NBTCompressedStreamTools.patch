@@ -1,0 +1,24 @@
+--- a/net/minecraft/server/NBTCompressedStreamTools.java
++++ b/net/minecraft/server/NBTCompressedStreamTools.java
+@@ -44,6 +44,12 @@
+     }
+ 
+     public static NBTTagCompound a(DataInput datainput, NBTReadLimiter nbtreadlimiter) throws IOException {
++        // Spigot start
++        if ( datainput instanceof io.netty.buffer.ByteBufInputStream )
++        {
++            datainput = new DataInputStream(new org.spigotmc.LimitStream((InputStream) datainput, nbtreadlimiter));
++        }
++        // Spigot end
+         NBTBase nbtbase = a(datainput, 0, nbtreadlimiter);
+ 
+         if (nbtbase instanceof NBTTagCompound) {
+@@ -82,7 +88,7 @@
+                 CrashReportSystemDetails crashreportsystemdetails = crashreport.a("NBT Tag");
+ 
+                 crashreportsystemdetails.a("Tag name", (Object) "[UNNAMED TAG]");
+-                crashreportsystemdetails.a("Tag type", (Object) b0);
++                crashreportsystemdetails.a("Tag type", (Object) Byte.valueOf(b0));
+                 throw new ReportedException(crashreport);
+             }
+         }

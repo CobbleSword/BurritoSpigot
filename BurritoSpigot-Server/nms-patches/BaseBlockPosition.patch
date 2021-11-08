@@ -1,0 +1,50 @@
+--- a/net/minecraft/server/BaseBlockPosition.java
++++ b/net/minecraft/server/BaseBlockPosition.java
+@@ -5,9 +5,11 @@
+ public class BaseBlockPosition implements Comparable<BaseBlockPosition> {
+ 
+     public static final BaseBlockPosition ZERO = new BaseBlockPosition(0, 0, 0);
+-    private final int a;
+-    private final int c;
+-    private final int d;
++    // PaperSpigot start - Make mutable and protected for MutableBlockPos
++    protected int a;
++    protected int c;
++    protected int d;
++    // PaperSpigot end
+ 
+     public BaseBlockPosition(int i, int j, int k) {
+         this.a = i;
+@@ -39,17 +41,19 @@
+         return this.getY() == baseblockposition.getY() ? (this.getZ() == baseblockposition.getZ() ? this.getX() - baseblockposition.getX() : this.getZ() - baseblockposition.getZ()) : this.getY() - baseblockposition.getY();
+     }
+ 
+-    public int getX() {
++    // PaperSpigot start - Only allow one implementation of these methods (make final)
++    public final int getX() {
+         return this.a;
+     }
+ 
+-    public int getY() {
++    public final int getY() {
+         return this.c;
+     }
+ 
+-    public int getZ() {
++    public final int getZ() {
+         return this.d;
+     }
++    // PaperSpigot end
+ 
+     public BaseBlockPosition d(BaseBlockPosition baseblockposition) {
+         return new BaseBlockPosition(this.getY() * baseblockposition.getZ() - this.getZ() * baseblockposition.getY(), this.getZ() * baseblockposition.getX() - this.getX() * baseblockposition.getZ(), this.getX() * baseblockposition.getY() - this.getY() * baseblockposition.getX());
+@@ -79,7 +83,8 @@
+         return Objects.toStringHelper(this).add("x", this.getX()).add("y", this.getY()).add("z", this.getZ()).toString();
+     }
+ 
+-    public int compareTo(Object object) {
++    // Paperspigot - Signature change, Object -> BaseBlockPosition
++    public int compareTo(BaseBlockPosition object) {
+         return this.g((BaseBlockPosition) object);
+     }
+ }

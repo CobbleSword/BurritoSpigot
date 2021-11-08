@@ -1,0 +1,203 @@
+--- a/net/minecraft/server/SpawnerCreature.java
++++ b/net/minecraft/server/SpawnerCreature.java
+@@ -6,13 +6,47 @@
+ import java.util.Random;
+ import java.util.Set;
+ 
++// CraftBukkit start
++import org.bukkit.craftbukkit.util.LongHash;
++import org.bukkit.craftbukkit.util.LongHashSet;
++import org.bukkit.event.entity.CreatureSpawnEvent.SpawnReason;
++// CraftBukkit end
++
+ public final class SpawnerCreature {
+ 
+     private static final int a = (int) Math.pow(17.0D, 2.0D);
+-    private final Set<ChunkCoordIntPair> b = Sets.newHashSet();
++    private final LongHashSet b = new LongHashSet(); // CraftBukkit
+ 
+     public SpawnerCreature() {}
+ 
++    // Spigot start - get entity count only from chunks being processed in b
++    private int getEntityCount(WorldServer server, Class oClass)
++    {
++        // TacoSpigot start - use entire world, not just active chunks. Spigot broke vanilla expectations.
++        if (true) {
++            return server
++                    .chunkProviderServer
++                    .chunks.values()
++                    .stream()
++                    .collect(java.util.stream.Collectors.summingInt(c -> c.entityCount.get(oClass)));
++        }
++        // TacoSpigot end
++        int i = 0;
++        Iterator<Long> it = this.b.iterator();
++        while ( it.hasNext() )
++        {
++            Long coord = it.next();
++            int x = LongHash.msw( coord );
++            int z = LongHash.lsw( coord );
++            if ( !server.chunkProviderServer.unloadQueue.contains( coord ) && server.isChunkLoaded( x, z, true ) )
++            {
++                i += server.getChunkAt( x, z ).entityCount.get( oClass );
++            }
++        }
++        return i;
++    }
++    // Spigot end
++
+     public int a(WorldServer worldserver, boolean flag, boolean flag1, boolean flag2) {
+         if (!flag && !flag1) {
+             return 0;
+@@ -27,23 +61,31 @@
+             while (iterator.hasNext()) {
+                 EntityHuman entityhuman = (EntityHuman) iterator.next();
+ 
+-                if (!entityhuman.isSpectator()) {
++                if (!entityhuman.isSpectator() || !entityhuman.affectsSpawning) { // PaperSpigot
+                     int l = MathHelper.floor(entityhuman.locX / 16.0D);
+ 
+                     j = MathHelper.floor(entityhuman.locZ / 16.0D);
+                     byte b0 = 8;
++                    // Spigot Start
++                    b0 = worldserver.spigotConfig.mobSpawnRange;
++                    b0 = ( b0 > worldserver.spigotConfig.viewDistance ) ? (byte) worldserver.spigotConfig.viewDistance : b0;
++                    b0 = ( b0 > 8 ) ? 8 : b0;
++                    // Spigot End
+ 
+                     for (int i1 = -b0; i1 <= b0; ++i1) {
+                         for (k = -b0; k <= b0; ++k) {
+                             boolean flag3 = i1 == -b0 || i1 == b0 || k == -b0 || k == b0;
+-                            ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(i1 + l, k + j);
++                            // CraftBukkit start - use LongHash and LongHashSet
++                            // ChunkCoordIntPair chunkcoordintpair = new ChunkCoordIntPair(i1 + l, k + j);
+ 
+-                            if (!this.b.contains(chunkcoordintpair)) {
++                            long chunkCoords = LongHash.toLong(i1 + l, k + j);
++                            if (!this.b.contains(chunkCoords)) {
+                                 ++i;
+-                                if (!flag3 && worldserver.getWorldBorder().isInBounds(chunkcoordintpair)) {
+-                                    this.b.add(chunkcoordintpair);
++                                if (!flag3 && worldserver.getWorldBorder().isInBounds(i1 + l, k + j)) {
++                                    this.b.add(chunkCoords);
+                                 }
+                             }
++                            // CraftBukkit end
+                         }
+                     }
+                 }
+@@ -58,17 +100,43 @@
+             for (int k1 = 0; k1 < j; ++k1) {
+                 EnumCreatureType enumcreaturetype = aenumcreaturetype[k1];
+ 
++               // CraftBukkit start - Use per-world spawn limits
++                int limit = enumcreaturetype.b();
++                switch (enumcreaturetype) {
++                    case MONSTER:
++                        limit = worldserver.getWorld().getMonsterSpawnLimit();
++                        break;
++                    case CREATURE:
++                        limit = worldserver.getWorld().getAnimalSpawnLimit();
++                        break;
++                    case WATER_CREATURE:
++                        limit = worldserver.getWorld().getWaterAnimalSpawnLimit();
++                        break;
++                    case AMBIENT:
++                        limit = worldserver.getWorld().getAmbientSpawnLimit();
++                        break;
++                }
++
++                if (limit == 0) {
++                    continue;
++                }
++				int mobcnt = 0; // Spigot
++                // CraftBukkit end
++
+                 if ((!enumcreaturetype.d() || flag1) && (enumcreaturetype.d() || flag) && (!enumcreaturetype.e() || flag2)) {
+                     k = worldserver.a(enumcreaturetype.a());
+-                    int l1 = enumcreaturetype.b() * i / SpawnerCreature.a;
++                    int l1 = limit * i / a; // CraftBukkit - use per-world limits
+ 
+-                    if (k <= l1) {
++                    if ((mobcnt = getEntityCount(worldserver, enumcreaturetype.a())) <= limit * i / 289) { // TacoSpigot - use 17x17 like vanilla (a at top of file)
+                         Iterator iterator1 = this.b.iterator();
+ 
++                        int moblimit = (limit * i / 256) - mobcnt + 1; // Spigot - up to 1 more than limit
+                         label115:
+-                        while (iterator1.hasNext()) {
+-                            ChunkCoordIntPair chunkcoordintpair1 = (ChunkCoordIntPair) iterator1.next();
+-                            BlockPosition blockposition1 = getRandomPosition(worldserver, chunkcoordintpair1.x, chunkcoordintpair1.z);
++                        while (iterator1.hasNext() && (moblimit > 0)) { // Spigot - while more allowed
++                            // CraftBukkit start = use LongHash and LongObjectHashMap
++                            long key = ((Long) iterator1.next()).longValue();
++                            BlockPosition blockposition1 = getRandomPosition(worldserver, LongHash.msw(key), LongHash.lsw(key));
++                            // CraftBukkit
+                             int i2 = blockposition1.getX();
+                             int j2 = blockposition1.getY();
+                             int k2 = blockposition1.getZ();
+@@ -89,8 +157,7 @@
+ 
+                                     while (true) {
+                                         if (i4 < 4) {
+-                                            label108:
+-                                            {
++                                            label108: {
+                                                 j3 += worldserver.random.nextInt(b1) - worldserver.random.nextInt(b1);
+                                                 k3 += worldserver.random.nextInt(1) - worldserver.random.nextInt(1);
+                                                 l3 += worldserver.random.nextInt(b1) - worldserver.random.nextInt(b1);
+@@ -98,7 +165,7 @@
+                                                 float f = (float) j3 + 0.5F;
+                                                 float f1 = (float) l3 + 0.5F;
+ 
+-                                                if (!worldserver.isPlayerNearby((double) f, (double) k3, (double) f1, 24.0D) && blockposition.c((double) f, (double) k3, (double) f1) >= 576.0D) {
++                                                if (!worldserver.isPlayerNearbyWhoAffectsSpawning((double) f, (double) k3, (double) f1, 24.0D) && blockposition.c((double) f, (double) k3, (double) f1) >= 576.0D) { // PaperSpigot - Affects Spawning API
+                                                     if (biomebase_biomemeta == null) {
+                                                         biomebase_biomemeta = worldserver.a(enumcreaturetype, blockposition2);
+                                                         if (biomebase_biomemeta == null) {
+@@ -110,7 +177,7 @@
+                                                         EntityInsentient entityinsentient;
+ 
+                                                         try {
+-                                                            entityinsentient = (EntityInsentient) biomebase_biomemeta.b.getConstructor(World.class).newInstance(worldserver);
++                                                            entityinsentient = (EntityInsentient) biomebase_biomemeta.b.getConstructor(new Class[] { World.class}).newInstance(new Object[] { worldserver});
+                                                         } catch (Exception exception) {
+                                                             exception.printStackTrace();
+                                                             return j1;
+@@ -121,9 +188,16 @@
+                                                             groupdataentity = entityinsentient.prepare(worldserver.E(new BlockPosition(entityinsentient)), groupdataentity);
+                                                             if (entityinsentient.canSpawn()) {
+                                                                 ++l2;
+-                                                                worldserver.addEntity(entityinsentient);
++                                                                worldserver.addEntity(entityinsentient, SpawnReason.NATURAL); // CraftBukkit - Added a reason for spawning this creature
+                                                             }
+ 
++                                                            // Spigot start
++                                                            if ( --moblimit <= 0 )
++                                                            {
++                                                                // If we're past limit, stop spawn
++                                                                continue label115;
++                                                            }
++                                                            // Spigot end
+                                                             if (l2 >= entityinsentient.bV()) {
+                                                                 continue label115;
+                                                             }
+@@ -208,15 +282,17 @@
+                             EntityInsentient entityinsentient;
+ 
+                             try {
+-                                entityinsentient = (EntityInsentient) biomebase_biomemeta.b.getConstructor(World.class).newInstance(world);
++                                entityinsentient = (EntityInsentient) biomebase_biomemeta.b.getConstructor(new Class[] { World.class}).newInstance(new Object[] { world});
+                             } catch (Exception exception) {
+                                 exception.printStackTrace();
+                                 continue;
+                             }
+ 
+                             entityinsentient.setPositionRotation((double) ((float) j1 + 0.5F), (double) blockposition.getY(), (double) ((float) k1 + 0.5F), random.nextFloat() * 360.0F, 0.0F);
+-                            world.addEntity(entityinsentient);
++                            // CraftBukkit start - Added a reason for spawning this creature, moved entityinsentient.prepare(groupdataentity) up
+                             groupdataentity = entityinsentient.prepare(world.E(new BlockPosition(entityinsentient)), groupdataentity);
++                            world.addEntity(entityinsentient, SpawnReason.CHUNK_GEN);
++                            // CraftBukkit end
+                             flag = true;
+                         }
+ 

@@ -1,0 +1,11 @@
+--- a/net/minecraft/server/NextTickListEntry.java
++++ b/net/minecraft/server/NextTickListEntry.java
+@@ -50,7 +50,7 @@
+         return this.e;
+     }
+ 
+-    public int compareTo(Object object) {
++    public int compareTo(NextTickListEntry object) {
+         return this.a((NextTickListEntry) object);
+     }
+ }

@@ -1,0 +1,198 @@
+--- a/net/minecraft/server/WorldData.java
++++ b/net/minecraft/server/WorldData.java
+@@ -1,6 +1,11 @@
+ package net.minecraft.server;
+ 
+ import java.util.concurrent.Callable;
++// CraftBukkit start
++import org.bukkit.Bukkit;
++import org.bukkit.event.weather.ThunderChangeEvent;
++import org.bukkit.event.weather.WeatherChangeEvent;
++// CraftBukkit end
+ 
+ public class WorldData {
+ 
+@@ -41,6 +46,7 @@
+     private int I;
+     private int J;
+     private GameRules K;
++    public WorldServer world; // CraftBukkit
+ 
+     protected WorldData() {
+         this.c = WorldType.NORMAL;
+@@ -395,6 +401,18 @@
+     }
+ 
+     public void setThundering(boolean flag) {
++        // CraftBukkit start
++        org.bukkit.World world = Bukkit.getWorld(getName());
++        if (world != null) {
++            ThunderChangeEvent thunder = new ThunderChangeEvent(world, flag);
++            Bukkit.getServer().getPluginManager().callEvent(thunder);
++            if (thunder.isCancelled()) {
++                return;
++            }
++
++            setThunderDuration(0); // Will force a time reset
++        }
++        // CraftBukkit end
+         this.s = flag;
+     }
+ 
+@@ -411,6 +429,18 @@
+     }
+ 
+     public void setStorm(boolean flag) {
++        // CraftBukkit start
++        org.bukkit.World world = Bukkit.getWorld(getName());
++        if (world != null) {
++            WeatherChangeEvent weather = new WeatherChangeEvent(world, flag);
++            Bukkit.getServer().getPluginManager().callEvent(weather);
++            if (weather.isCancelled()) {
++                return;
++            }
++
++            setWeatherDuration(0); // Will force a time reset
++        }
++        // CraftBukkit end
+         this.q = flag;
+     }
+ 
+@@ -556,6 +586,12 @@
+ 
+     public void setDifficulty(EnumDifficulty enumdifficulty) {
+         this.z = enumdifficulty;
++        // CraftBukkit start
++        PacketPlayOutServerDifficulty packet = new PacketPlayOutServerDifficulty(this.getDifficulty(), this.isDifficultyLocked());
++        for (EntityPlayer player : (java.util.List<EntityPlayer>) (java.util.List) world.players) {
++            player.playerConnection.sendPacket(packet);
++        }
++        // CraftBukkit end
+     }
+ 
+     public boolean isDifficultyLocked() {
+@@ -567,7 +603,7 @@
+     }
+ 
+     public void a(CrashReportSystemDetails crashreportsystemdetails) {
+-        crashreportsystemdetails.a("Level seed", new Callable<String>() {
++        crashreportsystemdetails.a("Level seed", new Callable() {
+             public String a() throws Exception {
+                 return String.valueOf(WorldData.this.getSeed());
+             }
+@@ -576,16 +612,16 @@
+                 return this.a();
+             }
+         });
+-        crashreportsystemdetails.a("Level generator", new Callable<String>() {
++        crashreportsystemdetails.a("Level generator", new Callable() {
+             public String a() throws Exception {
+-                return String.format("ID %02d - %s, ver %d. Features enabled: %b", WorldData.this.c.g(), WorldData.this.c.name(), WorldData.this.c.getVersion(), WorldData.this.v);
++                return String.format("ID %02d - %s, ver %d. Features enabled: %b", new Object[] { Integer.valueOf(WorldData.this.c.g()), WorldData.this.c.name(), Integer.valueOf(WorldData.this.c.getVersion()), Boolean.valueOf(WorldData.this.v)});
+             }
+ 
+             public Object call() throws Exception {
+                 return this.a();
+             }
+         });
+-        crashreportsystemdetails.a("Level generator options", new Callable<String>() {
++        crashreportsystemdetails.a("Level generator options", new Callable() {
+             public String a() throws Exception {
+                 return WorldData.this.d;
+             }
+@@ -594,7 +630,7 @@
+                 return this.a();
+             }
+         });
+-        crashreportsystemdetails.a("Level spawn location", new Callable<String>() {
++        crashreportsystemdetails.a("Level spawn location", new Callable() {
+             public String a() throws Exception {
+                 return CrashReportSystemDetails.a((double) WorldData.this.e, (double) WorldData.this.f, (double) WorldData.this.g);
+             }
+@@ -603,16 +639,16 @@
+                 return this.a();
+             }
+         });
+-        crashreportsystemdetails.a("Level time", new Callable<String>() {
++        crashreportsystemdetails.a("Level time", new Callable() {
+             public String a() throws Exception {
+-                return String.format("%d game time, %d day time", WorldData.this.h, WorldData.this.i);
++                return String.format("%d game time, %d day time", new Object[] { Long.valueOf(WorldData.this.h), Long.valueOf(WorldData.this.i)});
+             }
+ 
+             public Object call() throws Exception {
+                 return this.a();
+             }
+         });
+-        crashreportsystemdetails.a("Level dimension", new Callable<String>() {
++        crashreportsystemdetails.a("Level dimension", new Callable() {
+             public String a() throws Exception {
+                 return String.valueOf(WorldData.this.m);
+             }
+@@ -621,41 +657,42 @@
+                 return this.a();
+             }
+         });
+-        crashreportsystemdetails.a("Level storage version", new Callable<String>() {
++        crashreportsystemdetails.a("Level storage version", new Callable() {
+             public String a() throws Exception {
+                 String s = "Unknown?";
+ 
+                 try {
+                     switch (WorldData.this.o) {
+-                        case 19132:
+-                            s = "McRegion";
+-                            break;
+-                        case 19133:
+-                            s = "Anvil";
++                    case 19132:
++                        s = "McRegion";
++                        break;
++
++                    case 19133:
++                        s = "Anvil";
+                     }
+                 } catch (Throwable throwable) {
+                     ;
+                 }
+ 
+-                return String.format("0x%05X - %s", WorldData.this.o, s);
++                return String.format("0x%05X - %s", new Object[] { Integer.valueOf(WorldData.this.o), s});
+             }
+ 
+             public Object call() throws Exception {
+                 return this.a();
+             }
+         });
+-        crashreportsystemdetails.a("Level weather", new Callable<String>() {
++        crashreportsystemdetails.a("Level weather", new Callable() {
+             public String a() throws Exception {
+-                return String.format("Rain time: %d (now: %b), thunder time: %d (now: %b)", WorldData.this.r, WorldData.this.q, WorldData.this.t, WorldData.this.s);
++                return String.format("Rain time: %d (now: %b), thunder time: %d (now: %b)", new Object[] { Integer.valueOf(WorldData.this.r), Boolean.valueOf(WorldData.this.q), Integer.valueOf(WorldData.this.t), Boolean.valueOf(WorldData.this.s)});
+             }
+ 
+             public Object call() throws Exception {
+                 return this.a();
+             }
+         });
+-        crashreportsystemdetails.a("Level game mode", new Callable<String>() {
++        crashreportsystemdetails.a("Level game mode", new Callable() {
+             public String a() throws Exception {
+-                return String.format("Game mode: %s (ID %d). Hardcore: %b. Cheats: %b", WorldData.this.u.b(), WorldData.this.u.getId(), WorldData.this.w, WorldData.this.x);
++                return String.format("Game mode: %s (ID %d). Hardcore: %b. Cheats: %b", new Object[] { WorldData.this.u.b(), Integer.valueOf(WorldData.this.u.getId()), Boolean.valueOf(WorldData.this.w), Boolean.valueOf(WorldData.this.x)});
+             }
+ 
+             public Object call() throws Exception {
+@@ -663,4 +700,12 @@
+             }
+         });
+     }
++
++    // CraftBukkit start - Check if the name stored in NBT is the correct one
++    public void checkName( String name ) {
++        if ( !this.n.equals( name ) ) {
++            this.n = name;
++        }
++    }
++    // CraftBukkit end
+ }

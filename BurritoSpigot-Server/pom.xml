@@ -26,17 +26,6 @@
         <version>dev-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
-
-    <repositories>
-        <repository>
-            <id>apache.snapshots</id>
-            <name>Apache Snapshot Repository</name>
-            <url>https://repository.apache.org/snapshots</url>
-            <releases>
-                <enabled>false</enabled>
-            </releases>
-        </repository>
-    </repositories>
          
     <dependencies>
         <dependency>
@@ -58,13 +47,6 @@
             <groupId>dev.cobblesword.burritospigot</groupId>
             <artifactId>api</artifactId>
             <version>${project.version}</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
-        <dependency>
-            <groupId>net.minecraft</groupId>
-            <artifactId>server</artifactId>
-            <version>${minecraft.version}-SNAPSHOT</version>
             <type>jar</type>
             <scope>compile</scope>
         </dependency>
@@ -114,22 +96,41 @@
             <version>1.3</version>
             <scope>test</scope>
         </dependency>
-                <dependency>
+        <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-core</artifactId>
-            <version>2.15.0-SNAPSHOT</version>
+            <version>2.15.0</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.15.0</version>
             <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-slf4j-impl</artifactId>
-            <version>2.15.0-SNAPSHOT</version>
-            <scope>runtime</scope>
+            <version>2.15.0</version>
+            <scope>compile</scope>
         </dependency>
         <dependency>
             <groupId>org.apache.logging.log4j</groupId>
             <artifactId>log4j-iostreams</artifactId>
-            <version>2.15.0-SNAPSHOT</version>
+            <version>2.15.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.32</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>net.minecraft</groupId>
+            <artifactId>server</artifactId>
+            <version>${minecraft.version}-SNAPSHOT</version>
+            <type>jar</type>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
@@ -172,6 +173,7 @@
                             <Specification-Title>Bukkit</Specification-Title>
                             <Specification-Version>${api.version}</Specification-Version>
                             <Specification-Vendor>Bukkit Team</Specification-Vendor>
+                            <Multi-Release>true</Multi-Release>
                         </manifestEntries>
                         <manifestSections>
                             <manifestSection>

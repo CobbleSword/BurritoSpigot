@@ -17,7 +17,7 @@ Since it's been a few years since 1.8.8 release, it has fallen behind in a few o
 * [citizens](https://www.spigotmc.org/resources/citizens.13811/) Allows you to spawn NPC of players and entities
 * [essentialsx](https://essentialsx.net/downloads.html) a mix of common commands
 
-## Download
+# Download
 [Download BurritoSpigot.jar](https://github.com/CobbleSword/BurritoSpigot/releases/latest)
 
 # Compilation

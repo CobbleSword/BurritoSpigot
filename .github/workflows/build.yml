@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
             matrix:
-                java: [17]
+                java: [8, 11, 17]
             fail-fast: true
     steps:
     - uses: actions/checkout@v2
@@ -19,33 +19,10 @@ jobs:
         java-version: ${{ matrix.java}}
         distribution: 'temurin'
         cache: maven
-    - name: Build with Maven
+    - name: Patch and Build
       run: cd BurritoSpigot-Server && ./burrito build
     - uses: actions/upload-artifact@v2
-      if: ${{ matrix.java == 8 }}
+      if: ${{ matrix.java == 8 && github.event_name != 'pull_request' }}
       with:
         name: BurritoSpigot
         path: ./BurritoSpigot-Server/target/BurritoSpigot.jar
-        
-    - name: Create Release Draft
-      if: ${{ github.event_name != 'pull_request' }}
-      id: createDraft
-      uses: actions/create-release@v1.1.4
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: BurritoSpigot-${{ github.sha }}
-        release_name: BurritoSpigot ${{ github.sha }}
-        body: BurritoSpigot Update
-        draft: false
-    - name: Upload Release Asset
-      if: ${{ github.event_name != 'pull_request' }}
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.createDraft.outputs.upload_url }}
-        asset_path: ./BurritoSpigot-Server/target/BurritoSpigot.jar
-        asset_name: BurritoSpigot.jar
-        asset_content_type: application/java-archive

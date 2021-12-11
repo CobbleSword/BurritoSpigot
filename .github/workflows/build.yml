@@ -18,7 +18,14 @@ jobs:
       with:
         java-version: ${{ matrix.java}}
         distribution: 'temurin'
-        cache: maven
+    - name: Cache maven
+      uses: actions/cache@v2
+      with:
+        path: |
+            ~/.m2/repository/
+            work/1.8.8
+        key: ${{ runner.os }}-burrito-2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-paper-2
     - name: Patch and Build
       run: cd BurritoSpigot-Server && ./burrito build
     - uses: actions/upload-artifact@v2

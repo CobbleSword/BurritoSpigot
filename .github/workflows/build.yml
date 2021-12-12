@@ -29,7 +29,19 @@ jobs:
     - name: Patch and Build
       run: cd BurritoSpigot-Server && ./burrito build
     - uses: actions/upload-artifact@v2
-      if: ${{ matrix.java == 8 && github.event_name != 'pull_request' }}
       with:
-        name: BurritoSpigot
+        name: BurritoSpigot JDK {{ matrix.java }}
         path: ./BurritoSpigot-Server/target/BurritoSpigot.jar
+    - name: Push artifact to downloads
+      uses: dmnemec/copy_file_to_another_repo_action@v1.1.1
+      if: ${{ matrix.java == 8 && github.event_name != 'pull_request' }}
+      env:
+        API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        source_file: 'BurritoSpigot-Server/target/BurritoSpigot.jar'
+        destination_repo: 'CobbleSword/BurritoSpigot'
+        destination_folder: 'jars'
+        destination_branch: 'downloads'
+        user_email: 'action@github.com'
+        user_name: 'Github Actions'
+        commit_message: Update downloads for commit ${{ github.sha }}

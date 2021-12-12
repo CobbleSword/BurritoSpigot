@@ -30,7 +30,7 @@ jobs:
       run: cd BurritoSpigot-Server && ./burrito build
     - uses: actions/upload-artifact@v2
       with:
-        name: BurritoSpigot JDK {{ matrix.java }}
+        name: BurritoSpigot JDK ${{ matrix.java }}
         path: ./BurritoSpigot-Server/target/BurritoSpigot.jar
     - name: Push artifact to downloads
       uses: dmnemec/copy_file_to_another_repo_action@v1.1.1

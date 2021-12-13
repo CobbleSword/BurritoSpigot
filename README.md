@@ -1,4 +1,4 @@
-# `BurritoSpigot`
+# 🌯 `BurritoSpigot` 🌯
 BurritoSpigot is a fork of TacoSpigot 1.8.8 that offers several enhancements to performance as well as bug fixes. while offer extra APIs and support for plugins
 
 Supports 300 Players @ 20 TPS (Given all your plugins are programmed well)

@@ -18,7 +18,7 @@ else
   }
 fi
 
-cb=src/main/java/net/minecraft/server
+cb="src/main/java/net/minecraft/server"
 nms="$1/net/minecraft/server"
 show_diff_msg=true
 
@@ -31,7 +31,7 @@ then
     fi
 fi
 
-for file in $(/bin/ls $cb)
+for file in $(/bin/ls "$cb")
 do
     if [ "$show_diff_msg" = true ]
     then
@@ -40,7 +40,7 @@ do
     strip_cr "$nms/$file" > /dev/null
 	strip_cr "$cb/$file" > /dev/null
     outName=$(echo nms-patches/"$(echo $file | cut -d. -f1)".patch)
-    patchNew=$(diff -u --label a/net/minecraft/server/$file "$nms/$file" --label b/net/minecraft/server/$file "$cb/$file")
+    patchNew=$(diff -u --label "a/net/minecraft/server/$file" "$nms/$file" --label "b/net/minecraft/server/$file" "$cb/$file")
     if [ -f "$outName" ]
     then
         patchCut=$(echo "$patchNew" | tail -n +3)

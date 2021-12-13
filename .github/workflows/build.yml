@@ -9,7 +9,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
             matrix:
-                java: [17]
+                java: [8, 17]
             fail-fast: true
     steps:
     - uses: actions/checkout@v2
@@ -18,34 +18,30 @@ jobs:
       with:
         java-version: ${{ matrix.java}}
         distribution: 'temurin'
-        cache: maven
-    - name: Build with Maven
+    - name: Cache maven
+      uses: actions/cache@v2
+      with:
+        path: |
+            ~/.m2/repository/
+            work/1.8.8
+        key: ${{ runner.os }}-burrito-2-${{ hashFiles('**/pom.xml') }}
+        restore-keys: ${{ runner.os }}-paper-2
+    - name: Patch and Build
       run: cd BurritoSpigot-Server && ./burrito build
     - uses: actions/upload-artifact@v2
-      if: ${{ matrix.java == 8 }}
       with:
-        name: BurritoSpigot
+        name: BurritoSpigot JDK ${{ matrix.java }}
         path: ./BurritoSpigot-Server/target/BurritoSpigot.jar
-        
-    - name: Create Release Draft
-      if: ${{ github.event_name != 'pull_request' }}
-      id: createDraft
-      uses: actions/create-release@v1.1.4
+    - name: Push artifact to downloads
+      uses: dmnemec/copy_file_to_another_repo_action@v1.1.1
+      if: ${{ matrix.java == 8 && github.event_name != 'pull_request' && github.repository == 'CobbleSword/BurritoSpigot' && github.ref == 'refs/heads/main' }}
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        API_TOKEN_GITHUB: ${{ secrets.GITHUB_TOKEN }}
       with:
-        tag_name: BurritoSpigot-${{ github.sha }}
-        release_name: BurritoSpigot ${{ github.sha }}
-        body: BurritoSpigot Update
-        draft: false
-    - name: Upload Release Asset
-      if: ${{ github.event_name != 'pull_request' }}
-      id: upload-release-asset
-      uses: actions/upload-release-asset@v1.0.2
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.createDraft.outputs.upload_url }}
-        asset_path: ./BurritoSpigot-Server/target/BurritoSpigot.jar
-        asset_name: BurritoSpigot.jar
-        asset_content_type: application/java-archive
+        source_file: 'BurritoSpigot-Server/target/BurritoSpigot.jar'
+        destination_repo: 'CobbleSword/BurritoSpigot'
+        destination_folder: 'jars'
+        destination_branch: 'downloads'
+        user_email: 'action@github.com'
+        user_name: 'Github Actions'
+        commit_message: Update downloads for commit ${{ github.sha }}

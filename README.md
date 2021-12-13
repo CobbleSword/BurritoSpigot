@@ -17,9 +17,11 @@ Since it's been a few years since 1.8.8 release, it has fallen behind in a few o
 * [citizens](https://www.spigotmc.org/resources/citizens.13811/) Allows you to spawn NPC of players and entities
 * [essentialsx](https://essentialsx.net/downloads.html) a mix of common commands
 
-## Download
-[Download BurritoSpigot.jar](https://nightly.link/CobbleSword/BurritoSpigot/workflows/build/main/BurritoSpigot.zip)
+# Download
+Download [BurritoSpigot.jar](https://github.com/CobbleSword/BurritoSpigot/blob/downloads/jars/BurritoSpigot.jar?raw=true)
 
+# Compilation
+See the [server directory's README.md](BurritoSpigot-Server/README.md#Compilation) for instructions to compile BurritoSpigot.
 
 ## How to modify knockback
 Edit the `KnockbackSpigot.json` then restart the server

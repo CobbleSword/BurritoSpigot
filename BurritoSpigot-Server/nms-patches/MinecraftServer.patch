@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/MinecraftServer.java
 +++ b/net/minecraft/server/MinecraftServer.java
-@@ -38,6 +38,16 @@
+@@ -38,9 +38,19 @@
  import org.apache.logging.log4j.LogManager;
  import org.apache.logging.log4j.Logger;
  
@@ -16,7 +16,11 @@
 +
  public abstract class MinecraftServer implements Runnable, ICommandListener, IAsyncTaskHandler, IMojangStatistics {
  
-     public static final Logger LOGGER = LogManager.getLogger();
+-    public static final Logger LOGGER = LogManager.getLogger();
++    public static final Logger LOGGER = LogManager.getLogger(MinecraftServer.class);
+     public static final File a = new File("usercache.json");
+     private static MinecraftServer l;
+     public Convertable convertable;
 @@ -49,11 +59,11 @@
      private final List<IUpdatePlayerListBox> p = Lists.newArrayList();
      protected final ICommandHandler b;

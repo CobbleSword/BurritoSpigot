@@ -1,6 +1,6 @@
 --- a/net/minecraft/server/ItemBucket.java
 +++ b/net/minecraft/server/ItemBucket.java
-@@ -1,5 +1,14 @@
+@@ -1,5 +1,12 @@
  package net.minecraft.server;
  
 +// CraftBukkit start
@@ -10,12 +10,10 @@
 +import org.bukkit.event.player.PlayerBucketFillEvent;
 +// CraftBukkit end
 +
-+import org.github.paperspigot.PaperSpigotConfig; // PaperSpigot
-+
  public class ItemBucket extends Item {
  
      private Block a;
-@@ -32,20 +41,42 @@
+@@ -32,20 +39,42 @@
                      IBlockData iblockdata = world.getType(blockposition);
                      Material material = iblockdata.getBlock().getMaterial();
  
@@ -63,7 +61,7 @@
                      }
  
                      BlockPosition blockposition1 = blockposition.shift(movingobjectposition.direction);
-@@ -54,9 +85,29 @@
+@@ -54,9 +83,17 @@
                          return itemstack;
                      }
  
@@ -78,23 +76,11 @@
                      if (this.a(world, blockposition1) && !entityhuman.abilities.canInstantlyBuild) {
                          entityhuman.b(StatisticList.USE_ITEM_COUNT[Item.getId(this)]);
 -                        return new ItemStack(Items.BUCKET);
-+                        // PaperSpigot start - Stackable Buckets
-+                        if ((this == Items.LAVA_BUCKET && PaperSpigotConfig.stackableLavaBuckets) ||
-+                                (this == Items.WATER_BUCKET && PaperSpigotConfig.stackableWaterBuckets)) {
-+                            if (--itemstack.count <= 0) {
-+                                return CraftItemStack.asNMSCopy(event.getItemStack());
-+                            }
-+                            if (!entityhuman.inventory.pickup(CraftItemStack.asNMSCopy(event.getItemStack()))) {
-+                                entityhuman.drop(CraftItemStack.asNMSCopy(event.getItemStack()), false);
-+                            }
-+                            return itemstack;
-+                        }
-+                        // PaperSpigot end
 +                        return CraftItemStack.asNMSCopy(event.getItemStack()); // CraftBukkit
                      }
                  }
              }
-@@ -65,14 +116,15 @@
+@@ -65,14 +102,15 @@
          }
      }
  
@@ -114,7 +100,7 @@
              }
  
              return itemstack;
-@@ -97,7 +149,7 @@
+@@ -97,7 +135,7 @@
                      world.makeSound((double) ((float) i + 0.5F), (double) ((float) j + 0.5F), (double) ((float) k + 0.5F), "random.fizz", 0.5F, 2.6F + (world.random.nextFloat() - world.random.nextFloat()) * 0.8F);
  
                      for (int l = 0; l < 8; ++l) {

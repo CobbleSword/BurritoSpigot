@@ -21,7 +21,17 @@ do
     file="$(echo $file | cut -d. -f1).java"
 
     echo "Patching $file < $patchFile"
-    sed -i 's/\r//' "$nms/$file" > /dev/null
+    # https://stackoverflow.com/a/38595160
+    # https://stackoverflow.com/a/800644
+    if sed --version >/dev/null 2>&1; then
+    strip_cr() {
+        sed -i -- "s/\r//" "$@"
+    }
+    else
+    strip_cr () {
+        sed -i "" "s/$(printf '\r')//" "$@"
+    }
+    fi
 
     cp "$nms/$file" "$cb/$file"
     patch -d $basedir/src/main/java/ "net/minecraft/server/$file" < "$patchFile"

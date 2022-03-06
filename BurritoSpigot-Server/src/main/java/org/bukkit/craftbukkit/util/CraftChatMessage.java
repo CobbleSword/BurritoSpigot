@@ -6,7 +6,6 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import club.nachospigot.commons.ExploitException;
 import net.minecraft.server.ChatClickable;
 import net.minecraft.server.ChatComponentText;
 import net.minecraft.server.ChatModifier;

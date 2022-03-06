@@ -45,6 +45,7 @@ Edit the `KnockbackSpigot.json` then restart the server
 * CraftBukkit, Paper/TacoSpigot and Kohi
 
 ## How to build
+We have to use a patching system do to minecrafts copyright, so it's a little bit tricky
 * `cd BurritoSpigot-Server`
 * `./burrito dev`
 * Wait til all the files have be patched

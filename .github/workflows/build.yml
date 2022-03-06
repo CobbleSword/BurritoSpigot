@@ -27,7 +27,7 @@ jobs:
         key: ${{ runner.os }}-burrito-2-${{ hashFiles('**/pom.xml') }}
         restore-keys: ${{ runner.os }}-paper-2
     - name: Patch and Build
-      run: cd BurritoSpigot-Server && sudo ./burrito build
+      run: cd BurritoSpigot-Server && ./burrito build
     - uses: actions/upload-artifact@v2
       with:
         name: BurritoSpigot JDK ${{ matrix.java }}

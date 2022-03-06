@@ -18,11 +18,10 @@
     <description>An enhanced plugin API for Minecraft servers.</description>
 
     <properties>
-        <!--PaperSpigot - Bump to 1.8 - This will haunt me -->
         <additionalparam>-Xdoclint:none</additionalparam>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <maven.compiler.source>1.8</maven.compiler.source>
         <maven.compiler.target>1.8</maven.compiler.target>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
 
     <!-- just until we get deployment to central approved -->

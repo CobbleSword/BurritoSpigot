@@ -1,0 +1,183 @@
+--- a/net/minecraft/server/LegacyPingHandler.java
++++ b/net/minecraft/server/LegacyPingHandler.java
+@@ -11,106 +11,95 @@
+ import org.apache.logging.log4j.Logger;
+ 
+ public class LegacyPingHandler extends ChannelInboundHandlerAdapter {
+-
+     private static final Logger a = LogManager.getLogger();
+     private ServerConnection b;
+ 
+-    public LegacyPingHandler(ServerConnection serverconnection) {
+-        this.b = serverconnection;
++    public LegacyPingHandler(ServerConnection var1) {
++        this.b = var1;
+     }
+ 
+-    public void channelRead(ChannelHandlerContext channelhandlercontext, Object object) throws Exception {
+-        ByteBuf bytebuf = (ByteBuf) object;
+-
+-        bytebuf.markReaderIndex();
+-        boolean flag = true;
+-
++    public void channelRead(ChannelHandlerContext var1, Object var2) throws Exception {
++        ByteBuf var3 = (ByteBuf)var2;
++        var3.markReaderIndex();
++        boolean var4 = true;
+         try {
+-            if (bytebuf.readUnsignedByte() != 254) {
+-                return;
+-            }
++            if (var3.readUnsignedByte() == 254) {
++                InetSocketAddress var5 = (InetSocketAddress)var1.channel().remoteAddress();
++                MinecraftServer var6 = this.b.d();
++                int var7 = var3.readableBytes();
++                String var8;
++                switch(var7) {
++                    case 0:
++                        a.debug("Ping: (<1.3.x) from {}:{}", new Object[]{var5.getAddress(), var5.getPort()});
++                        var8 = String.format("%s§%d§%d", var6.getMotd(), var6.I(), var6.J());
++                        this.a(var1, this.a(var8));
++                        break;
++                    case 1:
++                        if (var3.readUnsignedByte() != 1) {
++                            return;
++                        }
++
++                        a.debug("Ping: (1.4-1.5.x) from {}:{}", new Object[]{var5.getAddress(), var5.getPort()});
++                        var8 = String.format("§1\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, var6.getVersion(), var6.getMotd(), var6.I(), var6.J());
++                        this.a(var1, this.a(var8));
++                        break;
++                    default:
++                        boolean var23 = var3.readUnsignedByte() == 1;
++                        var23 &= var3.readUnsignedByte() == 250;
++                        var23 &= "MC|PingHost".equals(new String(var3.readBytes(var3.readShort() * 2).array(), Charsets.UTF_16BE));
++                        int var9 = var3.readUnsignedShort();
++                        var23 &= var3.readUnsignedByte() >= 73;
++                        var23 &= 3 + var3.readBytes(var3.readShort() * 2).array().length + 4 == var9;
++                        var23 &= var3.readInt() <= 65535;
++                        var23 &= var3.readableBytes() == 0;
++                        if (!var23) {
++                            return;
++                        }
++
++                        a.debug("Ping: (1.6) from {}:{}", new Object[]{var5.getAddress(), var5.getPort()});
++                        String var10 = String.format("§1\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, var6.getVersion(), var6.getMotd(), var6.I(), var6.J());
++                        ByteBuf var11 = this.a(var10);
++
++                        try {
++                            this.a(var1, var11);
++                        } finally {
++                            var11.release();
++                        }
++                }
+ 
+-            InetSocketAddress inetsocketaddress = (InetSocketAddress) channelhandlercontext.channel().remoteAddress();
+-            MinecraftServer minecraftserver = this.b.d();
+-            int i = bytebuf.readableBytes();
+-            String s;
+-
+-            switch (i) {
+-                case 0:
+-                    LegacyPingHandler.a.debug("Ping: (<1.3.x) from {}:{}", new Object[]{inetsocketaddress.getAddress(), inetsocketaddress.getPort()});
+-                    s = String.format("%s\u00a7%d\u00a7%d", minecraftserver.getMotd(), minecraftserver.I(), minecraftserver.J());
+-                    this.a(channelhandlercontext, this.a(s));
+-                    break;
+-                case 1:
+-                    if (bytebuf.readUnsignedByte() != 1) {
+-                        return;
+-                    }
+-
+-                    LegacyPingHandler.a.debug("Ping: (1.4-1.5.x) from {}:{}", new Object[]{inetsocketaddress.getAddress(), inetsocketaddress.getPort()});
+-                    s = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, minecraftserver.getVersion(), minecraftserver.getMotd(), minecraftserver.I(), minecraftserver.J());
+-                    this.a(channelhandlercontext, this.a(s));
+-                    break;
+-                default:
+-                    boolean flag1 = bytebuf.readUnsignedByte() == 1;
+-
+-                    flag1 &= bytebuf.readUnsignedByte() == 250;
+-                    flag1 &= "MC|PingHost".equals(new String(bytebuf.readBytes(bytebuf.readShort() * 2).array(), Charsets.UTF_16BE));
+-                    int j = bytebuf.readUnsignedShort();
+-
+-                    flag1 &= bytebuf.readUnsignedByte() >= 73;
+-                    flag1 &= 3 + bytebuf.readBytes(bytebuf.readShort() * 2).array().length + 4 == j;
+-                    flag1 &= bytebuf.readInt() <= 65535;
+-                    flag1 &= bytebuf.readableBytes() == 0;
+-                    if (!flag1) {
+-                        return;
+-                    }
+-
+-                    LegacyPingHandler.a.debug("Ping: (1.6) from {}:{}", new Object[]{inetsocketaddress.getAddress(), inetsocketaddress.getPort()});
+-                    String s1 = String.format("\u00a71\u0000%d\u0000%s\u0000%s\u0000%d\u0000%d", 127, minecraftserver.getVersion(), minecraftserver.getMotd(), minecraftserver.I(), minecraftserver.J());
+-                    ByteBuf bytebuf1 = this.a(s1);
+-
+-                    try {
+-                        this.a(channelhandlercontext, bytebuf1);
+-                    } finally {
+-                        bytebuf1.release();
+-                    }
++                var3.release();
++                var4 = false;
++                return;
+             }
+-
+-            bytebuf.release();
+-            flag = false;
+-        } catch (RuntimeException runtimeexception) {
+-            ;
++        } catch (RuntimeException var21) {
++            return;
+         } finally {
+-            if (flag) {
+-                bytebuf.resetReaderIndex();
+-                channelhandlercontext.channel().pipeline().remove("legacy_query");
+-                channelhandlercontext.fireChannelRead(object);
++            if (var4) {
++                var3.resetReaderIndex();
++                var1.channel().pipeline().remove("legacy_query");
++                var1.fireChannelRead(var2);
+             }
+ 
+         }
+ 
+     }
+ 
+-    private void a(ChannelHandlerContext channelhandlercontext, ByteBuf bytebuf) {
+-        channelhandlercontext.pipeline().firstContext().writeAndFlush(bytebuf).addListener(ChannelFutureListener.CLOSE);
++    private void a(ChannelHandlerContext var1, ByteBuf var2) {
++        var1.pipeline().firstContext().writeAndFlush(var2).addListener(ChannelFutureListener.CLOSE);
+     }
+ 
+-    private ByteBuf a(String s) {
+-        ByteBuf bytebuf = Unpooled.buffer();
+-
+-        bytebuf.writeByte(255);
+-        char[] achar = s.toCharArray();
+-
+-        bytebuf.writeShort(achar.length);
+-        char[] achar1 = achar;
+-        int i = achar.length;
+-
+-        for (int j = 0; j < i; ++j) {
+-            char c0 = achar1[j];
+-
+-            bytebuf.writeChar(c0);
++    private ByteBuf a(String var1) {
++        ByteBuf var2 = Unpooled.buffer();
++        var2.writeByte(255);
++        char[] var3 = var1.toCharArray();
++        var2.writeShort(var3.length);
++        char[] var4 = var3;
++        int var5 = var3.length;
++
++        for(int var6 = 0; var6 < var5; ++var6) {
++            char var7 = var4[var6];
++            var2.writeChar(var7);
+         }
+-
+-        return bytebuf;
++        return var2;
+     }
+-}
++}
+\ No newline at end of file

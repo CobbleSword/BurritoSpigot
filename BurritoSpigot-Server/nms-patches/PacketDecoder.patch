@@ -1,0 +1,60 @@
+--- a/net/minecraft/server/PacketDecoder.java
++++ b/net/minecraft/server/PacketDecoder.java
+@@ -11,35 +11,37 @@
+ import org.apache.logging.log4j.MarkerManager;
+ 
+ public class PacketDecoder extends ByteToMessageDecoder {
+-
+     private static final Logger a = LogManager.getLogger();
+-    private static final Marker b = MarkerManager.getMarker("PACKET_RECEIVED", NetworkManager.b);
++    private static final Marker b;
+     private final EnumProtocolDirection c;
+ 
+-    public PacketDecoder(EnumProtocolDirection enumprotocoldirection) {
+-        this.c = enumprotocoldirection;
++    public PacketDecoder(EnumProtocolDirection var1) {
++        this.c = var1;
+     }
+ 
+-    protected void decode(ChannelHandlerContext channelhandlercontext, ByteBuf bytebuf, List<Object> list) throws Exception {
+-        if (bytebuf.readableBytes() != 0) {
+-            PacketDataSerializer packetdataserializer = new PacketDataSerializer(bytebuf);
+-            int i = packetdataserializer.e();
+-            Packet packet = ((EnumProtocol) channelhandlercontext.channel().attr(NetworkManager.c).get()).a(this.c, i);
+-
+-            if (packet == null) {
+-                throw new IOException("Bad packet id " + i);
++    protected void decode(ChannelHandlerContext var1, ByteBuf var2, List<Object> var3) throws Exception {
++        if (var2.readableBytes() != 0) {
++            PacketDataSerializer var4 = new PacketDataSerializer(var2);
++            int var5 = var4.e();
++            Packet var6 = ((EnumProtocol)var1.channel().attr(NetworkManager.c).get()).a(this.c, var5);
++            if (var6 == null) {
++                throw new IOException("Bad packet id " + var5);
+             } else {
+-                packet.a(packetdataserializer);
+-                if (packetdataserializer.readableBytes() > 0) {
+-                    throw new IOException("Packet " + ((EnumProtocol) channelhandlercontext.channel().attr(NetworkManager.c).get()).a() + "/" + i + " (" + packet.getClass().getSimpleName() + ") was larger than I expected, found " + packetdataserializer.readableBytes() + " bytes extra whilst reading packet " + i);
++                var6.a(var4);
++                if (var4.readableBytes() > 0) {
++                    throw new IOException("Packet " + ((EnumProtocol)var1.channel().attr(NetworkManager.c).get()).a() + "/" + var5 + " (" + var6.getClass().getSimpleName() + ") was larger than I expected, found " + var4.readableBytes() + " bytes extra whilst reading packet " + var5);
+                 } else {
+-                    list.add(packet);
+-                    if (PacketDecoder.a.isDebugEnabled()) {
+-                        PacketDecoder.a.debug(PacketDecoder.b, " IN: [{}:{}] {}", new Object[]{channelhandlercontext.channel().attr(NetworkManager.c).get(), i, packet.getClass().getName()});
++                    var3.add(var6);
++                    if (a.isDebugEnabled()) {
++                        a.debug(b, " IN: [{}:{}] {}", new Object[]{var1.channel().attr(NetworkManager.c).get(), var5, var6.getClass().getName()});
+                     }
+ 
+                 }
+             }
+         }
+     }
+-}
++
++    static {
++        b = MarkerManager.getMarker("PACKET_RECEIVED", NetworkManager.b);
++    }
++}
+\ No newline at end of file

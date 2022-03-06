@@ -43,3 +43,8 @@ Edit the `KnockbackSpigot.json` then restart the server
 
 ## Special thanks
 * CraftBukkit, Paper/TacoSpigot and Kohi
+
+## How to build
+`cd BurritoSpigot-Server`
+`./burrito dev`
+open the parent project in intellj

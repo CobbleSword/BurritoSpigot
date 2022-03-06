@@ -45,6 +45,7 @@ Edit the `KnockbackSpigot.json` then restart the server
 * CraftBukkit, Paper/TacoSpigot and Kohi
 
 ## How to build
-`cd BurritoSpigot-Server`
-`./burrito dev`
-open the parent project in intellj
+* `cd BurritoSpigot-Server`
+* `./burrito dev`
+* Wait til all the files have be patched
+* open the parent project in intellj

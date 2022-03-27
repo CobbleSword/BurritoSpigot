@@ -286,6 +286,8 @@
                     <workingDirectory>${basedir}/target/test-server</workingDirectory>
                     <excludes>
                         <exclude>org/bukkit/craftbukkit/inventory/ItemStack*Test.java</exclude>
+                        <exclude>org/bukkit/WorldType*Test.java</exclude>
+                        <exclude>org/bukkit/Art*Test.java</exclude>
                     </excludes>
                 </configuration>
             </plugin>

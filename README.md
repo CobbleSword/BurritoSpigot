@@ -14,8 +14,8 @@ Since it's been a few years since 1.8.8 release, it has fallen behind in a few o
 * [ViaVersion](https://www.spigotmc.org/resources/viaversion.19254/history?__cf_chl_jschl_tk__=pmd_r4LeY2TmaRwR8_QpQZPjhUbYlsNfCtUx_bhfKx8jgYM-1635647788-0-gqNtZGzNAjujcnBszQnR) Support 1.9 all the way up to 1.17 and onward on a 1.8 server
 * [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/) An api common used by developers to edit packets
 * [Vault](https://www.spigotmc.org/resources/vault.34315/) Allows your plugins to share currencies
-* [citizens](https://www.spigotmc.org/resources/citizens.13811/) Allows you to spawn NPC of players and entities
-* [essentialsx](https://essentialsx.net/downloads.html) a mix of common commands
+* [Citizens](https://www.spigotmc.org/resources/citizens.13811/) Allows you to spawn NPC of players and entities
+* [EssentialsX](https://essentialsx.net/downloads.html) a mix of common commands
 
 # Download
 Download [BurritoSpigot.jar](https://github.com/CobbleSword/BurritoSpigot/blob/downloads/jars/BurritoSpigot.jar?raw=true)
@@ -48,6 +48,6 @@ Edit the `KnockbackSpigot.json` then restart the server
 We have to use a patching system do to minecrafts copyright, so it's a little bit tricky
 * `cd BurritoSpigot-Server`
 * `./burrito dev`
-* Wait til all the files have be patched
-* open the parent project in intellj
+* Wait till all the files have be patched
+* Open the parent project in IntelliJ
 * Done

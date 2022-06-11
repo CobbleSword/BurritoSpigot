@@ -50,3 +50,4 @@ We have to use a patching system do to minecrafts copyright, so it's a little bi
 * `./burrito dev`
 * Wait til all the files have be patched
 * open the parent project in intellj
+* Done

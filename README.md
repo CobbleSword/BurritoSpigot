@@ -11,7 +11,7 @@ Since it's been a few years since 1.8.8 release, it has fallen behind in a few o
 
 ## Commons Plugins
 
-* [ViaVersion](https://www.spigotmc.org/resources/viaversion.19254/history?__cf_chl_jschl_tk__=pmd_r4LeY2TmaRwR8_QpQZPjhUbYlsNfCtUx_bhfKx8jgYM-1635647788-0-gqNtZGzNAjujcnBszQnR) Support 1.9 all the way up to 1.17 and onward on a 1.8 server
+* [ViaVersion](https://www.spigotmc.org/resources/viaversion.19254/history) Support 1.9 all the way up to 1.19 and onward on a 1.8.8 server
 * [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997/) An api common used by developers to edit packets
 * [Vault](https://www.spigotmc.org/resources/vault.34315/) Allows your plugins to share currencies
 * [Citizens](https://www.spigotmc.org/resources/citizens.13811/) Allows you to spawn NPC of players and entities
@@ -42,7 +42,7 @@ Edit the `KnockbackSpigot.json` then restart the server
 [Join Discord group](https://discord.gg/SBTEbSx)
 
 ## Special thanks
-* CraftBukkit, Paper/TacoSpigot and Kohi
+* CraftBukkit, Spigot , [Paper](https://github.com/PaperMC/Paper) , [TacoSpigot](https://github.com/TacoSpigot/TacoSpigot) and Kohi
 
 ## How to build
 We have to use a patching system do to minecrafts copyright, so it's a little bit tricky

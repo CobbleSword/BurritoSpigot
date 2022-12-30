@@ -8,6 +8,7 @@ Since it's been a few years since 1.8.8 release, it has fallen behind in a few o
 * Java 8+ support this brings all the performance improvements of the more later java versions
 * Updated netty 4.0.23.Final => 4.1.68.Final
 * Stops classic book exploit 
+* Backport NamespacedKey to improve newer plugin compact
 
 ## Commons Plugins
 
@@ -42,7 +43,7 @@ Edit the `KnockbackSpigot.json` then restart the server
 [Join Discord group](https://discord.gg/SBTEbSx)
 
 ## Special thanks
-* CraftBukkit, Spigot , [Paper](https://github.com/PaperMC/Paper) , [TacoSpigot](https://github.com/TacoSpigot/TacoSpigot) and Kohi
+* CraftBukkit, [Spigot](https://spigotmc.org) , [Paper](https://github.com/PaperMC/Paper) , [TacoSpigot](https://github.com/TacoSpigot/TacoSpigot) and Kohi
 
 ## How to build
 We have to use a patching system do to minecrafts copyright, so it's a little bit tricky

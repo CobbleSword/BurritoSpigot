@@ -136,7 +136,7 @@
                  chunksnapshot.a(k1, l1, j1, Blocks.BEDROCK.getBlockData());
              } else {
                  IBlockData iblockdata2 = chunksnapshot.a(k1, l1, j1);
-@@ -292,7 +296,7 @@
+@@ -292,7 +295,7 @@
                          }
  
                          if (l1 < k && (iblockdata == null || iblockdata.getBlock().getMaterial() == Material.AIR)) {

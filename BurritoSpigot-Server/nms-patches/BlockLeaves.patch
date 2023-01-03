@@ -29,7 +29,7 @@
                  byte b0 = 4;
                  int i = b0 + 1;
                  int j = blockposition.getX();
-@@ -64,51 +66,51 @@
+@@ -66,51 +68,51 @@
                      int l1;
                      int i2;
  

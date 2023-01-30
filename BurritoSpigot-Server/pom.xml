@@ -128,13 +128,7 @@
             <version>1.7.36</version>
             <scope>compile</scope>
         </dependency>
-        <dependency>
-            <groupId>net.minecraft</groupId>
-            <artifactId>server</artifactId>
-            <version>${minecraft.version}-SNAPSHOT</version>
-            <type>jar</type>
-            <scope>compile</scope>
-        </dependency>
+
     </dependencies>
 
     <!-- This builds a completely 'ready to start' jar with all dependencies inside -->

@@ -1,1 +1,21 @@
-
+--- a/net/minecraft/server/HandshakeListener.java
++++ b/net/minecraft/server/HandshakeListener.java
+@@ -1,7 +1,18 @@
+ package net.minecraft.server;
+ 
++// CraftBukkit start
++import java.net.InetAddress;
++import java.util.HashMap;
++// CraftBukkit end
++
+ public class HandshakeListener implements PacketHandshakingInListener {
+ 
++    private static final com.google.gson.Gson gson = new com.google.gson.Gson(); // Spigot
++    // CraftBukkit start - add fields
++    private static final HashMap<InetAddress, Long> throttleTracker = new HashMap<InetAddress, Long>();
++    private static int throttleCounter = 0;
++    // CraftBukkit end
++
+     private final MinecraftServer a;
+     private final NetworkManager b;
+ 

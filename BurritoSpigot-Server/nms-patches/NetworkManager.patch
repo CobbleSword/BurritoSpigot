@@ -52,7 +52,7 @@
          protected LocalEventLoopGroup a() {
              return new LocalEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Local Client IO #%d").setDaemon(true).build());
          }
-@@ -78,6 +87,9 @@
+@@ -78,6 +82,9 @@
          super.channelActive(channelhandlercontext);
          this.channel = channelhandlercontext.channel();
          this.l = this.channel.remoteAddress();
@@ -62,7 +62,7 @@
  
          try {
              this.a(EnumProtocol.HANDSHAKING);
-@@ -90,7 +102,7 @@
+@@ -90,7 +97,7 @@
      public void a(EnumProtocol enumprotocol) {
          this.channel.attr(NetworkManager.c).set(enumprotocol);
          this.channel.config().setAutoRead(true);
@@ -71,7 +71,7 @@
      }
  
      public void channelInactive(ChannelHandlerContext channelhandlercontext) throws Exception {
-@@ -103,10 +115,11 @@
+@@ -103,10 +110,11 @@
          if (throwable instanceof TimeoutException) {
              chatmessage = new ChatMessage("disconnect.timeout", new Object[0]);
          } else {
@@ -84,7 +84,7 @@
      }
  
      protected void a(ChannelHandlerContext channelhandlercontext, Packet packet) throws Exception {
-@@ -122,7 +135,7 @@
+@@ -122,7 +130,7 @@
  
      public void a(PacketListener packetlistener) {
          Validate.notNull(packetlistener, "packetListener", new Object[0]);
@@ -93,7 +93,7 @@
          this.m = packetlistener;
      }
  
-@@ -163,7 +176,7 @@
+@@ -163,7 +171,7 @@
          final EnumProtocol enumprotocol1 = (EnumProtocol) this.channel.attr(NetworkManager.c).get();
  
          if (enumprotocol1 != enumprotocol) {
@@ -102,7 +102,7 @@
              this.channel.config().setAutoRead(false);
          }
  
-@@ -186,13 +199,13 @@
+@@ -186,13 +194,13 @@
                          NetworkManager.this.a(enumprotocol);
                      }
  
@@ -119,7 +119,7 @@
                  }
              });
          }
-@@ -210,7 +223,7 @@
+@@ -210,7 +218,7 @@
                      this.a(networkmanager_queuedpacket.a, networkmanager_queuedpacket.b);
                  }
              } finally {
@@ -128,7 +128,7 @@
              }
  
          }
-@@ -230,8 +243,11 @@
+@@ -230,8 +238,11 @@
      }
  
      public void close(IChatBaseComponent ichatbasecomponent) {
@@ -140,8 +140,8 @@
 +            this.channel.close(); // We can't wait as this may be called from an event loop.
              this.n = ichatbasecomponent;
          }
-
-@@ -308,7 +325,7 @@
+ 
+@@ -308,7 +319,7 @@
          }
      }
  
@@ -150,7 +150,7 @@
          this.a(channelhandlercontext, (Packet) object);
      }
  
-@@ -322,4 +339,11 @@
+@@ -322,4 +333,11 @@
              this.b = agenericfuturelistener;
          }
      }

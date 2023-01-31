@@ -39,7 +39,7 @@
      public WorldServer world;
  
      public ChunkProviderServer(WorldServer worldserver, IChunkLoader ichunkloader, IChunkProvider ichunkprovider) {
-@@ -60,13 +112,51 @@
+@@ -60,13 +78,51 @@
  
      }
  
@@ -52,14 +52,14 @@
 -        long k = ChunkCoordIntPair.a(i, j);
 +        return getChunkAt(i, j, null);
 +    }
- 
--        this.unloadQueue.remove(k);
--        Chunk chunk = (Chunk) this.chunks.getEntry(k);
++
 +    public Chunk getChunkAt(int i, int j, Runnable runnable) {
 +        unloadQueue.remove(LongHash.toLong(i, j)); // TacoSpigot - directly invoke LongHash
 +        Chunk chunk = chunks.get(LongHash.toLong(i, j));
 +        ChunkRegionLoader loader = null;
-+
+ 
+-        this.unloadQueue.remove(k);
+-        Chunk chunk = (Chunk) this.chunks.getEntry(k);
 +        if (this.chunkLoader instanceof ChunkRegionLoader) {
 +            loader = (ChunkRegionLoader) this.chunkLoader;
 +
@@ -94,7 +94,7 @@
              chunk = this.loadChunk(i, j);
              if (chunk == null) {
                  if (this.chunkProvider == null) {
-@@ -78,27 +168,69 @@
+@@ -78,27 +134,69 @@
                          CrashReport crashreport = CrashReport.a(throwable, "Exception generating new chunk");
                          CrashReportSystemDetails crashreportsystemdetails = crashreport.a("Chunk to be generated");
  
@@ -152,7 +152,8 @@
 -        Chunk chunk = (Chunk) this.chunks.getEntry(ChunkCoordIntPair.a(i, j));
 +        // CraftBukkit start
 +        Chunk chunk = (Chunk) this.chunks.get(LongHash.toLong(i, j));
-+
+ 
+-        return chunk == null ? (!this.world.ad() && !this.forceChunkLoad ? this.emptyChunk : this.getChunkAt(i, j)) : chunk;
 +        chunk = chunk == null ? (!this.world.ad() && !this.forceChunkLoad ? this.emptyChunk : this.getChunkAt(i, j)) : chunk;
 +
 +        if (chunk == emptyChunk) return chunk;
@@ -163,14 +164,13 @@
 +            ex.fillInStackTrace();
 +            ex.printStackTrace();
 +        }
- 
--        return chunk == null ? (!this.world.ad() && !this.forceChunkLoad ? this.emptyChunk : this.getChunkAt(i, j)) : chunk;
++
 +        return chunk;
 +        // CraftBukkit end
      }
  
      public Chunk loadChunk(int i, int j) {
-@@ -111,13 +243,15 @@
+@@ -111,13 +209,15 @@
                  if (chunk != null) {
                      chunk.setLastSaved(this.world.getTime());
                      if (this.chunkProvider != null) {
@@ -187,7 +187,7 @@
                  return null;
              }
          }
-@@ -128,7 +262,7 @@
+@@ -128,7 +228,7 @@
              try {
                  this.chunkLoader.b(this.world, chunk);
              } catch (Exception exception) {
@@ -196,7 +196,7 @@
              }
  
          }
-@@ -140,9 +274,9 @@
+@@ -140,9 +240,9 @@
                  chunk.setLastSaved(this.world.getTime());
                  this.chunkLoader.a(this.world, chunk);
              } catch (IOException ioexception) {
@@ -208,7 +208,7 @@
              }
  
          }
-@@ -155,6 +289,30 @@
+@@ -155,6 +255,30 @@
              chunk.n();
              if (this.chunkProvider != null) {
                  this.chunkProvider.getChunkAt(ichunkprovider, i, j);
@@ -239,7 +239,7 @@
                  chunk.e();
              }
          }
-@@ -174,10 +332,12 @@
+@@ -174,10 +298,12 @@
  
      public boolean saveChunks(boolean flag, IProgressUpdate iprogressupdate) {
          int i = 0;
@@ -255,7 +255,7 @@
  
              if (flag) {
                  this.saveChunkNOP(chunk);
-@@ -187,7 +347,7 @@
+@@ -187,7 +313,7 @@
                  this.saveChunk(chunk);
                  chunk.f(false);
                  ++i;
@@ -264,7 +264,7 @@
                      return false;
                  }
              }
-@@ -205,22 +365,47 @@
+@@ -205,22 +331,47 @@
  
      public boolean unloadChunks() {
          if (!this.world.savingDisabled) {
@@ -319,7 +319,7 @@
  
              if (this.chunkLoader != null) {
                  this.chunkLoader.a();
-@@ -235,7 +420,8 @@
+@@ -235,7 +386,8 @@
      }
  
      public String getName() {
@@ -329,7 +329,7 @@
      }
  
      public List<BiomeBase.BiomeMeta> getMobsFor(EnumCreatureType enumcreaturetype, BlockPosition blockposition) {
-@@ -247,7 +433,8 @@
+@@ -247,7 +399,8 @@
      }
  
      public int getLoadedChunks() {

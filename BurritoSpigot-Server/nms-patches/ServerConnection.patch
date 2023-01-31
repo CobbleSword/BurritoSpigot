@@ -27,7 +27,7 @@
          protected LocalEventLoopGroup a() {
              return new LocalEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Local Server IO #%d").setDaemon(true).build());
          }
-@@ -140,7 +151,7 @@
+@@ -140,7 +140,7 @@
                                  CrashReport crashreport = CrashReport.a(exception, "Ticking memory connection");
                                  CrashReportSystemDetails crashreportsystemdetails = crashreport.a("Ticking connection");
  
@@ -36,7 +36,7 @@
                                      public String a() throws Exception {
                                          return networkmanager.toString();
                                      }
-@@ -155,11 +166,11 @@
+@@ -155,11 +155,11 @@
                              ServerConnection.e.warn("Failed to handle packet for " + networkmanager.getSocketAddress(), exception);
                              final ChatComponentText chatcomponenttext = new ChatComponentText("Internal server error");
  

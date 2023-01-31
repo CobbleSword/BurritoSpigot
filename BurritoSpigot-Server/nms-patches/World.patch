@@ -560,7 +560,7 @@
              this.everyoneSleeping();
              this.b(entity);
          }
-@@ -949,16 +1347,16 @@
+@@ -949,16 +1288,16 @@
          BlockPosition blockposition1;
          BlockPosition blockposition2;
  
@@ -581,7 +581,7 @@
      }
  
      public void a(BlockPosition blockposition, Block block, int i) {}
-@@ -971,13 +1369,18 @@
+@@ -971,13 +1310,18 @@
          this.methodProfiler.a("entities");
          this.methodProfiler.a("global");
  
@@ -601,7 +601,7 @@
  
              try {
                  ++entity.ticksLived;
-@@ -1035,12 +1452,17 @@
+@@ -1035,12 +1379,17 @@
              this.methodProfiler.a("tick");
              if (!entity.dead) {
                  try {
@@ -622,8 +622,8 @@
 +                    // PaperSpigot end
                  }
              }
-
-@@ -1105,9 +1563,11 @@
+ 
+@@ -1105,9 +1454,11 @@
                  TileEntity tileentity1 = (TileEntity) this.b.get(l);
  
                  if (!tileentity1.x()) {
@@ -635,7 +635,7 @@
  
                      if (this.isLoaded(tileentity1.getPosition())) {
                          this.getChunkAtWorldCoords(tileentity1.getPosition()).a(tileentity1.getPosition(), tileentity1);
-@@ -1120,12 +1580,15 @@
+@@ -1120,12 +1471,15 @@
              this.b.clear();
          }
  
@@ -652,7 +652,7 @@
  
          if (flag && tileentity instanceof IUpdatePlayerListBox) {
              this.tileEntityList.add(tileentity);
-@@ -1143,7 +1606,7 @@
+@@ -1143,7 +1497,7 @@
              while (iterator.hasNext()) {
                  TileEntity tileentity = (TileEntity) iterator.next();
  
@@ -661,7 +661,7 @@
                  if (tileentity instanceof IUpdatePlayerListBox) {
                      this.tileEntityList.add(tileentity);
                  }
-@@ -1161,7 +1624,20 @@
+@@ -1161,7 +1515,20 @@
          int j = MathHelper.floor(entity.locZ);
          byte b0 = 32;
  
@@ -683,7 +683,7 @@
              entity.P = entity.locX;
              entity.Q = entity.locY;
              entity.R = entity.locZ;
-@@ -1169,6 +1645,7 @@
+@@ -1169,6 +1536,7 @@
              entity.lastPitch = entity.pitch;
              if (flag && entity.ad) {
                  ++entity.ticksLived;
@@ -691,7 +691,7 @@
                  if (entity.vehicle != null) {
                      entity.ak();
                  } else {
-@@ -1202,6 +1679,7 @@
+@@ -1202,6 +1570,7 @@
              int i1 = MathHelper.floor(entity.locZ / 16.0D);
  
              if (!entity.ad || entity.ae != k || entity.af != l || entity.ag != i1) {
@@ -699,7 +699,7 @@
                  if (entity.ad && this.isChunkLoaded(entity.ae, entity.ag, true)) {
                      this.getChunkAt(entity.ae, entity.ag).a(entity, entity.af);
                  }
-@@ -1237,6 +1715,13 @@
+@@ -1237,6 +1606,13 @@
          for (int i = 0; i < list.size(); ++i) {
              Entity entity1 = (Entity) list.get(i);
  
@@ -713,7 +713,7 @@
              if (!entity1.dead && entity1.k && entity1 != entity && (entity == null || entity.vehicle != entity1 && entity.passenger != entity1)) {
                  return false;
              }
-@@ -1479,13 +1964,21 @@
+@@ -1479,13 +1855,21 @@
          }
      }
  
@@ -736,7 +736,7 @@
  
              if (this.M) {
                  for (i = 0; i < this.b.size(); ++i) {
-@@ -1517,6 +2010,14 @@
+@@ -1517,6 +1901,14 @@
  
      public void setTileEntity(BlockPosition blockposition, TileEntity tileentity) {
          if (tileentity != null && !tileentity.x()) {
@@ -751,7 +751,7 @@
              if (this.M) {
                  tileentity.a(blockposition);
                  Iterator iterator = this.b.iterator();
-@@ -1530,6 +2031,7 @@
+@@ -1530,6 +1922,7 @@
                      }
                  }
  
@@ -759,7 +759,7 @@
                  this.b.add(tileentity);
              } else {
                  this.a(tileentity);
-@@ -1548,7 +2050,7 @@
+@@ -1548,7 +1941,7 @@
          } else {
              if (tileentity != null) {
                  this.b.remove(tileentity);
@@ -768,7 +768,7 @@
                  this.tileEntityList.remove(tileentity);
              }
  
-@@ -1572,7 +2074,7 @@
+@@ -1572,7 +1965,7 @@
          IBlockData iblockdata = iblockaccess.getType(blockposition);
          Block block = iblockdata.getBlock();
  
@@ -777,7 +777,7 @@
      }
  
      public boolean d(BlockPosition blockposition, boolean flag) {
-@@ -1679,32 +2181,65 @@
+@@ -1679,32 +2072,65 @@
                  }
  
                  this.p = MathHelper.a(this.p, 0.0F, 1.0F);
@@ -848,7 +848,7 @@
  
          this.methodProfiler.b();
          if (this.L > 0) {
-@@ -1712,7 +2247,7 @@
+@@ -1712,7 +2138,7 @@
          }
  
          this.methodProfiler.a("playerCheckLight");
@@ -857,7 +857,7 @@
              i = this.random.nextInt(this.players.size());
              entityhuman = (EntityHuman) this.players.get(i);
              j = MathHelper.floor(entityhuman.locX) + this.random.nextInt(11) - 5;
-@@ -1728,7 +2263,7 @@
+@@ -1728,7 +2154,7 @@
  
      protected void a(int i, int j, Chunk chunk) {
          this.methodProfiler.c("moodSound");
@@ -866,7 +866,7 @@
              this.m = this.m * 3 + 1013904223;
              int k = this.m >> 2;
              int l = k & 15;
-@@ -1782,7 +2317,7 @@
+@@ -1782,7 +2208,7 @@
                  IBlockData iblockdata = this.getType(blockposition);
                  Block block = iblockdata.getBlock();
  
@@ -875,7 +875,7 @@
                      if (!flag) {
                          return true;
                      }
-@@ -1828,10 +2363,10 @@
+@@ -1828,10 +2254,10 @@
          boolean flag = false;
  
          if (!this.worldProvider.o()) {
@@ -888,7 +888,7 @@
          return flag;
      }
  
-@@ -1878,8 +2413,11 @@
+@@ -1878,8 +2304,11 @@
          }
      }
  
@@ -902,7 +902,7 @@
              return false;
          } else {
              int i = 0;
-@@ -1996,11 +2534,66 @@
+@@ -1996,11 +2425,66 @@
                  }
              }
  
@@ -969,7 +969,7 @@
      public boolean a(boolean flag) {
          return false;
      }
-@@ -2042,7 +2635,7 @@
+@@ -2042,7 +2526,7 @@
          while (iterator.hasNext()) {
              Entity entity = (Entity) iterator.next();
  
@@ -978,7 +978,7 @@
                  arraylist.add(entity);
              }
          }
-@@ -2057,7 +2650,7 @@
+@@ -2057,7 +2541,7 @@
          while (iterator.hasNext()) {
              Entity entity = (Entity) iterator.next();
  
@@ -987,7 +987,7 @@
                  arraylist.add(entity);
              }
          }
-@@ -2105,7 +2698,7 @@
+@@ -2105,7 +2589,7 @@
              }
          }
  
@@ -996,7 +996,7 @@
      }
  
      public Entity a(int i) {
-@@ -2125,8 +2718,17 @@
+@@ -2125,8 +2609,17 @@
  
          while (iterator.hasNext()) {
              Entity entity = (Entity) iterator.next();
@@ -1015,7 +1015,7 @@
                  ++i;
              }
          }
-@@ -2135,12 +2737,19 @@
+@@ -2135,12 +2628,19 @@
      }
  
      public void b(Collection<Entity> collection) {
@@ -1036,7 +1036,7 @@
              this.a(entity);
          }
  
-@@ -2154,7 +2763,13 @@
+@@ -2154,7 +2654,13 @@
          Block block1 = this.getType(blockposition).getBlock();
          AxisAlignedBB axisalignedbb = flag ? null : block.a(this, blockposition, block.getBlockData());
  
@@ -1051,7 +1051,7 @@
      }
  
      public int F() {
-@@ -2253,6 +2868,11 @@
+@@ -2253,6 +2759,11 @@
  
          for (int i = 0; i < this.players.size(); ++i) {
              EntityHuman entityhuman1 = (EntityHuman) this.players.get(i);
@@ -1063,7 +1063,7 @@
  
              if (IEntitySelector.d.apply(entityhuman1)) {
                  double d5 = entityhuman1.e(d0, d1, d2);
-@@ -2283,6 +2903,53 @@
+@@ -2283,6 +2794,53 @@
          return false;
      }
  
@@ -1117,7 +1117,7 @@
      public EntityHuman a(String s) {
          for (int i = 0; i < this.players.size(); ++i) {
              EntityHuman entityhuman = (EntityHuman) this.players.get(i);
-@@ -2369,6 +3036,16 @@
+@@ -2369,6 +2927,16 @@
  
      public void everyoneSleeping() {}
  
@@ -1134,7 +1134,7 @@
      public float h(float f) {
          return (this.q + (this.r - this.q) * f) * this.j(f);
      }
-@@ -2444,8 +3121,8 @@
+@@ -2444,8 +3012,8 @@
  
              crashreportsystemdetails.a("Block coordinates", (Object) CrashReportSystemDetails.a(blockposition));
              crashreportsystemdetails.a("Event source", (Object) entityhuman);
@@ -1145,7 +1145,7 @@
              throw new ReportedException(crashreport);
          }
      }
-@@ -2473,7 +3150,7 @@
+@@ -2473,7 +3041,7 @@
          CrashReportSystemDetails crashreportsystemdetails = crashreport.a("Affected level", 1);
  
          crashreportsystemdetails.a("Level name", (Object) (this.worldData == null ? "????" : this.worldData.getName()));
@@ -1154,7 +1154,7 @@
              public String a() {
                  return World.this.players.size() + " total; " + World.this.players.toString();
              }
-@@ -2482,7 +3159,7 @@
+@@ -2482,7 +3050,7 @@
                  return this.a();
              }
          });

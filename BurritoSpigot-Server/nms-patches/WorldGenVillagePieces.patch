@@ -372,7 +372,7 @@
 +                    return WorldGenVillagePieces.d(worldgenvillagepieces_worldgenvillagestartpiece, list, random, this.l.a + j, this.l.b + i, this.l.f + 1, EnumDirection.SOUTH, this.d());
                  }
              }
-
+ 
 @@ -1510,7 +1559,7 @@
                      entityvillager.setPositionRotation((double) j1 + 0.5D, (double) k1, (double) l1 + 0.5D, 0.0F, 0.0F);
                      entityvillager.prepare(world.E(new BlockPosition(entityvillager)), (GroupDataEntity) null);

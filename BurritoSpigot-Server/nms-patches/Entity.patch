@@ -56,7 +56,7 @@
      public int noDamageTicks;
      protected boolean justCreated;
      protected boolean fireProof;
-@@ -79,6 +126,20 @@
+@@ -79,6 +117,20 @@
      private boolean invulnerable;
      protected UUID uniqueID;
      private final CommandObjectiveExecutor au;
@@ -77,7 +77,7 @@
  
      public int getId() {
          return this.id;
-@@ -108,14 +169,19 @@
+@@ -108,14 +160,19 @@
          this.setPosition(0.0D, 0.0D, 0.0D);
          if (world != null) {
              this.dimension = world.worldProvider.getDimension();
@@ -101,7 +101,7 @@
          this.h();
      }
  
-@@ -152,6 +218,33 @@
+@@ -152,6 +209,33 @@
      }
  
      protected void setYawPitch(float f, float f1) {
@@ -135,7 +135,7 @@
          this.yaw = f % 360.0F;
          this.pitch = f1 % 360.0F;
      }
-@@ -170,6 +263,13 @@
+@@ -170,6 +254,13 @@
          this.K();
      }
  
@@ -149,7 +149,7 @@
      public void K() {
          this.world.methodProfiler.a("entityBaseTick");
          if (this.vehicle != null && this.vehicle.dead) {
-@@ -246,7 +346,7 @@
+@@ -246,7 +337,7 @@
              this.fallDistance *= 0.5F;
          }
  
@@ -158,7 +158,7 @@
              this.O();
          }
  
-@@ -265,6 +365,27 @@
+@@ -265,6 +356,27 @@
      protected void burnFromLava() {
          if (!this.fireProof) {
              this.damageEntity(DamageSource.LAVA, 4.0F);
@@ -186,7 +186,7 @@
              this.setOnFire(15);
          }
      }
-@@ -297,11 +418,40 @@
+@@ -297,11 +409,40 @@
          return this.world.getCubes(this, axisalignedbb).isEmpty() && !this.world.containsLiquid(axisalignedbb);
      }
  
@@ -227,7 +227,7 @@
              this.world.methodProfiler.a("move");
              double d3 = this.locX;
              double d4 = this.locY;
-@@ -365,7 +515,16 @@
+@@ -365,7 +506,16 @@
                  }
              }
  
@@ -245,7 +245,7 @@
              AxisAlignedBB axisalignedbb = this.getBoundingBox();
  
              AxisAlignedBB axisalignedbb1;
-@@ -380,17 +539,41 @@
+@@ -380,17 +530,41 @@
              AxisAlignedBB axisalignedbb2;
              Iterator iterator1;
  
@@ -287,7 +287,7 @@
              if (this.S > 0.0F && flag1 && (d6 != d0 || d8 != d2)) {
                  double d10 = d0;
                  double d11 = d1;
-@@ -522,6 +705,26 @@
+@@ -522,6 +696,26 @@
                  block.a(this.world, this);
              }
  
@@ -314,7 +314,7 @@
              if (this.s_() && !flag && this.vehicle == null) {
                  double d21 = this.locX - d3;
                  double d22 = this.locY - d4;
-@@ -532,7 +735,7 @@
+@@ -532,7 +726,7 @@
                  }
  
                  if (block != null && this.onGround) {
@@ -323,7 +323,7 @@
                  }
  
                  this.M = (float) ((double) this.M + (double) MathHelper.sqrt(d21 * d21 + d23 * d23) * 0.6D);
-@@ -550,9 +753,12 @@
+@@ -550,9 +744,12 @@
                      }
  
                      this.a(blockposition, block);
@@ -336,7 +336,7 @@
              try {
                  this.checkBlockCollisions();
              } catch (Throwable throwable) {
-@@ -562,6 +768,8 @@
+@@ -562,6 +759,8 @@
                  this.appendEntityCrashDetails(crashreportsystemdetails);
                  throw new ReportedException(crashreport);
              }
@@ -345,7 +345,7 @@
  
              boolean flag2 = this.U();
  
-@@ -569,7 +777,16 @@
+@@ -569,7 +768,16 @@
                  this.burn(1);
                  if (!flag2) {
                      ++this.fireTicks;
@@ -363,7 +363,7 @@
                          this.setOnFire(8);
                      }
                  }
-@@ -675,7 +892,7 @@
+@@ -675,7 +883,7 @@
          return null;
      }
  
@@ -372,7 +372,7 @@
          if (!this.fireProof) {
              this.damageEntity(DamageSource.FIRE, (float) i);
          }
-@@ -727,20 +944,20 @@
+@@ -727,20 +935,20 @@
          this.makeSound(this.aa(), f, 1.0F + (this.random.nextFloat() - this.random.nextFloat()) * 0.4F);
          float f1 = (float) MathHelper.floor(this.getBoundingBox().b);
  
@@ -396,7 +396,7 @@
          }
  
      }
-@@ -761,7 +978,7 @@
+@@ -761,7 +969,7 @@
          Block block = iblockdata.getBlock();
  
          if (block.b() != -1) {
@@ -405,7 +405,7 @@
          }
  
      }
-@@ -818,6 +1035,13 @@
+@@ -818,6 +1026,13 @@
      }
  
      public void spawnIn(World world) {
@@ -419,7 +419,7 @@
          this.world = world;
      }
  
-@@ -896,6 +1120,7 @@
+@@ -896,6 +1111,7 @@
  
      public void d(EntityHuman entityhuman) {}
  
@@ -427,7 +427,7 @@
      public void collide(Entity entity) {
          if (entity.passenger != this && entity.vehicle != this) {
              if (!entity.noclip && !this.noclip) {
-@@ -1008,9 +1233,21 @@
+@@ -1008,9 +1224,21 @@
  
      public void e(NBTTagCompound nbttagcompound) {
          try {
@@ -452,7 +452,7 @@
              nbttagcompound.setFloat("FallDistance", this.fallDistance);
              nbttagcompound.setShort("Fire", (short) this.fireTicks);
              nbttagcompound.setShort("Air", (short) this.getAirTicks());
-@@ -1020,6 +1257,12 @@
+@@ -1020,6 +1248,12 @@
              nbttagcompound.setInt("PortalCooldown", this.portalCooldown);
              nbttagcompound.setLong("UUIDMost", this.getUniqueID().getMostSignificantBits());
              nbttagcompound.setLong("UUIDLeast", this.getUniqueID().getLeastSignificantBits());
@@ -465,7 +465,7 @@
              if (this.getCustomName() != null && this.getCustomName().length() > 0) {
                  nbttagcompound.setString("CustomName", this.getCustomName());
                  nbttagcompound.setBoolean("CustomNameVisible", this.getCustomNameVisible());
-@@ -1057,6 +1300,8 @@
+@@ -1057,6 +1291,8 @@
              this.motX = nbttaglist1.d(0);
              this.motY = nbttaglist1.d(1);
              this.motZ = nbttaglist1.d(2);
@@ -474,7 +474,7 @@
              if (Math.abs(this.motX) > 10.0D) {
                  this.motX = 0.0D;
              }
-@@ -1068,6 +1313,7 @@
+@@ -1068,6 +1304,7 @@
              if (Math.abs(this.motZ) > 10.0D) {
                  this.motZ = 0.0D;
              }
@@ -482,7 +482,7 @@
  
              this.lastX = this.P = this.locX = nbttaglist.d(0);
              this.lastY = this.Q = this.locY = nbttaglist.d(1);
-@@ -1103,6 +1349,60 @@
+@@ -1103,6 +1340,60 @@
                  this.setPosition(this.locX, this.locY, this.locZ);
              }
  
@@ -543,7 +543,7 @@
          } catch (Throwable throwable) {
              CrashReport crashreport = CrashReport.a(throwable, "Loading entity NBT");
              CrashReportSystemDetails crashreportsystemdetails = crashreport.a("Entity being loaded");
-@@ -1164,6 +1464,12 @@
+@@ -1164,6 +1455,12 @@
  
      public EntityItem a(ItemStack itemstack, float f) {
          if (itemstack.count != 0 && itemstack.getItem() != null) {
@@ -556,7 +556,7 @@
              EntityItem entityitem = new EntityItem(this.world, this.locX, this.locY + (double) f, this.locZ, itemstack);
  
              entityitem.p();
-@@ -1277,17 +1583,87 @@
+@@ -1277,17 +1574,87 @@
          return (double) this.length * 0.75D;
      }
  
@@ -644,7 +644,7 @@
              if (this.vehicle != null) {
                  this.vehicle.passenger = null;
              }
-@@ -1390,9 +1766,9 @@
+@@ -1390,9 +1757,9 @@
          byte b0 = this.datawatcher.getByte(0);
  
          if (flag) {
@@ -656,7 +656,7 @@
          }
  
      }
-@@ -1402,14 +1778,53 @@
+@@ -1402,14 +1769,53 @@
      }
  
      public void setAirTicks(int i) {
@@ -713,7 +713,7 @@
          }
  
      }
-@@ -1524,7 +1939,7 @@
+@@ -1524,7 +1930,7 @@
      }
  
      public String toString() {
@@ -722,7 +722,7 @@
      }
  
      public boolean isInvulnerable(DamageSource damagesource) {
-@@ -1550,32 +1965,83 @@
+@@ -1550,32 +1956,83 @@
          if (!this.world.isClientSide && !this.dead) {
              this.world.methodProfiler.a("changeDimension");
              MinecraftServer minecraftserver = MinecraftServer.getServer();
@@ -810,7 +810,7 @@
              }
  
              this.dead = true;
-@@ -1611,7 +2077,7 @@
+@@ -1611,7 +2068,7 @@
      }
  
      public void appendEntityCrashDetails(CrashReportSystemDetails crashreportsystemdetails) {
@@ -819,7 +819,7 @@
              public String a() throws Exception {
                  return EntityTypes.b(Entity.this) + " (" + Entity.this.getClass().getCanonicalName() + ")";
              }
-@@ -1620,8 +2086,8 @@
+@@ -1620,8 +2077,8 @@
                  return this.a();
              }
          });
@@ -830,7 +830,7 @@
              public String a() throws Exception {
                  return Entity.this.getName();
              }
-@@ -1630,10 +2096,10 @@
+@@ -1630,10 +2087,10 @@
                  return this.a();
              }
          });
@@ -845,7 +845,7 @@
              public String a() throws Exception {
                  return Entity.this.passenger.toString();
              }
-@@ -1642,7 +2108,7 @@
+@@ -1642,7 +2099,7 @@
                  return this.a();
              }
          });
@@ -854,7 +854,7 @@
              public String a() throws Exception {
                  return Entity.this.vehicle.toString();
              }
-@@ -1670,6 +2136,11 @@
+@@ -1670,6 +2127,11 @@
      }
  
      public void setCustomName(String s) {
@@ -866,7 +866,7 @@
          this.datawatcher.watch(2, s);
      }
  
-@@ -1721,7 +2192,26 @@
+@@ -1721,7 +2183,26 @@
      }
  
      public void a(AxisAlignedBB axisalignedbb) {

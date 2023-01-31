@@ -136,5 +136,26 @@
          public int getX() {
              return this.c;
          }
-
+@@ -245,11 +265,19 @@
+         public int getZ() {
+             return this.e;
+         }
++         */
++
++        // TacoSpigot start - OBFHELPER
++        public BlockPosition.MutableBlockPosition setValues(int x, int y, int z) {
++            return c(x, y, z);
++        }
++        // TacoSpigot end
+ 
+         public BlockPosition.MutableBlockPosition c(int i, int j, int k) {
+-            this.c = i;
+-            this.d = j;
+-            this.e = k;
++            setX(i);
++            setY(j);
++            setZ(k);
++            // PaperSpigot end
+             return this;
+         }
  

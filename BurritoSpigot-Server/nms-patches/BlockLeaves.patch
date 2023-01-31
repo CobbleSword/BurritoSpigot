@@ -29,6 +29,89 @@
                  byte b0 = 4;
                  int i = b0 + 1;
                  int j = blockposition.getX();
+@@ -64,51 +66,51 @@
+                     int l1;
+                     int i2;
+ 
+-                    for (i2 = -b0; i2 <= b0; ++i2) {
++                    for (k1 = -b0; k1 <= b0; ++k1) {
+                         for (l1 = -b0; l1 <= b0; ++l1) {
+-                            for (k1 = -b0; k1 <= b0; ++k1) {
+-                                Block block = world.getType(blockposition_mutableblockposition.c(j + i2, k + l1, l + k1)).getBlock();
++                            for (i2 = -b0; i2 <= b0; ++i2) {
++                                Block block = world.getType(blockposition_mutableblockposition.c(j + k1, k + l1, l + i2)).getBlock();
+ 
+                                 if (block != Blocks.LOG && block != Blocks.LOG2) {
+                                     if (block.getMaterial() == Material.LEAVES) {
+-                                        this.N[(i2 + j1) * i1 + (l1 + j1) * b1 + k1 + j1] = -2;
++                                        this.N[(k1 + j1) * i1 + (l1 + j1) * b1 + i2 + j1] = -2;
+                                     } else {
+-                                        this.N[(i2 + j1) * i1 + (l1 + j1) * b1 + k1 + j1] = -1;
++                                        this.N[(k1 + j1) * i1 + (l1 + j1) * b1 + i2 + j1] = -1;
+                                     }
+                                 } else {
+-                                    this.N[(i2 + j1) * i1 + (l1 + j1) * b1 + k1 + j1] = 0;
++                                    this.N[(k1 + j1) * i1 + (l1 + j1) * b1 + i2 + j1] = 0;
+                                 }
+                             }
+                         }
+                     }
+ 
+-                    for (i2 = 1; i2 <= 4; ++i2) {
++                    for (k1 = 1; k1 <= 4; ++k1) {
+                         for (l1 = -b0; l1 <= b0; ++l1) {
+-                            for (k1 = -b0; k1 <= b0; ++k1) {
++                            for (i2 = -b0; i2 <= b0; ++i2) {
+                                 for (int j2 = -b0; j2 <= b0; ++j2) {
+-                                    if (this.N[(l1 + j1) * i1 + (k1 + j1) * b1 + j2 + j1] == i2 - 1) {
+-                                        if (this.N[(l1 + j1 - 1) * i1 + (k1 + j1) * b1 + j2 + j1] == -2) {
+-                                            this.N[(l1 + j1 - 1) * i1 + (k1 + j1) * b1 + j2 + j1] = i2;
+-                                        }
+-
+-                                        if (this.N[(l1 + j1 + 1) * i1 + (k1 + j1) * b1 + j2 + j1] == -2) {
+-                                            this.N[(l1 + j1 + 1) * i1 + (k1 + j1) * b1 + j2 + j1] = i2;
+-                                        }
+-
+-                                        if (this.N[(l1 + j1) * i1 + (k1 + j1 - 1) * b1 + j2 + j1] == -2) {
+-                                            this.N[(l1 + j1) * i1 + (k1 + j1 - 1) * b1 + j2 + j1] = i2;
+-                                        }
+-
+-                                        if (this.N[(l1 + j1) * i1 + (k1 + j1 + 1) * b1 + j2 + j1] == -2) {
+-                                            this.N[(l1 + j1) * i1 + (k1 + j1 + 1) * b1 + j2 + j1] = i2;
+-                                        }
+-
+-                                        if (this.N[(l1 + j1) * i1 + (k1 + j1) * b1 + (j2 + j1 - 1)] == -2) {
+-                                            this.N[(l1 + j1) * i1 + (k1 + j1) * b1 + (j2 + j1 - 1)] = i2;
+-                                        }
+-
+-                                        if (this.N[(l1 + j1) * i1 + (k1 + j1) * b1 + j2 + j1 + 1] == -2) {
+-                                            this.N[(l1 + j1) * i1 + (k1 + j1) * b1 + j2 + j1 + 1] = i2;
++                                    if (this.N[(l1 + j1) * i1 + (i2 + j1) * b1 + j2 + j1] == k1 - 1) {
++                                        if (this.N[(l1 + j1 - 1) * i1 + (i2 + j1) * b1 + j2 + j1] == -2) {
++                                            this.N[(l1 + j1 - 1) * i1 + (i2 + j1) * b1 + j2 + j1] = k1;
++
++                                            if (this.N[(l1 + j1 + 1) * i1 + (i2 + j1) * b1 + j2 + j1] == -2) {
++                                                this.N[(l1 + j1 + 1) * i1 + (i2 + j1) * b1 + j2 + j1] = k1;
++                                            }
++
++                                            if (this.N[(l1 + j1) * i1 + (i2 + j1 - 1) * b1 + j2 + j1] == -2) {
++                                                this.N[(l1 + j1) * i1 + (i2 + j1 - 1) * b1 + j2 + j1] = k1;
++                                            }
++
++                                            if (this.N[(l1 + j1) * i1 + (i2 + j1 + 1) * b1 + j2 + j1] == -2) {
++                                                this.N[(l1 + j1) * i1 + (i2 + j1 + 1) * b1 + j2 + j1] = k1;
++                                            }
++
++                                            if (this.N[(l1 + j1) * i1 + (i2 + j1) * b1 + (j2 + j1 - 1)] == -2) {
++                                                this.N[(l1 + j1) * i1 + (i2 + j1) * b1 + (j2 + j1 - 1)] = k1;
++                                            }
++
++                                            if (this.N[(l1 + j1) * i1 + (i2 + j1) * b1 + j2 + j1 + 1] == -2) {
++                                                this.N[(l1 + j1) * i1 + (i2 + j1) * b1 + j2 + j1 + 1] = k1;
++                                            }
+                                         }
+                                     }
+                                 }
 @@ -120,7 +122,7 @@
                  int k2 = this.N[j1 * i1 + j1 * b1 + j1];
  

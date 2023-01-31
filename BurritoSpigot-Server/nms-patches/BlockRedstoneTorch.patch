@@ -70,8 +70,8 @@
 +            // PaperSpigot end
              EnumDirection[] aenumdirection = EnumDirection.values();
              int i = aenumdirection.length;
-
-@@ -107,13 +153,22 @@
+ 
+@@ -107,13 +130,22 @@
                          double d1 = (double) blockposition.getY() + random.nextDouble() * 0.6D + 0.2D;
                          double d2 = (double) blockposition.getZ() + random.nextDouble() * 0.6D + 0.2D;
  

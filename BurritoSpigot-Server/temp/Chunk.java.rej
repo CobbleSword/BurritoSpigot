@@ -1,0 +1,56 @@
+--- Chunk.java
++++ Chunk.java
+@@ -740,9 +851,32 @@
+         entity.af = k;
+         entity.ag = this.locZ;
+         this.entitySlices[k].add(entity);
++        // PaperSpigot start - update counts
++        if (entity instanceof EntityItem) {
++            itemCounts[k]++;
++        } else if (entity instanceof IInventory) {
++            inventoryEntityCounts[k]++;
++        }
++        // PaperSpigot end
++        // Spigot start - increment creature type count
++        // Keep this synced up with World.a(Class)
++        if (entity instanceof EntityInsentient) {
++            EntityInsentient entityinsentient = (EntityInsentient) entity;
++            if (entityinsentient.isTypeNotPersistent() && entityinsentient.isPersistent()) {
++                return;
++            }
++        }
++        for ( EnumCreatureType creatureType : EnumCreatureType.values() )
++        {
++            if ( creatureType.a().isAssignableFrom( entity.getClass() ) )
++            {
++                this.entityCount.adjustOrPutValue( creatureType.a(), 1, 1 );
++            }
++        }
++        // Spigot end
+     }
+ 
+-    public void removeEntity(Entity entity) {
++    public void b(Entity entity) {
+         this.a(entity, entity.af);
+     }
+ 
+@@ -1355,8 +1616,8 @@
+         int l;
+ 
+         for (l = k + 16 - 1; l > this.world.F() || l > 0 && !flag1; --l) {
+-            blockposition_mutableblockposition.setValues(blockposition_mutableblockposition.getX(), l, blockposition_mutableblockposition.getZ());
+-            int i1 = this.b(blockposition_mutableblockposition);
++            blockposition_mutableblockposition.c(blockposition_mutableblockposition.getX(), l, blockposition_mutableblockposition.getZ());
++            int i1 = this.b((BlockPosition) blockposition_mutableblockposition);
+ 
+             if (i1 == 255 && blockposition_mutableblockposition.getY() < this.world.F()) {
+                 flag1 = true;
+@@ -1370,7 +1631,7 @@
+         }
+ 
+         for (l = blockposition_mutableblockposition.getY(); l > 0; --l) {
+-            blockposition_mutableblockposition.setValues(blockposition_mutableblockposition.getX(), l, blockposition_mutableblockposition.getZ());
++            blockposition_mutableblockposition.c(blockposition_mutableblockposition.getX(), l, blockposition_mutableblockposition.getZ());
+             if (this.getType(blockposition_mutableblockposition).r() > 0) {
+                 this.world.x(blockposition_mutableblockposition);
+             }

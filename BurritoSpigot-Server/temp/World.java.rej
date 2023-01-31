@@ -1,0 +1,387 @@
+--- World.java
++++ World.java
+@@ -1120,20 +1459,31 @@
+     }
+ 
+     public void removeEntity(Entity entity) {
++        org.spigotmc.AsyncCatcher.catchOp( "entity remove"); // Spigot
+         entity.die();
+         if (entity instanceof EntityHuman) {
+             this.players.remove(entity);
+             this.everyoneSleeping();
+         }
+ 
++        if (!guardEntityList) { // Spigot - It will get removed after the tick if we are ticking
+         int i = entity.ae;
+         int j = entity.ag;
+ 
+         if (entity.ad && this.isChunkLoaded(i, j, true)) {
+-            this.getChunkAt(i, j).removeEntity(entity);
++            this.getChunkAt(i, j).b(entity);
+         }
+ 
+-        this.entityList.remove(entity);
++        // CraftBukkit start - Decrement loop variable field if we've already ticked this entity
++        int index = this.entityList.indexOf(entity);
++        if (index != -1) {
++            if (index <= this.tickPosition) {
++                this.tickPosition--;
++            }
++            this.entityList.remove(index);
++        }
++        // CraftBukkit end
++        } // Spigot
+         this.b(entity);
+     }
+ 
+@@ -1155,28 +1505,76 @@
+         IBlockData iblockdata = Blocks.STONE.getBlockData();
+         BlockPosition.MutableBlockPosition blockposition_mutableblockposition = new BlockPosition.MutableBlockPosition();
+ 
+-        for (int k1 = i; k1 < j; ++k1) {
+-            for (int l1 = i1; l1 < j1; ++l1) {
+-                if (this.isLoaded(blockposition_mutableblockposition.setValues(k1, 64, l1))) {
+-                    for (int i2 = k - 1; i2 < l; ++i2) {
+-                        blockposition_mutableblockposition.setValues(k1, i2, l1);
+-                        if (flag && flag1) {
+-                            entity.h(false);
+-                        } else if (!flag && !flag1) {
+-                            entity.h(true);
+-                        }
+-
+-                        IBlockData iblockdata1 = iblockdata;
++        // Spigot start
++        int ystart = ( ( k - 1 ) < 0 ) ? 0 : ( k - 1 );
++        for ( int chunkx = ( i >> 4 ); chunkx <= ( ( j - 1 ) >> 4 ); chunkx++ )
++        {
++            int cx = chunkx << 4;
++            for ( int chunkz = ( i1 >> 4 ); chunkz <= ( ( j1 - 1 ) >> 4 ); chunkz++ )
++            {
++                Chunk chunk = this.getChunkIfLoaded( chunkx, chunkz );
++                if ( chunk == null )
++                {
++                    // PaperSpigot start
++                    if (entity.loadChunks) {
++                        chunk = ((ChunkProviderServer) entity.world.chunkProvider).getChunkAt(chunkx, chunkz);
++                    } else {
++                        entity.inUnloadedChunk = true; // PaperSpigot - Remove entities in unloaded chunks
++                        continue;
++                    }
++                    // PaperSpigot end
++                }
++                int cz = chunkz << 4;
++                // Compute ranges within chunk
++                int xstart = ( i < cx ) ? cx : i;
++                int xend = ( j < ( cx + 16 ) ) ? j : ( cx + 16 );
++                int zstart = ( i1 < cz ) ? cz : i1;
++                int zend = ( j1 < ( cz + 16 ) ) ? j1 : ( cz + 16 );
++                // Loop through blocks within chunk
++                for ( int x = xstart; x < xend; x++ )
++                {
++                    for ( int z = zstart; z < zend; z++ )
++                    {
++                        for ( int y = ystart; y < l; y++ )
++                        {
++                            BlockPosition blockposition = new BlockPosition( x, y, z );
++
++                            if (flag && flag1) {
++                                entity.h(false);
++                            } else if (!flag && !flag1) {
++                                entity.h(true);
++                            }
+ 
+-                        if (worldborder.a((BlockPosition) blockposition_mutableblockposition) || !flag1) {
+-                            iblockdata1 = this.getType(blockposition_mutableblockposition);
++                            IBlockData block;
++                            if (!this.getWorldBorder().a(blockposition) && flag1) {
++                                block = Blocks.STONE.getBlockData();
++                            } else
++                            {
++                                block = chunk.getBlockData( blockposition );
++                            }
++                            if ( block != null )
++                            {
++                                // PaperSpigot start - FallingBlocks and TNT collide with specific non-collidable blocks
++                                Block b = block.getBlock();
++                                if (entity.world.paperSpigotConfig.fallingBlocksCollideWithSigns && (entity instanceof EntityTNTPrimed || entity instanceof EntityFallingBlock) && (b instanceof BlockSign || b instanceof BlockFenceGate || b instanceof BlockTorch || b instanceof BlockButtonAbstract || b instanceof BlockLever || b instanceof BlockTripwireHook || b instanceof BlockTripwire || b instanceof BlockChest || b instanceof BlockSlowSand || b instanceof BlockBed || b instanceof BlockEnderChest || b instanceof BlockEnchantmentTable || b instanceof BlockBrewingStand)) {
++                                    AxisAlignedBB aabb = AxisAlignedBB.a(x, y, z, x + 1.0, y + 1.0, z + 1.0);
++                                    if (axisalignedbb.b(aabb)) arraylist.add(aabb);
++                                } else {
++                                    b.a(this, blockposition, block, axisalignedbb, arraylist, entity);
++                                }
++                                // PaperSpigot end
++                            }
+                         }
+-
+-                        iblockdata1.getBlock().a(this, blockposition_mutableblockposition, iblockdata1, axisalignedbb, arraylist, entity);
+                     }
+                 }
+             }
+         }
++        // Spigot end
++
++        if (entity instanceof EntityItem) return arraylist; // PaperSpigot - Optimize item movement
++        if (entity instanceof EntityArmorStand) return arraylist; // TacoSpigot - Optimize armor stand movement
++        if (entity instanceof EntityTNTPrimed) return arraylist; // TacoSpigot - Optimize tnt entity movement
++        if (entity instanceof EntityFallingBlock) return arraylist; // TacoSpigot - Optimize falling block movement
+ 
+         double d0 = 0.25D;
+         List list = this.getEntities(entity, axisalignedbb.grow(d0, d0, d0));
+@@ -1232,9 +1630,9 @@
+ 
+         for (int k1 = i; k1 < j; ++k1) {
+             for (int l1 = i1; l1 < j1; ++l1) {
+-                if (this.isLoaded(blockposition_mutableblockposition.setValues(k1, 64, l1))) {
++                if (this.isLoaded(blockposition_mutableblockposition.c(k1, 64, l1))) {
+                     for (int i2 = k - 1; i2 < l; ++i2) {
+-                        blockposition_mutableblockposition.setValues(k1, i2, l1);
++                        blockposition_mutableblockposition.c(k1, i2, l1);
+                         IBlockData iblockdata;
+ 
+                         if (k1 >= -30000000 && k1 < 30000000 && l1 >= -30000000 && l1 < 30000000) {
+@@ -1344,29 +1747,43 @@
+         }
+ 
+         this.methodProfiler.c("remove");
++        timings.entityRemoval.startTiming(); // Spigot
+         this.entityList.removeAll(this.g);
+ 
+         int j;
+         int k;
+ 
+-        for (i = 0; i < this.g.size(); ++i) {
+-            entity = (Entity) this.g.get(i);
+-            j = entity.ae;
+-            k = entity.ag;
+-            if (entity.ad && this.isChunkLoaded(j, k, true)) {
+-                this.getChunkAt(j, k).removeEntity(entity);
++        // Paper start - Set based removal lists
++        for (Entity e : this.g) {
++            j = e.ae;
++            k = e.ag;
++            if (e.ad && this.isChunkLoaded(j, k, true)) {
++                this.getChunkAt(j, k).b(e);
+             }
+         }
+ 
+-        for (i = 0; i < this.g.size(); ++i) {
+-            this.b((Entity) this.g.get(i));
++        for (Entity e : this.g) {
++            this.b(e);
+         }
++        // Paper end
+ 
+         this.g.clear();
++        timings.entityRemoval.stopTiming(); // Spigot
+         this.methodProfiler.c("regular");
+ 
+-        for (i = 0; i < this.entityList.size(); ++i) {
+-            entity = (Entity) this.entityList.get(i);
++        org.spigotmc.ActivationRange.activateEntities(this); // Spigot
++        timings.entityTick.startTiming(); // Spigot
++        guardEntityList = true; // Spigot
++        // CraftBukkit start - Use field for loop variable
++        co.aikar.timings.TimingHistory.entityTicks += this.entityList.size(); // Spigot
++        int entitiesThisCycle = 0;
++        // PaperSpigot start - Disable tick limiters
++        //if (tickPosition < 0) tickPosition = 0;
++        for (tickPosition = 0; tickPosition < entityList.size(); tickPosition++) {
++            // PaperSpigot end
++            tickPosition = (tickPosition < entityList.size()) ? tickPosition : 0;
++            entity = (Entity) this.entityList.get(this.tickPosition);
++            // CraftBukkit end
+             if (entity.vehicle != null) {
+                 if (!entity.vehicle.dead && entity.vehicle.passenger == entity) {
+                     continue;
+@@ -1399,54 +1821,90 @@
+                 j = entity.ae;
+                 k = entity.ag;
+                 if (entity.ad && this.isChunkLoaded(j, k, true)) {
+-                    this.getChunkAt(j, k).removeEntity(entity);
++                    this.getChunkAt(j, k).b(entity);
+                 }
+ 
+-                this.entityList.remove(i--);
++                guardEntityList = false; // Spigot
++                this.entityList.remove(this.tickPosition--); // CraftBukkit - Use field for loop variable
++                guardEntityList = true; // Spigot
+                 this.b(entity);
+             }
+ 
+             this.methodProfiler.b();
+         }
++        guardEntityList = false; // Spigot
+ 
++        timings.entityTick.stopTiming(); // Spigot
+         this.methodProfiler.c("blockEntities");
++        timings.tileEntityTick.startTiming(); // Spigot
+         this.M = true;
+-        Iterator iterator = this.tileEntityList.iterator();
++        // CraftBukkit start - From below, clean up tile entities before ticking them
++        if (!this.c.isEmpty()) {
++            this.tileEntityList.removeAll(this.c);
++            //this.h.removeAll(this.c); // PaperSpigot - Remove unused list
++            this.c.clear();
++        }
++        // CraftBukkit end
+ 
+-        while (iterator.hasNext()) {
+-            TileEntity tileentity = (TileEntity) iterator.next();
++        // Spigot start
++        int tilesThisCycle = 0;
++        for (tileTickPosition = 0; tileTickPosition < tileEntityList.size(); tileTickPosition++) { // PaperSpigot - Disable tick limiters
++            tileTickPosition = (tileTickPosition < tileEntityList.size()) ? tileTickPosition : 0;
++            TileEntity tileentity = (TileEntity) this.tileEntityList.get(tileTickPosition);
++            // Spigot start
++            if (tileentity == null) {
++                getServer().getLogger().severe("Spigot has detected a null entity and has removed it, preventing a crash");
++                tilesThisCycle--;
++                this.tileEntityList.remove(tileTickPosition--);
++                continue;
++            }
++            // Spigot end
+ 
+             if (!tileentity.x() && tileentity.t()) {
+                 BlockPosition blockposition = tileentity.getPosition();
+ 
+                 if (this.isLoaded(blockposition) && this.N.a(blockposition)) {
+                     try {
++                        tileentity.tickTimer.startTiming(); // Spigot
+                         ((IUpdatePlayerListBox) tileentity).c();
+                     } catch (Throwable throwable2) {
+-                        CrashReport crashreport1 = CrashReport.a(throwable2, "Ticking block entity");
+-                        CrashReportSystemDetails crashreportsystemdetails1 = crashreport1.a("Block entity being ticked");
+-
+-                        tileentity.a(crashreportsystemdetails1);
+-                        throw new ReportedException(crashreport1);
++                        // PaperSpigot start - Prevent tile entity and entity crashes
++                        tileentity.tickTimer.stopTiming();
++                        System.err.println("TileEntity threw exception at " + tileentity.world.getWorld().getName() + ":" + tileentity.position.getX() + "," + tileentity.position.getY() + "," + tileentity.position.getZ());
++                        throwable2.printStackTrace();
++                        tilesThisCycle--;
++                        this.tileEntityList.remove(tileTickPosition--);
++                        continue;
++                        // PaperSpigot end
++                    }
++                    // Spigot start
++                    finally {
++                        tileentity.tickTimer.stopTiming();
+                     }
++                    // Spigot end
+                 }
+             }
+ 
+             if (tileentity.x()) {
+-                iterator.remove();
+-                this.h.remove(tileentity);
++                tilesThisCycle--;
++                this.tileEntityList.remove(tileTickPosition--);
++                //this.h.remove(tileentity); // PaperSpigot - Remove unused list
+                 if (this.isLoaded(tileentity.getPosition())) {
+                     this.getChunkAtWorldCoords(tileentity.getPosition()).e(tileentity.getPosition());
+                 }
+             }
+         }
+ 
++        timings.tileEntityTick.stopTiming(); // Spigot
++        timings.tileEntityPending.startTiming(); // Spigot
+         this.M = false;
++        /* CraftBukkit start - Moved up
+         if (!this.c.isEmpty()) {
+             this.tileEntityList.removeAll(this.c);
+             this.h.removeAll(this.c);
+             this.c.clear();
+         }
++        // CraftBukkit end */
+ 
+         this.methodProfiler.c("pendingBlockEntities");
+         if (!this.b.isEmpty()) {
+@@ -1633,7 +2118,7 @@
+         for (int k1 = i; k1 <= j; ++k1) {
+             for (int l1 = k; l1 <= l; ++l1) {
+                 for (int i2 = i1; i2 <= j1; ++i2) {
+-                    Block block = this.getType(blockposition_mutableblockposition.setValues(k1, l1, i2)).getBlock();
++                    Block block = this.getType(blockposition_mutableblockposition.c(k1, l1, i2)).getBlock();
+ 
+                     if (block.getMaterial() != Material.AIR) {
+                         return true;
+@@ -1657,7 +2142,7 @@
+         for (int k1 = i; k1 <= j; ++k1) {
+             for (int l1 = k; l1 <= l; ++l1) {
+                 for (int i2 = i1; i2 <= j1; ++i2) {
+-                    Block block = this.getType(blockposition_mutableblockposition.setValues(k1, l1, i2)).getBlock();
++                    Block block = this.getType(blockposition_mutableblockposition.c(k1, l1, i2)).getBlock();
+ 
+                     if (block.getMaterial().isLiquid()) {
+                         return true;
+@@ -1683,7 +2168,7 @@
+             for (int k1 = i; k1 < j; ++k1) {
+                 for (int l1 = k; l1 < l; ++l1) {
+                     for (int i2 = i1; i2 < j1; ++i2) {
+-                        Block block = this.getType(blockposition_mutableblockposition.setValues(k1, l1, i2)).getBlock();
++                        Block block = this.getType(blockposition_mutableblockposition.c(k1, l1, i2)).getBlock();
+ 
+                         if (block == Blocks.FIRE || block == Blocks.FLOWING_LAVA || block == Blocks.LAVA) {
+                             return true;
+@@ -1714,12 +2199,12 @@
+             for (int k1 = i; k1 < j; ++k1) {
+                 for (int l1 = k; l1 < l; ++l1) {
+                     for (int i2 = i1; i2 < j1; ++i2) {
+-                        blockposition_mutableblockposition.setValues(k1, l1, i2);
++                        blockposition_mutableblockposition.c(k1, l1, i2);
+                         IBlockData iblockdata = this.getType(blockposition_mutableblockposition);
+                         Block block = iblockdata.getBlock();
+ 
+                         if (block.getMaterial() == material) {
+-                            double d0 = (double) ((float) (l1 + 1) - BlockFluids.b((Integer) iblockdata.get(BlockFluids.LEVEL)));
++                            double d0 = (double) ((float) (l1 + 1) - BlockFluids.b(((Integer) iblockdata.get(BlockFluids.LEVEL)).intValue()));
+ 
+                             if ((double) l >= d0) {
+                                 flag = true;
+@@ -1755,7 +2240,7 @@
+         for (int k1 = i; k1 < j; ++k1) {
+             for (int l1 = k; l1 < l; ++l1) {
+                 for (int i2 = i1; i2 < j1; ++i2) {
+-                    if (this.getType(blockposition_mutableblockposition.setValues(k1, l1, i2)).getBlock().getMaterial() == material) {
++                    if (this.getType(blockposition_mutableblockposition.c(k1, l1, i2)).getBlock().getMaterial() == material) {
+                         return true;
+                     }
+                 }
+@@ -1777,11 +2262,11 @@
+         for (int k1 = i; k1 < j; ++k1) {
+             for (int l1 = k; l1 < l; ++l1) {
+                 for (int i2 = i1; i2 < j1; ++i2) {
+-                    IBlockData iblockdata = this.getType(blockposition_mutableblockposition.setValues(k1, l1, i2));
++                    IBlockData iblockdata = this.getType(blockposition_mutableblockposition.c(k1, l1, i2));
+                     Block block = iblockdata.getBlock();
+ 
+                     if (block.getMaterial() == material) {
+-                        int j2 = (Integer) iblockdata.get(BlockFluids.LEVEL);
++                        int j2 = ((Integer) iblockdata.get(BlockFluids.LEVEL)).intValue();
+                         double d0 = (double) (l1 + 1);
+ 
+                         if (j2 < 8) {
+@@ -2360,7 +2898,7 @@
+                                     int l4 = j2 + enumdirection.getAdjacentY();
+                                     int i5 = k2 + enumdirection.getAdjacentZ();
+ 
+-                                    blockposition_mutableblockposition.setValues(k4, l4, i5);
++                                    blockposition_mutableblockposition.c(k4, l4, i5);
+                                     int j5 = Math.max(1, this.getType(blockposition_mutableblockposition).getBlock().p());
+ 
+                                     l2 = this.b(enumskyblock, (BlockPosition) blockposition_mutableblockposition);
+@@ -3154,12 +3831,12 @@
+         return this.N;
+     }
+ 
+-    public boolean shouldStayLoaded(int i, int j) {
++    public boolean c(int i, int j) {
+         BlockPosition blockposition = this.getSpawn();
+         int k = i * 16 + 8 - blockposition.getX();
+         int l = j * 16 + 8 - blockposition.getZ();
+         short short0 = 128;
+ 
+-        return k >= -short0 && k <= short0 && l >= -short0 && l <= short0;
++        return k >= -short0 && k <= short0 && l >= -short0 && l <= short0 && this.keepSpawnInMemory; // CraftBukkit - Added 'this.keepSpawnInMemory'
+     }
+ }

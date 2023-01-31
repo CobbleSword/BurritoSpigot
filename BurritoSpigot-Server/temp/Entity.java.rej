@@ -1,0 +1,67 @@
+--- Entity.java
++++ Entity.java
+@@ -102,13 +140,22 @@
+     private double ar;
+     private double as;
+     public boolean ad;
+-    public int ae;
+-    public int af;
+-    public int ag;
++    // PaperSpigot start - EAR: Fix bug with teleporting entities
++    public boolean isAddedToChunk() {
++        int chunkX = MathHelper.floor(locX / 16.0D);
++        int chunkY = MathHelper.floor(locY / 16.0D);
++        int chunkZ = MathHelper.floor(locZ / 16.0D);
++
++        return ad && getChunkX() == chunkX && getChunkY() == chunkY || getChunkZ() == chunkZ;
++    }
++    public int ae; public int getChunkX() { return ae; } // PAIL
++    public int af; public int getChunkY() { return af; } // PAIL
++    public int ag; public int getChunkZ() { return ag; } // PAIL
++    // PaperSpigot end
+     public boolean ah;
+     public boolean ai;
+     public int portalCooldown;
+-    protected boolean inPortal;
++    protected boolean ak;
+     protected int al;
+     public int dimension;
+     protected BlockPosition an;
+@@ -278,8 +378,8 @@
+             MinecraftServer minecraftserver = ((WorldServer) this.world).getMinecraftServer();
+             int i = this.L();
+ 
+-            if (this.inPortal) {
+-                if (minecraftserver.getAllowNether()) {
++            if (this.ak) {
++                if (true || minecraftserver.getAllowNether()) { // CraftBukkit
+                     if (this.vehicle == null && this.al++ >= i) {
+                         this.al = i;
+                         this.portalCooldown = this.aq();
+@@ -294,7 +394,7 @@
+                         this.c(b0);
+                     }
+ 
+-                    this.inPortal = false;
++                    this.ak = false;
+                 }
+             } else {
+                 if (this.al > 0) {
+@@ -1487,7 +1793,7 @@
+                 int l = MathHelper.floor(this.locZ + (double) (((float) ((i >> 2) % 2) - 0.5F) * this.width * 0.8F));
+ 
+                 if (blockposition_mutableblockposition.getX() != k || blockposition_mutableblockposition.getY() != j || blockposition_mutableblockposition.getZ() != l) {
+-                    blockposition_mutableblockposition.setValues(k, j, l);
++                    blockposition_mutableblockposition.c(k, j, l);
+                     if (this.world.getType(blockposition_mutableblockposition).getBlock().w()) {
+                         return true;
+                     }
+@@ -1697,7 +2073,7 @@
+                 this.ap = shapedetector_shapedetectorcollection.b();
+             }
+ 
+-            this.inPortal = true;
++            this.ak = true;
+         }
+     }
+ 

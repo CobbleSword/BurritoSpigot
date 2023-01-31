@@ -103,34 +103,6 @@
                  if (movingobjectposition.entity != null) {
                      f2 = MathHelper.sqrt(this.motX * this.motX + this.motY * this.motY + this.motZ * this.motZ);
                      int k = MathHelper.f((double) f2 * this.damage);
-@@ -217,16 +257,23 @@
-                         damagesource = DamageSource.arrow(this, this.shooter);
-                     }
- 
--                    if (this.isBurning() && !(movingobjectposition.entity instanceof EntityEnderman)) {
--                        movingobjectposition.entity.setOnFire(5);
-+                    // CraftBukkit start - Moved damage call
-+                    if (movingobjectposition.entity.damageEntity(damagesource, (float) k)) {
-+                    if (this.isBurning() && !(movingobjectposition.entity instanceof EntityEnderman) && (!(movingobjectposition.entity instanceof EntityPlayer) || !(this.shooter instanceof EntityPlayer) || this.world.pvpMode)) { // CraftBukkit - abide by pvp setting if destination is a player
-+                        EntityCombustByEntityEvent combustEvent = new EntityCombustByEntityEvent(this.getBukkitEntity(), entity.getBukkitEntity(), 5);
-+                        org.bukkit.Bukkit.getPluginManager().callEvent(combustEvent);
-+                        if (!combustEvent.isCancelled()) {
-+                            movingobjectposition.entity.setOnFire(combustEvent.getDuration());
-+                        }
-+                        // CraftBukkit end
-                     }
- 
--                    if (movingobjectposition.entity.damageEntity(damagesource, (float) k)) {
-+                    // if (movingobjectposition.entity.damageEntity(damagesource, (float) k)) { // CraftBukkit - moved up
-                         if (movingobjectposition.entity instanceof EntityLiving) {
-                             EntityLiving entityliving = (EntityLiving) movingobjectposition.entity;
- 
-                             if (!this.world.isClientSide) {
--                                entityliving.setArrowsStuck(entityliving.getArrowsStuck() + 1);
-+                                entityliving.o(entityliving.bv() + 1);
-                             }
- 
-                             if (this.knockbackStrength > 0) {
 @@ -287,7 +334,7 @@
  
              if (this.isCritical()) {

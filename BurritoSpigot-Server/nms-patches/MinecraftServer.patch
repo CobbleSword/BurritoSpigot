@@ -21,20 +21,6 @@
      public static final File a = new File("usercache.json");
      private static MinecraftServer l;
      public Convertable convertable;
-@@ -49,11 +59,11 @@
-     private final List<IUpdatePlayerListBox> p = Lists.newArrayList();
-     protected final ICommandHandler b;
-     public final MethodProfiler methodProfiler = new MethodProfiler();
--    private final ServerConnection q;
-+    private ServerConnection q; // Spigot
-     private final ServerPing r = new ServerPing();
-     private final Random s = new Random();
-     private String serverIp;
--    public int port = -1;
-+    private int u = -1;
-     public WorldServer[] worldServer;
-     private PlayerList v;
-     private boolean isRunning = true;
 @@ -90,23 +100,66 @@
      private long X = 0L;
      private final GameProfileRepository Y;
@@ -467,7 +453,7 @@
          try {
              if (this.init()) {
 @@ -349,41 +568,68 @@
-                 this.r.setServerInfo(new ServerPing.ServerData("1.8.8", 47));
+                 this.r.setServerInfo(new ServerPing.ServerData("1.8.9", 47));
                  this.a(this.r);
  
 +                // Spigot start
@@ -845,15 +831,6 @@
      }
  
      public String E() {
-@@ -687,7 +1043,7 @@
-     }
- 
-     public int F() {
--        return this.port;
-+        return this.u;
-     }
- 
-     public String G() {
 @@ -715,7 +1071,7 @@
      }
  
@@ -913,20 +890,6 @@
      }
  
      public String getName() {
-@@ -828,11 +1188,11 @@
-     }
- 
-     public int R() {
--        return this.port;
-+        return this.u;
-     }
- 
-     public void setPort(int i) {
--        this.port = i;
-+        this.u = i;
-     }
- 
-     public String S() {
 @@ -860,8 +1220,10 @@
      }
  

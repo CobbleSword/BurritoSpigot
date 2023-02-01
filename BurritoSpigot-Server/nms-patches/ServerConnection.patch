@@ -27,7 +27,55 @@
          protected LocalEventLoopGroup a() {
              return new LocalEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Local Server IO #%d").setDaemon(true).build());
          }
-@@ -140,7 +140,7 @@
+@@ -60,7 +60,9 @@
+     private final MinecraftServer f;
+     public volatile boolean d;
+     private final List<ChannelFuture> g = Collections.synchronizedList(Lists.newArrayList());
++    private List<ChannelFuture> listeningChannels = this.g; // Burrito
+     private final List<NetworkManager> h = Collections.synchronizedList(Lists.newArrayList());
++    private List<NetworkManager> connectedChannels = this.h; // Burrito
+ 
+     public ServerConnection(MinecraftServer minecraftserver) {
+         this.f = minecraftserver;
+@@ -84,10 +86,10 @@
+                 ServerConnection.e.info("Using default channel type");
+             }
+ 
+-            this.g.add(((ServerBootstrap) ((ServerBootstrap) (new ServerBootstrap()).channel(oclass)).childHandler(new ChannelInitializer<Channel>() {
++            this.g.add(((ServerBootstrap) ((ServerBootstrap) (new ServerBootstrap()).channel(oclass)).childHandler(new ChannelInitializer() {
+                 protected void initChannel(Channel channel) throws Exception {
+                     try {
+-                        channel.config().setOption(ChannelOption.TCP_NODELAY, true);
++                        channel.config().setOption(ChannelOption.TCP_NODELAY, Boolean.valueOf(true));
+                     } catch (ChannelException channelexception) {
+                         ;
+                     }
+@@ -123,6 +125,13 @@
+         List list = this.h;
+ 
+         synchronized (this.h) {
++            // Spigot Start
++            // This prevents players from 'gaming' the server, and strategically relogging to increase their position in the tick order
++            if ( org.spigotmc.SpigotConfig.playerShuffle > 0 && MinecraftServer.currentTick % org.spigotmc.SpigotConfig.playerShuffle == 0 )
++            {
++                Collections.shuffle( this.h );
++            }
++            // Spigot End
+             Iterator iterator = this.h.iterator();
+ 
+             while (iterator.hasNext()) {
+@@ -130,6 +139,10 @@
+ 
+                 if (!networkmanager.h()) {
+                     if (!networkmanager.g()) {
++                        // Spigot Start
++                        // Fix a race condition where a NetworkManager could be unregistered just before connection.
++                        if (networkmanager.preparing) continue;
++                        // Spigot End
+                         iterator.remove();
+                         networkmanager.l();
+                     } else {
+@@ -140,7 +153,7 @@
                                  CrashReport crashreport = CrashReport.a(exception, "Ticking memory connection");
                                  CrashReportSystemDetails crashreportsystemdetails = crashreport.a("Ticking connection");
  
@@ -36,7 +84,7 @@
                                      public String a() throws Exception {
                                          return networkmanager.toString();
                                      }
-@@ -155,11 +155,11 @@
+@@ -155,11 +168,11 @@
                              ServerConnection.e.warn("Failed to handle packet for " + networkmanager.getSocketAddress(), exception);
                              final ChatComponentText chatcomponenttext = new ChatComponentText("Internal server error");
  

@@ -80,7 +80,22 @@
      }
  
      protected void initAttributes() {
-@@ -166,7 +201,7 @@
+@@ -119,7 +154,13 @@
+ 
+                 int i = (int) (150.0D * d1);
+ 
+-                ((WorldServer) this.world).a(EnumParticle.BLOCK_DUST, this.locX, this.locY, this.locZ, i, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, Block.getCombinedId(iblockdata));
++                // CraftBukkit start - visiblity api
++                if (this instanceof EntityPlayer) {
++                    ((WorldServer) this.world).sendParticles((EntityPlayer) this, EnumParticle.BLOCK_DUST, false, this.locX, this.locY, this.locZ, i, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getCombinedId(iblockdata)});
++                } else {
++                    ((WorldServer) this.world).a(EnumParticle.BLOCK_DUST, this.locX, this.locY, this.locZ, i, 0.0D, 0.0D, 0.0D, 0.15000000596046448D, new int[] { Block.getCombinedId(iblockdata)});
++                }
++                // CraftBukkit end
+             }
+         }
+ 
+@@ -166,7 +207,7 @@
                              float f1 = this.random.nextFloat() - this.random.nextFloat();
                              float f2 = this.random.nextFloat() - this.random.nextFloat();
  
@@ -89,7 +104,7 @@
                          }
  
                          this.damageEntity(DamageSource.DROWN, 2.0F);
-@@ -177,7 +212,11 @@
+@@ -177,7 +218,11 @@
                      this.mount((Entity) null);
                  }
              } else {
@@ -102,7 +117,7 @@
              }
          }
  
-@@ -225,25 +264,36 @@
+@@ -225,25 +270,36 @@
          this.world.methodProfiler.b();
      }
  
@@ -149,7 +164,7 @@
  
              this.die();
  
-@@ -252,7 +302,7 @@
+@@ -252,7 +308,7 @@
                  double d1 = this.random.nextGaussian() * 0.02D;
                  double d2 = this.random.nextGaussian() * 0.02D;
  
@@ -158,7 +173,7 @@
              }
          }
  
-@@ -325,8 +375,8 @@
+@@ -325,8 +381,8 @@
          ItemStack[] aitemstack = this.getEquipment();
          int i = aitemstack.length;
  
@@ -168,7 +183,7 @@
  
          for (j = 0; j < i; ++j) {
              itemstack = aitemstack[j];
-@@ -375,11 +425,22 @@
+@@ -375,11 +431,22 @@
                  MobEffect mobeffect = MobEffect.b(nbttagcompound1);
  
                  if (mobeffect != null) {
@@ -192,7 +207,7 @@
          if (nbttagcompound.hasKeyOfType("HealF", 99)) {
              this.setHealth(nbttagcompound.getFloat("HealF"));
          } else {
-@@ -399,9 +460,15 @@
+@@ -399,9 +466,15 @@
          this.hurtTimestamp = nbttagcompound.getInt("HurtByTimestamp");
      }
  
@@ -208,7 +223,7 @@
          while (iterator.hasNext()) {
              Integer integer = (Integer) iterator.next();
              MobEffect mobeffect = (MobEffect) this.effects.get(integer);
-@@ -415,6 +482,16 @@
+@@ -415,6 +488,16 @@
                  this.a(mobeffect, false);
              }
          }
@@ -225,7 +240,7 @@
  
          if (this.updateEffects) {
              if (!this.world.isClientSide) {
-@@ -445,7 +522,7 @@
+@@ -445,7 +528,7 @@
                  double d1 = (double) (i >> 8 & 255) / 255.0D;
                  double d2 = (double) (i >> 0 & 255) / 255.0D;
  
@@ -234,7 +249,7 @@
              }
          }
  
-@@ -459,15 +536,15 @@
+@@ -459,15 +542,15 @@
              int i = PotionBrewer.a(this.effects.values());
  
              this.datawatcher.watch(8, Byte.valueOf((byte) (PotionBrewer.b(this.effects.values()) ? 1 : 0)));
@@ -253,7 +268,7 @@
      }
  
      public void removeAllEffects() {
-@@ -490,24 +567,32 @@
+@@ -490,24 +573,32 @@
      }
  
      public boolean hasEffect(int i) {
@@ -293,7 +308,7 @@
                  this.a(mobeffect);
              }
  
-@@ -531,7 +616,13 @@
+@@ -531,7 +622,13 @@
      }
  
      public void removeEffect(int i) {
@@ -308,7 +323,7 @@
  
          if (mobeffect != null) {
              this.b(mobeffect);
-@@ -564,21 +655,53 @@
+@@ -564,21 +661,53 @@
  
      }
  
@@ -364,7 +379,7 @@
      }
  
      public boolean damageEntity(DamageSource damagesource, float f) {
-@@ -593,7 +716,8 @@
+@@ -593,7 +722,8 @@
              } else if (damagesource.o() && this.hasEffect(MobEffectList.FIRE_RESISTANCE)) {
                  return false;
              } else {
@@ -374,7 +389,7 @@
                      this.getEquipment(4).damage((int) (f * 4.0F + this.random.nextFloat() * f * 2.0F), this);
                      f *= 0.75F;
                  }
-@@ -603,19 +727,38 @@
+@@ -603,19 +733,38 @@
  
                  if ((float) this.noDamageTicks > (float) this.maxNoDamageTicks / 2.0F) {
                      if (f <= this.lastDamage) {
@@ -415,7 +430,7 @@
                  this.aw = 0.0F;
                  Entity entity = damagesource.getEntity();
  
-@@ -637,7 +780,10 @@
+@@ -637,7 +786,10 @@
                      }
                  }
  
@@ -427,7 +442,7 @@
                      this.world.broadcastEntityEffect(this, (byte) 2);
                      if (damagesource != DamageSource.DROWN) {
                          this.ac();
-@@ -659,6 +805,8 @@
+@@ -659,6 +811,8 @@
                      }
                  }
  
@@ -436,7 +451,7 @@
                  String s;
  
                  if (this.getHealth() <= 0.0F) {
-@@ -694,7 +842,7 @@
+@@ -694,7 +848,7 @@
              vec3d1 = vec3d1.a(-this.pitch * 3.1415927F / 180.0F);
              vec3d1 = vec3d1.b(-this.yaw * 3.1415927F / 180.0F);
              vec3d1 = vec3d1.add(this.locX, this.locY + (double) this.getHeadHeight(), this.locZ);
@@ -445,7 +460,7 @@
          }
  
      }
-@@ -721,11 +869,19 @@
+@@ -721,11 +875,19 @@
              }
  
              if (this.ba() && this.world.getGameRules().getBoolean("doMobLoot")) {
@@ -465,7 +480,7 @@
              }
          }
  
-@@ -737,17 +893,17 @@
+@@ -737,17 +899,17 @@
      public void a(Entity entity, float f, double d0, double d1) {
          if (this.random.nextDouble() >= this.getAttributeInstance(GenericAttributes.c).getValue()) {
              this.ai = true;
@@ -493,7 +508,7 @@
              }
  
          }
-@@ -785,8 +941,13 @@
+@@ -785,8 +947,13 @@
          int i = MathHelper.f((f - 3.0F - f2) * f1);
  
          if (i > 0) {
@@ -508,7 +523,7 @@
              int j = MathHelper.floor(this.locX);
              int k = MathHelper.floor(this.locY - 0.20000000298023224D);
              int l = MathHelper.floor(this.locZ);
-@@ -830,7 +991,7 @@
+@@ -830,7 +997,7 @@
              int i = 25 - this.br();
              float f1 = f * (float) i;
  
@@ -517,7 +532,7 @@
              f = f1 / 25.0F;
          }
  
-@@ -844,8 +1005,9 @@
+@@ -844,8 +1011,9 @@
              int i;
              int j;
              float f1;
@@ -529,7 +544,7 @@
                  i = (this.getEffect(MobEffectList.RESISTANCE).getAmplifier() + 1) * 5;
                  j = 25 - i;
                  f1 = f * (float) j;
-@@ -871,22 +1033,121 @@
+@@ -871,22 +1039,121 @@
          }
      }
  
@@ -658,7 +673,31 @@
      }
  
      public CombatTracker bs() {
-@@ -1240,7 +1501,8 @@
+@@ -901,12 +1168,22 @@
+         return (float) this.getAttributeInstance(GenericAttributes.maxHealth).getValue();
+     }
+ 
++    // TacoSpigot start - deobfuscation helper
++    public int getArrowsStuck() {
++        return this.bv();
++    }
++    // TacoSpigot end
+     public final int bv() {
+         return this.datawatcher.getByte(9);
+     }
+ 
++    // TacoSpigot start - deobfuscation helper
++    public void setArrowsStuck(int i) {
++        this.o(i);
++    }
++     // TacoSpigot end
+     public final void o(int i) {
+-        this.datawatcher.watch(9, (byte) i);
++        this.datawatcher.watch(9, Byte.valueOf((byte) i));
+     }
+ 
+     private int n() {
+@@ -1240,7 +1517,8 @@
          if (f > 0.0025000002F) {
              f3 = 1.0F;
              f2 = (float) Math.sqrt((double) f) * 3.0F;
@@ -668,7 +707,7 @@
          }
  
          if (this.az > 0.0F) {
-@@ -1399,7 +1661,7 @@
+@@ -1399,7 +1677,7 @@
      protected void doTick() {}
  
      protected void bL() {
@@ -677,7 +716,7 @@
              public boolean a(Entity entity) {
                  return entity.ae();
              }
-@@ -1409,12 +1671,24 @@
+@@ -1409,12 +1687,24 @@
              }
          }));
  
@@ -703,7 +742,7 @@
          }
  
      }
-@@ -1425,6 +1699,23 @@
+@@ -1425,6 +1715,23 @@
  
      public void mount(Entity entity) {
          if (this.vehicle != null && entity == null) {
@@ -727,7 +766,7 @@
              if (!this.world.isClientSide) {
                  this.q(this.vehicle);
              }
-@@ -1529,6 +1820,7 @@
+@@ -1529,6 +1836,7 @@
      }
  
      public ScoreboardTeamBase getScoreboardTeam() {

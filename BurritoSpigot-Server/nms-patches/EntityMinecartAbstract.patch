@@ -152,6 +152,15 @@
          if (this.getType() > 0) {
              this.j(this.getType() - 1);
          }
+@@ -154,7 +212,7 @@
+ 
+             i = this.L();
+             if (this.ak) {
+-                if (minecraftserver.getAllowNether()) {
++                if (true || minecraftserver.getAllowNether()) { // CraftBukkit - multi-world should still allow teleport even if default vanilla nether disabled
+                     if (this.vehicle == null && this.al++ >= i) {
+                         this.al = i;
+                         this.portalCooldown = this.aq();
 @@ -225,7 +283,7 @@
              if (BlockMinecartTrackAbstract.d(iblockdata)) {
                  this.a(blockposition, iblockdata);

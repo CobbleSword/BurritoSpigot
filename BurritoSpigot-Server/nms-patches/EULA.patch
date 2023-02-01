@@ -1,6 +1,16 @@
 --- a/net/minecraft/server/EULA.java
 +++ b/net/minecraft/server/EULA.java
-@@ -51,7 +51,8 @@
+@@ -8,7 +8,8 @@
+ import org.apache.logging.log4j.LogManager;
+ import org.apache.logging.log4j.Logger;
+ 
+-public class EULA {
++public class
++EULA {
+ 
+     private static final Logger a = LogManager.getLogger();
+     private final File b;
+@@ -51,7 +52,8 @@
  
              fileoutputstream = new FileOutputStream(this.b);
              properties.setProperty("eula", "false");

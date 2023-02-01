@@ -25,34 +25,65 @@
  
  public class NetworkManager extends SimpleChannelInboundHandler<Packet> {
  
-@@ -33,7 +37,7 @@
+@@ -33,8 +37,9 @@
      public static final Marker a = MarkerManager.getMarker("NETWORK");
      public static final Marker b = MarkerManager.getMarker("NETWORK_PACKETS", NetworkManager.a);
      public static final AttributeKey<EnumProtocol> c = AttributeKey.valueOf("protocol");
 -    public static final LazyInitVar<NioEventLoopGroup> d = new LazyInitVar<NioEventLoopGroup>() {
+-        protected NioEventLoopGroup a() {
++    // Burrito Start // PAIL // protected 2 public
 +    public static final LazyInitVar<NioEventLoopGroup> d = new LazyInitVar() {
-         protected NioEventLoopGroup a() {
++        public NioEventLoopGroup a() {
              return new NioEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Client IO #%d").setDaemon(true).build());
          }
-@@ -42,7 +46,7 @@
+ 
+@@ -42,8 +47,8 @@
              return this.a();
          }
      };
 -    public static final LazyInitVar<EpollEventLoopGroup> e = new LazyInitVar<EpollEventLoopGroup>() {
+-        protected EpollEventLoopGroup a() {
 +    public static final LazyInitVar<EpollEventLoopGroup> e = new LazyInitVar() {
-         protected EpollEventLoopGroup a() {
++        public EpollEventLoopGroup a() {
              return new EpollEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Epoll Client IO #%d").setDaemon(true).build());
          }
-@@ -51,7 +55,7 @@
+ 
+@@ -51,8 +56,8 @@
              return this.a();
          }
      };
 -    public static final LazyInitVar<LocalEventLoopGroup> f = new LazyInitVar<LocalEventLoopGroup>() {
+-        protected LocalEventLoopGroup a() {
 +    public static final LazyInitVar<LocalEventLoopGroup> f = new LazyInitVar() {
-         protected LocalEventLoopGroup a() {
++        public LocalEventLoopGroup a() {
              return new LocalEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Local Client IO #%d").setDaemon(true).build());
          }
-@@ -78,6 +82,9 @@
+ 
+@@ -64,11 +69,18 @@
+     private final Queue<NetworkManager.QueuedPacket> i = Queues.newConcurrentLinkedQueue();
+     private final ReentrantReadWriteLock j = new ReentrantReadWriteLock();
+     public Channel channel;
+-    private SocketAddress l;
+-    private PacketListener m;
+-    private IChatBaseComponent n;
+-    private boolean o;
+-    private boolean p;
++    // Spigot Start // PAIL
++    public SocketAddress l;
++    public java.util.UUID spoofedUUID;
++    public com.mojang.authlib.properties.Property[] spoofedProfile;
++    public boolean preparing = true;
++    // Spigot End
++    public PacketListener m;
++    public IChatBaseComponent n;
++    // Burrito Start // PAIL
++    public boolean o; public boolean isEncrypted = this.o;
++    public boolean p; public boolean isDisconnectionHandled =this.p;
++    // Burrito End
+ 
+     public NetworkManager(EnumProtocolDirection enumprotocoldirection) {
+         this.h = enumprotocoldirection;
+@@ -78,6 +90,9 @@
          super.channelActive(channelhandlercontext);
          this.channel = channelhandlercontext.channel();
          this.l = this.channel.remoteAddress();
@@ -62,7 +93,7 @@
  
          try {
              this.a(EnumProtocol.HANDSHAKING);
-@@ -90,7 +97,7 @@
+@@ -90,7 +105,7 @@
      public void a(EnumProtocol enumprotocol) {
          this.channel.attr(NetworkManager.c).set(enumprotocol);
          this.channel.config().setAutoRead(true);
@@ -71,7 +102,7 @@
      }
  
      public void channelInactive(ChannelHandlerContext channelhandlercontext) throws Exception {
-@@ -103,10 +110,11 @@
+@@ -103,10 +118,11 @@
          if (throwable instanceof TimeoutException) {
              chatmessage = new ChatMessage("disconnect.timeout", new Object[0]);
          } else {
@@ -84,7 +115,7 @@
      }
  
      protected void a(ChannelHandlerContext channelhandlercontext, Packet packet) throws Exception {
-@@ -122,7 +130,7 @@
+@@ -122,7 +138,7 @@
  
      public void a(PacketListener packetlistener) {
          Validate.notNull(packetlistener, "packetListener", new Object[0]);
@@ -93,7 +124,7 @@
          this.m = packetlistener;
      }
  
-@@ -163,7 +171,7 @@
+@@ -163,7 +179,7 @@
          final EnumProtocol enumprotocol1 = (EnumProtocol) this.channel.attr(NetworkManager.c).get();
  
          if (enumprotocol1 != enumprotocol) {
@@ -102,7 +133,7 @@
              this.channel.config().setAutoRead(false);
          }
  
-@@ -186,13 +194,13 @@
+@@ -186,13 +202,13 @@
                          NetworkManager.this.a(enumprotocol);
                      }
  
@@ -119,7 +150,7 @@
                  }
              });
          }
-@@ -210,7 +218,7 @@
+@@ -210,7 +226,7 @@
                      this.a(networkmanager_queuedpacket.a, networkmanager_queuedpacket.b);
                  }
              } finally {
@@ -128,7 +159,7 @@
              }
  
          }
-@@ -230,8 +238,11 @@
+@@ -230,8 +246,11 @@
      }
  
      public void close(IChatBaseComponent ichatbasecomponent) {
@@ -141,7 +172,15 @@
              this.n = ichatbasecomponent;
          }
  
-@@ -308,7 +319,7 @@
+@@ -301,6 +320,7 @@
+                 } else if (this.getPacketListener() != null) {
+                     this.getPacketListener().a(new ChatComponentText("Disconnected"));
+                 }
++                this.i.clear(); // Free up packet queue.
+             } else {
+                 NetworkManager.g.warn("handleDisconnection() called twice");
+             }
+@@ -308,7 +328,7 @@
          }
      }
  
@@ -150,7 +189,7 @@
          this.a(channelhandlercontext, (Packet) object);
      }
  
-@@ -322,4 +333,11 @@
+@@ -322,4 +342,11 @@
              this.b = agenericfuturelistener;
          }
      }

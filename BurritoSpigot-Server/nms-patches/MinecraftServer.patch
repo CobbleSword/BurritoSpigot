@@ -21,6 +21,20 @@
      public static final File a = new File("usercache.json");
      private static MinecraftServer l;
      public Convertable convertable;
+@@ -49,11 +59,11 @@
+     private final List<IUpdatePlayerListBox> p = Lists.newArrayList();
+     protected final ICommandHandler b;
+     public final MethodProfiler methodProfiler = new MethodProfiler();
+-    private final ServerConnection q;
++    private ServerConnection q; // Spigot
+     private final ServerPing r = new ServerPing();
+     private final Random s = new Random();
+     private String serverIp;
+-    private int u = -1;
++    public int u = -1; public int port = this.u; // Burrito
+     public WorldServer[] worldServer;
+     private PlayerList v;
+     private boolean isRunning = true;
 @@ -90,23 +100,66 @@
      private long X = 0L;
      private final GameProfileRepository Y;

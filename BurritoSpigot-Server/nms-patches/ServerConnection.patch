@@ -27,17 +27,7 @@
          protected LocalEventLoopGroup a() {
              return new LocalEventLoopGroup(0, (new ThreadFactoryBuilder()).setNameFormat("Netty Local Server IO #%d").setDaemon(true).build());
          }
-@@ -60,7 +60,9 @@
-     private final MinecraftServer f;
-     public volatile boolean d;
-     private final List<ChannelFuture> g = Collections.synchronizedList(Lists.newArrayList());
-+    private List<ChannelFuture> listeningChannels = this.g; // Burrito
-     private final List<NetworkManager> h = Collections.synchronizedList(Lists.newArrayList());
-+    private List<NetworkManager> connectedChannels = this.h; // Burrito
- 
-     public ServerConnection(MinecraftServer minecraftserver) {
-         this.f = minecraftserver;
-@@ -84,10 +86,10 @@
+@@ -84,10 +84,10 @@
                  ServerConnection.e.info("Using default channel type");
              }
  
@@ -50,7 +40,7 @@
                      } catch (ChannelException channelexception) {
                          ;
                      }
-@@ -123,6 +125,13 @@
+@@ -123,6 +123,13 @@
          List list = this.h;
  
          synchronized (this.h) {
@@ -64,7 +54,7 @@
              Iterator iterator = this.h.iterator();
  
              while (iterator.hasNext()) {
-@@ -130,6 +139,10 @@
+@@ -130,6 +137,10 @@
  
                  if (!networkmanager.h()) {
                      if (!networkmanager.g()) {
@@ -75,7 +65,7 @@
                          iterator.remove();
                          networkmanager.l();
                      } else {
-@@ -140,7 +153,7 @@
+@@ -140,7 +151,7 @@
                                  CrashReport crashreport = CrashReport.a(exception, "Ticking memory connection");
                                  CrashReportSystemDetails crashreportsystemdetails = crashreport.a("Ticking connection");
  
@@ -84,7 +74,7 @@
                                      public String a() throws Exception {
                                          return networkmanager.toString();
                                      }
-@@ -155,11 +168,11 @@
+@@ -155,11 +166,11 @@
                              ServerConnection.e.warn("Failed to handle packet for " + networkmanager.getSocketAddress(), exception);
                              final ChatComponentText chatcomponenttext = new ChatComponentText("Internal server error");
  

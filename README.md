@@ -9,6 +9,7 @@ Since it's been a few years since 1.8.9 release, it has fallen behind in a few o
 * Updated netty 4.0.23.Final => 4.1.68.Final
 * Stops classic book exploit 
 * Improve max chat length to 512
+* Backport NamespacedKey to improve newer plugin compact
 
 ## Commons Plugins
 

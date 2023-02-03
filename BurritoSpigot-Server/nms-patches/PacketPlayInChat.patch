@@ -1,6 +1,24 @@
 --- a/net/minecraft/server/PacketPlayInChat.java
 +++ b/net/minecraft/server/PacketPlayInChat.java
-@@ -24,15 +24,28 @@
+@@ -9,30 +9,43 @@
+     public PacketPlayInChat() {}
+ 
+     public PacketPlayInChat(String s) {
+-        if (s.length() > 100) {
+-            s = s.substring(0, 100);
++        if (s.length() > 512) {
++            s = s.substring(0, 512);
+         }
+ 
+         this.a = s;
+     }
+ 
+     public void a(PacketDataSerializer packetdataserializer) throws IOException {
+-        this.a = packetdataserializer.c(100);
++        this.a = packetdataserializer.c(512);
+     }
+ 
+     public void b(PacketDataSerializer packetdataserializer) throws IOException {
          packetdataserializer.a(this.a);
      }
  

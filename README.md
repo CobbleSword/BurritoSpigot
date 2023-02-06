@@ -1,12 +1,12 @@
 # 🌯 `BurritoSpigot` 🌯
-BurritoSpigot is a fork of TacoSpigot 1.8.9 that offers several enhancements to performance as well as bug fixes. while offer extra APIs and support for plugins
+BurritoSpigot is a fork of TacoSpigot 1.8.8 that offers several enhancements to performance as well as bug fixes. while offer extra APIs and support for plugins
 
 Supports 300 Players @ 20 TPS (Given all your plugins are programmed well)
 
 ## Features
 Since it's been a few years since 1.8.9 release, it has fallen behind in a few optimizations to the infrastructure to replies on, these changes just brings it up to speed
 * Java 8+ support this brings all the performance improvements of the more later java versions
-* Updated netty 4.0.23.Final => 4.1.68.Final
+* Updated netty 4.0.23.Final => 4.1.75.Final
 * Stops classic book exploit 
 * Improve max chat length to 512
 * Backport NamespacedKey to improve newer plugin compact

@@ -467,7 +467,7 @@
          try {
              if (this.init()) {
 @@ -349,41 +568,68 @@
-                 this.r.setServerInfo(new ServerPing.ServerData("1.8.9", 47));
+                 this.r.setServerInfo(new ServerPing.ServerData("1.8.8", 47));
                  this.a(this.r);
  
 +                // Spigot start

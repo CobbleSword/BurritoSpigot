@@ -47,6 +47,15 @@
      private static final AxisAlignedBB a = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
      private static int entityCount;
      private int id;
+@@ -30,7 +68,7 @@
+     public float pitch;
+     public float lastYaw;
+     public float lastPitch;
+-    private AxisAlignedBB boundingBox;
++    public AxisAlignedBB boundingBox; // BurritoSpigot
+     public boolean onGround;
+     public boolean positionChanged;
+     public boolean E;
 @@ -56,7 +94,7 @@
      public int ticksLived;
      public int maxFireTicks;

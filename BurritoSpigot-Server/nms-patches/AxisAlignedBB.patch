@@ -1,0 +1,42 @@
+--- a/net/minecraft/server/AxisAlignedBB.java
++++ b/net/minecraft/server/AxisAlignedBB.java
+@@ -2,12 +2,14 @@
+ 
+ public class AxisAlignedBB {
+ 
+-    public final double a;
+-    public final double b;
+-    public final double c;
+-    public final double d;
+-    public final double e;
+-    public final double f;
++    // Burrito Start - remove final
++    public double a;
++    public double b;
++    public double c;
++    public double d;
++    public double e;
++    public double f;
++    // Burrito End
+ 
+     public AxisAlignedBB(double d0, double d1, double d2, double d3, double d4, double d5) {
+         this.a = Math.min(d0, d3);
+@@ -267,15 +269,15 @@
+         }
+     }
+ 
+-    private boolean b(Vec3D vec3d) {
++    public boolean b(Vec3D vec3d) {
+         return vec3d == null ? false : vec3d.b >= this.b && vec3d.b <= this.e && vec3d.c >= this.c && vec3d.c <= this.f;
+     }
+ 
+-    private boolean c(Vec3D vec3d) {
++    public boolean c(Vec3D vec3d) {
+         return vec3d == null ? false : vec3d.a >= this.a && vec3d.a <= this.d && vec3d.c >= this.c && vec3d.c <= this.f;
+     }
+ 
+-    private boolean d(Vec3D vec3d) {
++    public boolean d(Vec3D vec3d) {
+         return vec3d == null ? false : vec3d.a >= this.a && vec3d.a <= this.d && vec3d.b >= this.b && vec3d.b <= this.e;
+     }
+ 

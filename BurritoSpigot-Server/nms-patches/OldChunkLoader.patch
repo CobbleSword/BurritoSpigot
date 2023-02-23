@@ -35,7 +35,7 @@
  
 -        for (k = 0; k < 16; ++k) {
 -            for (j = 0; j < 16; ++j) {
--                blockposition_mutableblockposition.setValues(oldchunkloader_oldchunk.k << 4 | k, 0, oldchunkloader_oldchunk.l << 4 | j);
+-                blockposition_mutableblockposition.c(oldchunkloader_oldchunk.k << 4 | k, 0, oldchunkloader_oldchunk.l << 4 | j);
 -                abyte1[j << 4 | k] = (byte) (worldchunkmanager.getBiome(blockposition_mutableblockposition, BiomeBase.ad).id & 255);
 +        for (j = 0; j < 16; ++j) {
 +            for (k = 0; k < 16; ++k) {

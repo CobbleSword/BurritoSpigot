@@ -373,15 +373,6 @@
                  }
              }
  
-@@ -1474,7 +1523,7 @@
- 
-             for (int k = this.l.c; k <= this.l.f; ++k) {
-                 for (int l = this.l.a; l <= this.l.d; ++l) {
--                    blockposition_mutableblockposition.setValues(l, 64, k);
-+                    blockposition_mutableblockposition.c(l, 64, k);
-                     if (structureboundingbox.b((BaseBlockPosition) blockposition_mutableblockposition)) {
-                         i += Math.max(world.r(blockposition_mutableblockposition).getY(), world.worldProvider.getSeaLevel());
-                         ++j;
 @@ -1510,7 +1559,7 @@
                      entityvillager.setPositionRotation((double) j1 + 0.5D, (double) k1, (double) l1 + 0.5D, 0.0F, 0.0F);
                      entityvillager.prepare(world.E(new BlockPosition(entityvillager)), (GroupDataEntity) null);

@@ -50,15 +50,6 @@
              int i = 1 << worldmap.scale;
              int j = worldmap.centerX;
              int k = worldmap.centerZ;
-@@ -89,7 +101,7 @@
-                                             if (k4 > 1) {
-                                                 do {
-                                                     --k4;
--                                                    iblockdata = chunk.getBlockData(blockposition_mutableblockposition.setValues(i4 + i3, k4, j4 + j3));
-+                                                    iblockdata = chunk.getBlockData(blockposition_mutableblockposition.c(i4 + i3, k4, j4 + j3));
-                                                 } while (iblockdata.getBlock().g(iblockdata) == MaterialMapColor.b && k4 > 0);
- 
-                                                 if (k4 > 0 && iblockdata.getBlock().getMaterial().isLiquid()) {
 @@ -181,6 +193,8 @@
          if (itemstack.hasTag() && itemstack.getTag().getBoolean("map_is_scaling")) {
              WorldMap worldmap = Items.FILLED_MAP.getSavedMap(itemstack, world);

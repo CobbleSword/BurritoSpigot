@@ -245,7 +245,7 @@
          int k2;
          int l2;
          int i3;
-@@ -176,49 +299,49 @@
+@@ -176,10 +299,10 @@
          double d4;
  
          for (i2 = i - b0; i2 <= i + b0; ++i2) {
@@ -258,10 +258,7 @@
  
                  label271:
                  for (k2 = this.a.V() - 1; k2 >= 0; --k2) {
--                    if (this.a.isEmpty(blockposition_mutableblockposition.setValues(i2, k2, j2))) {
--                        while (k2 > 0 && this.a.isEmpty(blockposition_mutableblockposition.setValues(i2, k2 - 1, j2))) {
-+                    if (this.a.isEmpty(blockposition_mutableblockposition.c(i2, k2, j2))) {
-+                        while (k2 > 0 && this.a.isEmpty(blockposition_mutableblockposition.c(i2, k2 - 1, j2))) {
+@@ -188,37 +311,37 @@
                              --k2;
                          }
  
@@ -291,7 +288,7 @@
 +                                        k4 = k2 + i4;
 +                                        int l4 = j2 + (l3 - 1) * j3 - k3 * i3;
  
--                                        blockposition_mutableblockposition.setValues(k3, j4, l4);
+-                                        blockposition_mutableblockposition.c(k3, j4, l4);
 -                                        if (k4 < 0 && !this.a.getType(blockposition_mutableblockposition).getBlock().getMaterial().isBuildable() || k4 >= 0 && !this.a.isEmpty(blockposition_mutableblockposition)) {
 +                                        blockposition_mutableblockposition.c(j4, k4, l4);
 +                                        if (i4 < 0 && !this.a.getType(blockposition_mutableblockposition).getBlock().getMaterial().isBuildable() || i4 >= 0 && !this.a.isEmpty(blockposition_mutableblockposition)) {
@@ -314,7 +311,7 @@
                              }
                          }
                      }
-@@ -228,42 +351,42 @@
+@@ -228,10 +351,10 @@
  
          if (d0 < 0.0D) {
              for (i2 = i - b0; i2 <= i + b0; ++i2) {
@@ -327,10 +324,7 @@
  
                      label219:
                      for (k2 = this.a.V() - 1; k2 >= 0; --k2) {
--                        if (this.a.isEmpty(blockposition_mutableblockposition.setValues(i2, k2, j2))) {
--                            while (k2 > 0 && this.a.isEmpty(blockposition_mutableblockposition.setValues(i2, k2 - 1, j2))) {
-+                        if (this.a.isEmpty(blockposition_mutableblockposition.c(i2, k2, j2))) {
-+                            while (k2 > 0 && this.a.isEmpty(blockposition_mutableblockposition.c(i2, k2 - 1, j2))) {
+@@ -240,30 +363,30 @@
                                  --k2;
                              }
  
@@ -343,7 +337,7 @@
 -                                        k4 = i2 + (l3 - 1) * l2;
 -                                        k3 = k2 + i4;
 -                                        j4 = j2 + (l3 - 1) * j3;
--                                        blockposition_mutableblockposition.setValues(k4, k3, j4);
+-                                        blockposition_mutableblockposition.c(k4, k3, j4);
 -                                        if (i4 < 0 && !this.a.getType(blockposition_mutableblockposition).getBlock().getMaterial().isBuildable() || i4 >= 0 && !this.a.isEmpty(blockposition_mutableblockposition)) {
 +                            for (l2 = l1; l2 < l1 + 2; ++l2) {
 +                                i3 = l2 % 2;

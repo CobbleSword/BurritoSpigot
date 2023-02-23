@@ -27,10 +27,11 @@
 +
  public class PacketDataSerializer extends ByteBuf {
  
-     private final ByteBuf a;
+-    private final ByteBuf a;
++    public final ByteBuf a;
  
 +    // TacoSpigot start
-+    private final boolean allowLargePackets;
++    public final boolean allowLargePackets;
      public PacketDataSerializer(ByteBuf bytebuf) {
 +        /*
 +         * By default, we limit the size of the received byte array to Short.MAX_VALUE, which is 31 KB.
@@ -50,8 +51,8 @@
      }
  
 +    // TacoSpigot start
-+    private static final int DEFAULT_LIMIT = Short.MAX_VALUE;
-+    private static final int LARGE_PACKET_LIMIT = Short.MAX_VALUE * 1024;
++    public static final int DEFAULT_LIMIT = Short.MAX_VALUE;
++    public static final int LARGE_PACKET_LIMIT = Short.MAX_VALUE * 1024;
      public byte[] a() {
 -        byte[] abyte = new byte[this.e()];
 +        // TacoSpigot start

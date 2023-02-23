@@ -75,12 +75,11 @@
 +        }
 +        // PaperSpigot end
          if (this.world.worldProvider.e()) {
--            if (!this.world.shouldStayLoaded(i, j)) {
+             if (!this.world.c(i, j)) {
 -                this.unloadQueue.add(ChunkCoordIntPair.a(i, j));
-+            if (!this.world.c(i, j)) {
 +                // CraftBukkit start
 +                this.unloadQueue.add(LongHash.toLong(i, j));  // TacoSpigot - directly invoke LongHash
-+
++                
 +                Chunk c = chunks.get(LongHash.toLong(i, j));
 +                if (c != null) {
 +                    c.mustSave = true;

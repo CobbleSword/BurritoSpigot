@@ -36,7 +36,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.72.Final</version>
+            <version>4.1.75.Final</version>
         </dependency>
         <dependency>
             <groupId>net.sf.trove4j</groupId>
@@ -46,7 +46,7 @@
         <dependency>
             <groupId>it.unimi.dsi</groupId>
             <artifactId>fastutil</artifactId>
-            <version>7.0.12</version>
+            <version>8.4.4</version>
         </dependency>
         <dependency>
             <groupId>org.apache.commons</groupId>
@@ -178,26 +178,6 @@
                             <Specification-Vendor>Bukkit Team</Specification-Vendor>
                             <Multi-Release>true</Multi-Release>
                         </manifestEntries>
-                        <manifestSections>
-                            <manifestSection>
-                                <name>net/bukkit/</name>
-                                <manifestEntries>
-                                    <Sealed>true</Sealed>
-                                </manifestEntries>
-                            </manifestSection>
-                            <manifestSection>
-                                <name>com/bukkit/</name>
-                                <manifestEntries>
-                                    <Sealed>true</Sealed>
-                                </manifestEntries>
-                            </manifestSection>
-                            <manifestSection>
-                                <name>org/bukkit/</name>
-                                <manifestEntries>
-                                    <Sealed>true</Sealed>
-                                </manifestEntries>
-                            </manifestSection>
-                        </manifestSections>
                     </archive>
                 </configuration>
             </plugin>

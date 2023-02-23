@@ -232,7 +232,7 @@
              entity.die();
          }
  
-@@ -629,9 +740,32 @@
+@@ -629,6 +740,29 @@
          entity.af = k;
          entity.ag = this.locZ;
          this.entitySlices[k].add(entity);
@@ -252,20 +252,16 @@
 +            }
 +        }
 +        for ( EnumCreatureType creatureType : EnumCreatureType.values() )
-+        {
-+            if ( creatureType.a().isAssignableFrom( entity.getClass() ) )
 +            {
-+                this.entityCount.adjustOrPutValue( creatureType.a(), 1, 1 );
++                if ( creatureType.a().isAssignableFrom( entity.getClass() ) )
++                {
++                    this.entityCount.adjustOrPutValue( creatureType.a(), 1, 1 );
 +            }
 +        }
 +        // Spigot end
      }
  
--    public void removeEntity(Entity entity) {
-+    public void b(Entity entity) {
-         this.a(entity, entity.af);
-     }
- 
+     public void b(Entity entity) {
 @@ -644,7 +778,30 @@
              i = this.entitySlices.length - 1;
          }
@@ -506,26 +502,6 @@
      }
  
      public ChunkCoordIntPair j() {
-@@ -1117,8 +1378,8 @@
-         int l;
- 
-         for (l = k + 16 - 1; l > this.world.F() || l > 0 && !flag1; --l) {
--            blockposition_mutableblockposition.setValues(blockposition_mutableblockposition.getX(), l, blockposition_mutableblockposition.getZ());
--            int i1 = this.b(blockposition_mutableblockposition);
-+            blockposition_mutableblockposition.c(blockposition_mutableblockposition.getX(), l, blockposition_mutableblockposition.getZ());
-+            int i1 = this.b((BlockPosition) blockposition_mutableblockposition);
- 
-             if (i1 == 255 && blockposition_mutableblockposition.getY() < this.world.F()) {
-                 flag1 = true;
-@@ -1132,7 +1393,7 @@
-         }
- 
-         for (l = blockposition_mutableblockposition.getY(); l > 0; --l) {
--            blockposition_mutableblockposition.setValues(blockposition_mutableblockposition.getX(), l, blockposition_mutableblockposition.getZ());
-+            blockposition_mutableblockposition.c(blockposition_mutableblockposition.getX(), l, blockposition_mutableblockposition.getZ());
-             if (this.getType(blockposition_mutableblockposition).r() > 0) {
-                 this.world.x(blockposition_mutableblockposition);
-             }
 @@ -1168,7 +1429,7 @@
          return this.tileEntities;
      }

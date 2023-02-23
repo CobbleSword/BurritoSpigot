@@ -47,6 +47,15 @@
      private static final AxisAlignedBB a = new AxisAlignedBB(0.0D, 0.0D, 0.0D, 0.0D, 0.0D, 0.0D);
      private static int entityCount;
      private int id;
+@@ -30,7 +68,7 @@
+     public float pitch;
+     public float lastYaw;
+     public float lastPitch;
+-    private AxisAlignedBB boundingBox;
++    public AxisAlignedBB boundingBox; // BurritoSpigot
+     public boolean onGround;
+     public boolean positionChanged;
+     public boolean E;
 @@ -56,7 +94,7 @@
      public int ticksLived;
      public int maxFireTicks;
@@ -56,7 +65,7 @@
      public int noDamageTicks;
      protected boolean justCreated;
      protected boolean fireProof;
-@@ -64,13 +102,22 @@
+@@ -64,9 +102,18 @@
      private double ar;
      private double as;
      public boolean ad;
@@ -78,11 +87,6 @@
      public boolean ah;
      public boolean ai;
      public int portalCooldown;
--    protected boolean inPortal;
-+    protected boolean ak;
-     protected int al;
-     public int dimension;
-     protected BlockPosition an;
 @@ -79,6 +126,20 @@
      private boolean invulnerable;
      protected UUID uniqueID;
@@ -176,26 +180,15 @@
      public void K() {
          this.world.methodProfiler.a("entityBaseTick");
          if (this.vehicle != null && this.vehicle.dead) {
-@@ -187,8 +287,8 @@
-             MinecraftServer minecraftserver = ((WorldServer) this.world).getMinecraftServer();
+@@ -188,7 +288,7 @@
              int i = this.L();
  
--            if (this.inPortal) {
+             if (this.ak) {
 -                if (minecraftserver.getAllowNether()) {
-+            if (this.ak) {
 +                if (true || minecraftserver.getAllowNether()) { // CraftBukkit
                      if (this.vehicle == null && this.al++ >= i) {
                          this.al = i;
                          this.portalCooldown = this.aq();
-@@ -203,7 +303,7 @@
-                         this.c(b0);
-                     }
- 
--                    this.inPortal = false;
-+                    this.ak = false;
-                 }
-             } else {
-                 if (this.al > 0) {
 @@ -246,7 +346,7 @@
              this.fallDistance *= 0.5F;
          }
@@ -603,15 +596,6 @@
              EntityItem entityitem = new EntityItem(this.world, this.locX, this.locY + (double) f, this.locZ, itemstack);
  
              entityitem.p();
-@@ -1190,7 +1496,7 @@
-                 int l = MathHelper.floor(this.locZ + (double) (((float) ((i >> 2) % 2) - 0.5F) * this.width * 0.8F));
- 
-                 if (blockposition_mutableblockposition.getX() != k || blockposition_mutableblockposition.getY() != j || blockposition_mutableblockposition.getZ() != l) {
--                    blockposition_mutableblockposition.setValues(k, j, l);
-+                    blockposition_mutableblockposition.c(k, j, l);
-                     if (this.world.getType(blockposition_mutableblockposition).getBlock().w()) {
-                         return true;
-                     }
 @@ -1277,17 +1583,87 @@
          return (double) this.length * 0.75D;
      }
@@ -700,15 +684,6 @@
              if (this.vehicle != null) {
                  this.vehicle.passenger = null;
              }
-@@ -1330,7 +1706,7 @@
-                 this.ap = shapedetector_shapedetectorcollection.b();
-             }
- 
--            this.inPortal = true;
-+            this.ak = true;
-         }
-     }
- 
 @@ -1390,9 +1766,9 @@
          byte b0 = this.datawatcher.getByte(0);
  

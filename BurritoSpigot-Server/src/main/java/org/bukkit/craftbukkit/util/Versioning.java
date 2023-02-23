@@ -9,7 +9,7 @@ import org.bukkit.Bukkit;
 
 public final class Versioning {
     public static String getBukkitVersion() {
-        String result = "Unknown-Version";
+        String result = "BurritoSpigot 1.8.9-R0.1-SNAPSHOT";
 
         InputStream stream = Bukkit.class.getClassLoader().getResourceAsStream("META-INF/maven/dev.cobblesword.burritospigot/api/pom.properties");
         Properties properties = new Properties();

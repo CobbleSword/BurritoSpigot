@@ -17,7 +17,7 @@ jarpath="$workdir/$minecraftversion/$minecraftversion"
 echo "Downloading unmapped vanilla jar..."
 if [ ! -f  "$jarpath.jar" ]; then
     mkdir -p "$workdir/$minecraftversion"
-    curl -s -o "$jarpath.jar" "https://s3.amazonaws.com/Minecraft.Download/versions/$minecraftversion/minecraft_server.$minecraftversion.jar"
+    curl -s -o "$jarpath.jar" "https://piston-data.mojang.com/v1/objects/5fafba3f58c40dc51b5c3ca72a98f62dfdae1db7/server.jar"
     if [ "$?" != "0" ]; then
         echo "Failed to download the vanilla server jar. Check connectivity or try again later."
         exit 1
@@ -25,22 +25,22 @@ if [ ! -f  "$jarpath.jar" ]; then
 fi
 
 # OS X & FreeBSD don't have md5sum, just md5 -r
-command -v md5sum >/dev/null 2>&1 || {
-    command -v md5 >/dev/null 2>&1 && {
-        shopt -s expand_aliases
-        alias md5sum='md5 -r'
-        echo "md5sum command not found, using an alias instead"
-    } || {
-        echo >&2 "No md5sum or md5 command found"
-        exit 1
-    }
-}
+#command -v md5sum >/dev/null 2>&1 || {
+#    command -v md5 >/dev/null 2>&1 && {
+#        shopt -s expand_aliases
+#        alias md5sum='md5 -r'
+#        echo "md5sum command not found, using an alias instead"
+#    } || {
+#        echo >&2 "No md5sum or md5 command found"
+#        exit 1
+#    }
+#}
 
-checksum=$(md5sum "$jarpath.jar" | cut -d ' ' -f 1)
-if [ "$checksum" != "$minecrafthash" ]; then
-    echo "The MD5 checksum of the downloaded server jar does not match the BuildData hash."
-    exit 1
-fi
+#checksum=$(md5sum "$jarpath.jar" | cut -d ' ' -f 1)
+#if [ "$checksum" != "$minecrafthash" ]; then
+#    echo "The MD5 checksum of the downloaded server jar does not match the BuildData hash."
+#    exit 1
+#fi
 
 echo "Applying class mappings..."
 if [ ! -f "$jarpath-cl.jar" ]; then

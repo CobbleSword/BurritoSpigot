@@ -57,18 +57,20 @@
      private final ReentrantReadWriteLock j = new ReentrantReadWriteLock();
      public Channel channel;
 -    private SocketAddress l;
+-    private PacketListener m;
+-    private IChatBaseComponent n;
+-    private boolean o;
+-    private boolean p;
 +    // Spigot Start // PAIL
 +    public SocketAddress l;
 +    public java.util.UUID spoofedUUID;
 +    public com.mojang.authlib.properties.Property[] spoofedProfile;
 +    public boolean preparing = true;
 +    // Spigot End
-     private PacketListener m;
-     private IChatBaseComponent n;
--    private boolean isEncrypted;
--    private boolean isDisconnectionHandled;
-+    private boolean o;
-+    private boolean p;
++    public PacketListener m;
++    public IChatBaseComponent n;
++    public boolean o;
++    public boolean p;
  
      public NetworkManager(EnumProtocolDirection enumprotocoldirection) {
          this.h = enumprotocoldirection;
@@ -161,25 +163,7 @@
              this.n = ichatbasecomponent;
          }
  
-@@ -242,7 +258,7 @@
-     }
- 
-     public void a(SecretKey secretkey) {
--        this.isEncrypted = true;
-+        this.o = true;
-         this.channel.pipeline().addBefore("splitter", "decrypt", new PacketDecrypter(MinecraftEncryption.a(2, secretkey)));
-         this.channel.pipeline().addBefore("prepender", "encrypt", new PacketEncrypter(MinecraftEncryption.a(1, secretkey)));
-     }
-@@ -294,13 +310,14 @@
- 
-     public void l() {
-         if (this.channel != null && !this.channel.isOpen()) {
--            if (!this.isDisconnectionHandled) {
--                this.isDisconnectionHandled = true;
-+            if (!this.p) {
-+                this.p = true;
-                 if (this.j() != null) {
-                     this.getPacketListener().a(this.j());
+@@ -301,6 +317,7 @@
                  } else if (this.getPacketListener() != null) {
                      this.getPacketListener().a(new ChatComponentText("Disconnected"));
                  }

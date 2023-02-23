@@ -152,26 +152,15 @@
          if (this.getType() > 0) {
              this.j(this.getType() - 1);
          }
-@@ -153,8 +211,8 @@
-             MinecraftServer minecraftserver = ((WorldServer) this.world).getMinecraftServer();
+@@ -154,7 +212,7 @@
  
              i = this.L();
--            if (this.inPortal) {
+             if (this.ak) {
 -                if (minecraftserver.getAllowNether()) {
-+            if (this.ak) {
 +                if (true || minecraftserver.getAllowNether()) { // CraftBukkit - multi-world should still allow teleport even if default vanilla nether disabled
                      if (this.vehicle == null && this.al++ >= i) {
                          this.al = i;
                          this.portalCooldown = this.aq();
-@@ -169,7 +227,7 @@
-                         this.c(b0);
-                     }
- 
--                    this.inPortal = false;
-+                    this.ak = false;
-                 }
-             } else {
-                 if (this.al > 0) {
 @@ -225,7 +283,7 @@
              if (BlockMinecartTrackAbstract.d(iblockdata)) {
                  this.a(blockposition, iblockdata);

@@ -29,7 +29,7 @@
                  byte b0 = 4;
                  int i = b0 + 1;
                  int j = blockposition.getX();
-@@ -64,51 +66,51 @@
+@@ -64,51 +66,50 @@
                      int l1;
                      int i2;
  
@@ -37,7 +37,7 @@
 +                    for (k1 = -b0; k1 <= b0; ++k1) {
                          for (l1 = -b0; l1 <= b0; ++l1) {
 -                            for (k1 = -b0; k1 <= b0; ++k1) {
--                                Block block = world.getType(blockposition_mutableblockposition.setValues(j + i2, k + l1, l + k1)).getBlock();
+-                                Block block = world.getType(blockposition_mutableblockposition.c(j + i2, k + l1, l + k1)).getBlock();
 +                            for (i2 = -b0; i2 <= b0; ++i2) {
 +                                Block block = world.getType(blockposition_mutableblockposition.c(j + k1, k + l1, l + i2)).getBlock();
  
@@ -70,7 +70,7 @@
 +                                        if (this.N[(l1 + j1 - 1) * i1 + (i2 + j1) * b1 + j2 + j1] == -2) {
 +                                            this.N[(l1 + j1 - 1) * i1 + (i2 + j1) * b1 + j2 + j1] = k1;
                                          }
- 
+-
 -                                        if (this.N[(l1 + j1 + 1) * i1 + (k1 + j1) * b1 + j2 + j1] == -2) {
 -                                            this.N[(l1 + j1 + 1) * i1 + (k1 + j1) * b1 + j2 + j1] = i2;
 +                                        if (this.N[(l1 + j1 + 1) * i1 + (i2 + j1) * b1 + j2 + j1] == -2) {
@@ -102,7 +102,7 @@
                                          }
                                      }
                                  }
-@@ -120,7 +122,7 @@
+@@ -120,7 +121,7 @@
                  int k2 = this.N[j1 * i1 + j1 * b1 + j1];
  
                  if (k2 >= 0) {
@@ -111,7 +111,7 @@
                  } else {
                      this.e(world, blockposition);
                  }
-@@ -130,6 +132,14 @@
+@@ -130,6 +131,14 @@
      }
  
      private void e(World world, BlockPosition blockposition) {

@@ -93,15 +93,6 @@
                  }
              }
          }
-@@ -83,7 +137,7 @@
-         int i1;
- 
-         for (i1 = k + 1; i1 < 256; ++i1) {
--            IBlockData iblockdata = this.world.getType(blockposition_mutableblockposition.setValues(j, i1, l));
-+            IBlockData iblockdata = this.world.getType(blockposition_mutableblockposition.c(j, i1, l));
-             float[] afloat;
- 
-             if (iblockdata.getBlock() == Blocks.STAINED_GLASS) {
 @@ -104,7 +158,7 @@
              }
  

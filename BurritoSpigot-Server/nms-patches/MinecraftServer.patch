@@ -30,8 +30,8 @@
      private final ServerPing r = new ServerPing();
      private final Random s = new Random();
      private String serverIp;
--    public int port = -1;
-+    private int u = -1;
+-    private int u = -1;
++    public int u = -1; public int port = this.u; // Burrito
      public WorldServer[] worldServer;
      private PlayerList v;
      private boolean isRunning = true;
@@ -845,15 +845,6 @@
      }
  
      public String E() {
-@@ -687,7 +1043,7 @@
-     }
- 
-     public int F() {
--        return this.port;
-+        return this.u;
-     }
- 
-     public String G() {
 @@ -715,7 +1071,7 @@
      }
  
@@ -913,20 +904,6 @@
      }
  
      public String getName() {
-@@ -828,11 +1188,11 @@
-     }
- 
-     public int R() {
--        return this.port;
-+        return this.u;
-     }
- 
-     public void setPort(int i) {
--        this.port = i;
-+        this.u = i;
-     }
- 
-     public String S() {
 @@ -860,8 +1220,10 @@
      }
  

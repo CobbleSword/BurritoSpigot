@@ -71,21 +71,19 @@
              EnumDirection[] aenumdirection = EnumDirection.values();
              int i = aenumdirection.length;
  
-@@ -90,14 +113,37 @@
+@@ -90,14 +113,35 @@
  
      public void b(World world, BlockPosition blockposition, IBlockData iblockdata, Random random) {
          boolean flag = this.g(world, blockposition, iblockdata);
 -        List list = (List) BlockRedstoneTorch.b.get(world);
 -
--        while (list != null && !list.isEmpty() && world.getTime() - ((BlockRedstoneTorch.RedstoneUpdateInfo) list.get(0)).time > 60L) {
+-        while (list != null && !list.isEmpty() && world.getTime() - ((BlockRedstoneTorch.RedstoneUpdateInfo) list.get(0)).b > 60L) {
 -            list.remove(0);
 +        // Paper start
 +        java.util.ArrayDeque<BlockRedstoneTorch.RedstoneUpdateInfo> redstoneUpdateInfos = world.redstoneUpdateInfos;
-+        if (redstoneUpdateInfos != null)
-+        {
++        if (redstoneUpdateInfos != null) {
 +            BlockRedstoneTorch.RedstoneUpdateInfo curr;
-+            while ((curr = redstoneUpdateInfos.peek()) != null && world.getTime() - curr.getTime() > 60L)
-+            {
++            while ((curr = redstoneUpdateInfos.peek()) != null && world.getTime() - curr.getTime() > 60L) {
 +                redstoneUpdateInfos.poll();
 +            }
          }
@@ -113,7 +111,7 @@
                  world.setTypeAndData(blockposition, Blocks.UNLIT_REDSTONE_TORCH.getBlockData().set(BlockRedstoneTorch.FACING, iblockdata.get(BlockRedstoneTorch.FACING)), 3);
                  if (this.a(world, blockposition, true)) {
                      world.makeSound((double) ((float) blockposition.getX() + 0.5F), (double) ((float) blockposition.getY() + 0.5F), (double) ((float) blockposition.getZ() + 0.5F), "random.fizz", 0.5F, 2.6F + (world.random.nextFloat() - world.random.nextFloat()) * 0.8F);
-@@ -107,13 +153,22 @@
+@@ -107,13 +151,22 @@
                          double d1 = (double) blockposition.getY() + random.nextDouble() * 0.6D + 0.2D;
                          double d2 = (double) blockposition.getZ() + random.nextDouble() * 0.6D + 0.2D;
  
@@ -137,17 +135,12 @@
              world.setTypeAndData(blockposition, Blocks.REDSTONE_TORCH.getBlockData().set(BlockRedstoneTorch.FACING, iblockdata.get(BlockRedstoneTorch.FACING)), 3);
          }
  
-@@ -147,11 +202,11 @@
+@@ -147,7 +200,7 @@
      static class RedstoneUpdateInfo {
  
          BlockPosition a;
--        long time;
+-        long b;
 +        long b;  final long getTime() { return this.b; } // Paper - OBFHELPER
  
          public RedstoneUpdateInfo(BlockPosition blockposition, long i) {
              this.a = blockposition;
--            this.time = i;
-+            this.b = i;
-         }
-     }
- }

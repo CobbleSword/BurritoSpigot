@@ -80,7 +80,7 @@
      }
  
      protected void initAttributes() {
-@@ -119,14 +154,20 @@
+@@ -119,7 +154,13 @@
  
                  int i = (int) (150.0D * d1);
  
@@ -95,23 +95,6 @@
              }
          }
  
-         super.a(d0, flag, block, blockposition);
-     }
- 
--    public boolean canBreatheUnderwater() {
-+    public boolean aY() {
-         return false;
-     }
- 
-@@ -156,7 +197,7 @@
- 
-         if (this.isAlive()) {
-             if (this.a(Material.WATER)) {
--                if (!this.canBreatheUnderwater() && !this.hasEffect(MobEffectList.WATER_BREATHING.id) && !flag1) {
-+                if (!this.aY() && !this.hasEffect(MobEffectList.WATER_BREATHING.id) && !flag1) {
-                     this.setAirTicks(this.j(this.getAirTicks()));
-                     if (this.getAirTicks() == -20) {
-                         this.setAirTicks(0);
 @@ -166,7 +207,7 @@
                              float f1 = this.random.nextFloat() - this.random.nextFloat();
                              float f2 = this.random.nextFloat() - this.random.nextFloat();
@@ -690,52 +673,31 @@
      }
  
      public CombatTracker bs() {
-@@ -901,12 +1168,23 @@
+@@ -901,12 +1168,22 @@
          return (float) this.getAttributeInstance(GenericAttributes.maxHealth).getValue();
      }
  
--    public final int getArrowsStuck() {
 +    // TacoSpigot start - deobfuscation helper
 +    public int getArrowsStuck() {
 +        return this.bv();
 +    }
 +    // TacoSpigot end
-+    public final int bv() {
+     public final int bv() {
          return this.datawatcher.getByte(9);
      }
  
--    public final void setArrowsStuck(int i) {
--        this.datawatcher.watch(9, (byte) i);
-+
 +    // TacoSpigot start - deobfuscation helper
 +    public void setArrowsStuck(int i) {
 +        this.o(i);
 +    }
-+    // TacoSpigot end
-+    public final void o(int i) {
++     // TacoSpigot end
+     public final void o(int i) {
+-        this.datawatcher.watch(9, (byte) i);
 +        this.datawatcher.watch(9, Byte.valueOf((byte) i));
      }
  
      private int n() {
-@@ -1191,7 +1469,7 @@
-     public void t_() {
-         super.t_();
-         if (!this.world.isClientSide) {
--            int i = this.getArrowsStuck();
-+            int i = this.bv();
- 
-             if (i > 0) {
-                 if (this.at <= 0) {
-@@ -1200,7 +1478,7 @@
- 
-                 --this.at;
-                 if (this.at <= 0) {
--                    this.setArrowsStuck(i - 1);
-+                    this.o(i - 1);
-                 }
-             }
- 
-@@ -1240,7 +1518,8 @@
+@@ -1240,7 +1517,8 @@
          if (f > 0.0025000002F) {
              f3 = 1.0F;
              f2 = (float) Math.sqrt((double) f) * 3.0F;
@@ -745,7 +707,7 @@
          }
  
          if (this.az > 0.0F) {
-@@ -1399,7 +1678,7 @@
+@@ -1399,7 +1677,7 @@
      protected void doTick() {}
  
      protected void bL() {
@@ -754,7 +716,7 @@
              public boolean a(Entity entity) {
                  return entity.ae();
              }
-@@ -1409,12 +1688,24 @@
+@@ -1409,12 +1687,24 @@
              }
          }));
  
@@ -780,7 +742,7 @@
          }
  
      }
-@@ -1425,6 +1716,23 @@
+@@ -1425,6 +1715,23 @@
  
      public void mount(Entity entity) {
          if (this.vehicle != null && entity == null) {
@@ -804,7 +766,7 @@
              if (!this.world.isClientSide) {
                  this.q(this.vehicle);
              }
-@@ -1529,6 +1837,7 @@
+@@ -1529,6 +1836,7 @@
      }
  
      public ScoreboardTeamBase getScoreboardTeam() {

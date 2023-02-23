@@ -58,24 +58,6 @@
      }
  
      public boolean a(EntityHuman entityhuman) {
-@@ -138,7 +174,7 @@
-     public void c() {
-         if (this.world != null && !this.world.isClientSide) {
-             --this.g;
--            if (!this.isCooledDown()) {
-+            if (!this.n()) {
-                 this.d(0);
-                 this.m();
-             }
-@@ -148,7 +184,7 @@
- 
-     public boolean m() {
-         if (this.world != null && !this.world.isClientSide) {
--            if (!this.isCooledDown() && BlockHopper.f(this.u())) {
-+            if (!this.n() && BlockHopper.f(this.u())) {
-                 boolean flag = false;
- 
-                 if (!this.p()) {
 @@ -160,12 +196,16 @@
                  }
  
@@ -313,12 +295,3 @@
      private static boolean a(ItemStack itemstack, ItemStack itemstack1) {
          return itemstack.getItem() != itemstack1.getItem() ? false : (itemstack.getData() != itemstack1.getData() ? false : (itemstack.count > itemstack.getMaxStackSize() ? false : ItemStack.equals(itemstack, itemstack1)));
      }
-@@ -495,7 +655,7 @@
-         this.g = i;
-     }
- 
--    public boolean isCooledDown() {
-+    public boolean n() {
-         return this.g > 0;
-     }
- 

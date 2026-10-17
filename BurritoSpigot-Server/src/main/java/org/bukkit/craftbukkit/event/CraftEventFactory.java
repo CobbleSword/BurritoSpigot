@@ -188,7 +188,7 @@ public class CraftEventFactory {
         if (action != Action.LEFT_CLICK_AIR && action != Action.RIGHT_CLICK_AIR) {
             throw new IllegalArgumentException(String.format("%s performing %s with %s", who, action, itemstack)); // Spigot
         }
-        return callPlayerInteractEvent(who, action, new BlockPosition(0, 256, 0), EnumDirection.SOUTH, itemstack);
+        return callPlayerInteractEvent(who, action, null, EnumDirection.SOUTH, itemstack); // PandaSpigot - SPIGOT-2380 - Change BlockPosition to null
     }
 
     public static PlayerInteractEvent callPlayerInteractEvent(EntityHuman who, Action action, BlockPosition position, EnumDirection direction, ItemStack itemstack) {
@@ -202,11 +202,15 @@ public class CraftEventFactory {
         CraftWorld craftWorld = (CraftWorld) player.getWorld();
         CraftServer craftServer = (CraftServer) player.getServer();
 
-        Block blockClicked = craftWorld.getBlockAt(position.getX(), position.getY(), position.getZ());
+        //Block blockClicked = craftWorld.getBlockAt(position.getX(), position.getY(), position.getZ()); // PandaSpigot - move down
         BlockFace blockFace = CraftBlock.notchToBlockFace(direction);
 
-        if (position.getY() > 255) {
-            blockClicked = null;
+        // PandaSpigot start - SPIGOT-2380
+        Block blockClicked = null;
+        if (position != null) {
+            blockClicked = craftWorld.getBlockAt(position.getX(), position.getY(), position.getZ());
+        } else {
+        // PandaSpigot end
             switch (action) {
             case LEFT_CLICK_BLOCK:
                 action = Action.LEFT_CLICK_AIR;

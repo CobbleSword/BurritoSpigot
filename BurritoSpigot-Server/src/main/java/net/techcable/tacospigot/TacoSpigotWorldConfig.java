@@ -110,4 +110,13 @@ public class TacoSpigotWorldConfig {
 
     public boolean disableFallingBlockStackingAt256;
     private void DisableFallingBlockStackingAt256() { disableFallingBlockStackingAt256 = getBoolean("disable-falling-block-stacking-at-256", false);}
+
+    // PandaSpigot start - Smooth teleportation
+    // When players are teleported to a location with the same rotation they currently have,
+    // send a relative teleport so the client keeps its own rotation instead of snapping back.
+    public boolean smoothTeleportation;
+    private void smoothTeleportation() {
+        smoothTeleportation = getBoolean("smooth-teleportation", false);
+    }
+    // PandaSpigot end
 }

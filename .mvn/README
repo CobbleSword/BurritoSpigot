@@ -1,0 +1,1 @@
+# Marks the project root so ${maven.multiModuleProjectDirectory} resolves here.

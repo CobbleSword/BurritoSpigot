@@ -28,8 +28,8 @@
 
     <repositories>
         <repository>
-            <id>papermc</id>
-            <url>https://repo.papermc.io/repository/maven-public/</url>
+            <id>burrito-local</id>
+            <url>file://${maven.multiModuleProjectDirectory}/maven-repo</url>
         </repository>
     </repositories>
 </project>

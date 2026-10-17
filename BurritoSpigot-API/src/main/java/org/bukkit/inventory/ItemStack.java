@@ -559,6 +559,26 @@ public class ItemStack implements Cloneable, ConfigurationSerializable {
         return result;
     }
 
+    // PandaSpigot start
+    /**
+     * Deserializes this ItemStack from raw NBT bytes.
+     *
+     * @param bytes bytes representing an item in NBT
+     * @return Deserialized ItemStack.
+     */
+    public static ItemStack deserializeBytes(byte[] bytes) {
+        return org.bukkit.Bukkit.getUnsafe().deserializeItem(bytes);
+    }
+
+    /**
+     * Serializes this ItemStack to raw bytes in NBT.
+     * @return bytes representing this item in NBT.
+     */
+    public byte[] serializeAsBytes() {
+        return org.bukkit.Bukkit.getUnsafe().serializeItem(this);
+    }
+    // PandaSpigot end
+
     /**
      * Get a copy of this ItemStack's {@link ItemMeta}.
      *

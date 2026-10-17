@@ -1,6 +1,22 @@
 --- a/net/minecraft/server/NBTCompressedStreamTools.java
 +++ b/net/minecraft/server/NBTCompressedStreamTools.java
-@@ -44,6 +44,12 @@
+@@ -14,6 +14,7 @@
+ 
+ public class NBTCompressedStreamTools {
+ 
++    public static NBTTagCompound readNBT(InputStream inputstream) throws IOException { return a(inputstream); } // PandaSpigot - OBFHELPER
+     public static NBTTagCompound a(InputStream inputstream) throws IOException {
+         DataInputStream datainputstream = new DataInputStream(new BufferedInputStream(new GZIPInputStream(inputstream)));
+ 
+@@ -28,6 +29,7 @@
+         return nbttagcompound;
+     }
+ 
++    public static void writeNBT(NBTTagCompound nbttagcompound, OutputStream outputstream) throws IOException { a(nbttagcompound, outputstream); } // PandaSpigot - OBFHELPER
+     public static void a(NBTTagCompound nbttagcompound, OutputStream outputstream) throws IOException {
+         DataOutputStream dataoutputstream = new DataOutputStream(new BufferedOutputStream(new GZIPOutputStream(outputstream)));
+ 
+@@ -44,6 +46,12 @@
      }
  
      public static NBTTagCompound a(DataInput datainput, NBTReadLimiter nbtreadlimiter) throws IOException {
@@ -13,7 +29,7 @@
          NBTBase nbtbase = a(datainput, 0, nbtreadlimiter);
  
          if (nbtbase instanceof NBTTagCompound) {
-@@ -82,7 +88,7 @@
+@@ -82,7 +90,7 @@
                  CrashReportSystemDetails crashreportsystemdetails = crashreport.a("NBT Tag");
  
                  crashreportsystemdetails.a("Tag name", (Object) "[UNNAMED TAG]");

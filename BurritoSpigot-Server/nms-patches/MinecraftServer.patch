@@ -576,7 +576,21 @@
                  this.z();
              }
  
-@@ -431,7 +684,7 @@
+@@ -419,20 +672,22 @@
+         File file = this.d("server-icon.png");
+ 
+         if (file.isFile()) {
+             ByteBuf bytebuf = Unpooled.buffer();
++            ByteBuf bytebuf1 = null; // PandaSpigot - cleanup favicon bytebuf
+ 
+             try {
+                 BufferedImage bufferedimage = ImageIO.read(file);
+ 
+                 Validate.validState(bufferedimage.getWidth() == 64, "Must be 64 pixels wide", new Object[0]);
+                 Validate.validState(bufferedimage.getHeight() == 64, "Must be 64 pixels high", new Object[0]);
+                 ImageIO.write(bufferedimage, "PNG", new ByteBufOutputStream(bytebuf));
+-                ByteBuf bytebuf1 = Base64.encode(bytebuf);
++                /*ByteBuf */bytebuf1 = Base64.encode(bytebuf); // PandaSpigot - cleanup favicon bytebuf
  
                  serverping.setFavicon("data:image/png;base64," + bytebuf1.toString(Charsets.UTF_8));
              } catch (Exception exception) {
@@ -584,8 +598,10 @@
 +                MinecraftServer.LOGGER.error("Couldn\'t load server icon", exception);
              } finally {
                  bytebuf.release();
++                if (bytebuf1 != null) bytebuf1.release(); // PandaSpigot - cleanup favicon bytebuf
              }
-@@ -447,7 +700,8 @@
+         }
+@@ -447,7 +702,8 @@
  
      protected void z() {}
  
@@ -595,7 +611,7 @@
          long i = System.nanoTime();
  
          ++this.ticks;
-@@ -473,95 +727,166 @@
+@@ -473,95 +729,166 @@
              this.r.b().a(agameprofile);
          }
  
@@ -776,7 +792,7 @@
  
          this.methodProfiler.b();
      }
-@@ -574,10 +899,11 @@
+@@ -574,10 +901,11 @@
          this.p.add(iupdateplayerlistbox);
      }
  
@@ -789,7 +805,7 @@
              boolean flag = true;
              String s = null;
              String s1 = ".";
-@@ -655,15 +981,38 @@
+@@ -655,15 +983,38 @@
                      dedicatedserver.stop();
                  }
              });
@@ -829,7 +845,7 @@
      }
  
      public File d(String s) {
-@@ -679,7 +1028,14 @@
+@@ -679,7 +1030,14 @@
      }
  
      public WorldServer getWorldServer(int i) {
@@ -845,7 +861,7 @@
      }
  
      public String E() {
-@@ -687,7 +1043,7 @@
+@@ -687,7 +1045,7 @@
      }
  
      public int F() {
@@ -854,7 +870,7 @@
      }
  
      public String G() {
-@@ -715,7 +1071,7 @@
+@@ -715,7 +1073,7 @@
      }
  
      public boolean isDebugging() {
@@ -863,7 +879,7 @@
      }
  
      public void g(String s) {
-@@ -730,11 +1086,11 @@
+@@ -730,11 +1088,11 @@
      }
  
      public String getServerModName() {
@@ -877,7 +893,7 @@
              public String a() throws Exception {
                  return MinecraftServer.this.methodProfiler.a ? MinecraftServer.this.methodProfiler.c() : "N/A (disabled)";
              }
-@@ -744,7 +1100,7 @@
+@@ -744,7 +1102,7 @@
              }
          });
          if (this.v != null) {
@@ -886,7 +902,7 @@
                  public String a() {
                      return MinecraftServer.this.v.getPlayerCount() + " / " + MinecraftServer.this.v.getMaxPlayers() + "; " + MinecraftServer.this.v.v();
                  }
-@@ -759,6 +1115,7 @@
+@@ -759,6 +1117,7 @@
      }
  
      public List<String> tabCompleteCommand(ICommandListener icommandlistener, String s, BlockPosition blockposition) {
@@ -894,7 +910,7 @@
          ArrayList arraylist = Lists.newArrayList();
  
          if (s.startsWith("/")) {
-@@ -797,6 +1154,9 @@
+@@ -797,6 +1156,9 @@
  
              return arraylist;
          }
@@ -904,7 +920,7 @@
      }
  
      public static MinecraftServer getServer() {
-@@ -804,7 +1164,7 @@
+@@ -804,7 +1166,7 @@
      }
  
      public boolean O() {
@@ -913,7 +929,7 @@
      }
  
      public String getName() {
-@@ -828,11 +1188,11 @@
+@@ -828,11 +1190,11 @@
      }
  
      public int R() {
@@ -927,7 +943,7 @@
      }
  
      public String S() {
-@@ -860,8 +1220,10 @@
+@@ -860,8 +1222,10 @@
      }
  
      public void a(EnumDifficulty enumdifficulty) {
@@ -940,7 +956,7 @@
  
              if (worldserver != null) {
                  if (worldserver.getWorldData().isHardcore()) {
-@@ -903,15 +1265,17 @@
+@@ -903,15 +1267,17 @@
          this.N = true;
          this.getConvertable().d();
  
@@ -962,7 +978,7 @@
          this.safeShutdown();
      }
  
-@@ -929,47 +1293,49 @@
+@@ -929,47 +1295,49 @@
      }
  
      public void a(MojangStatisticsGenerator mojangstatisticsgenerator) {
@@ -1031,7 +1047,7 @@
      }
  
      public boolean getSnooperEnabled() {
-@@ -979,7 +1345,7 @@
+@@ -979,7 +1347,7 @@
      public abstract boolean ae();
  
      public boolean getOnlineMode() {
@@ -1040,7 +1056,7 @@
      }
  
      public void setOnlineMode(boolean flag) {
-@@ -1051,15 +1417,22 @@
+@@ -1051,15 +1419,22 @@
      }
  
      public void setGamemode(WorldSettings.EnumGamemode worldsettings_enumgamemode) {
@@ -1066,7 +1082,7 @@
  
      public boolean as() {
          return false;
-@@ -1084,7 +1457,7 @@
+@@ -1084,7 +1459,7 @@
      }
  
      public World getWorld() {
@@ -1075,7 +1091,7 @@
      }
  
      public Entity f() {
-@@ -1155,8 +1528,10 @@
+@@ -1155,8 +1530,10 @@
          WorldServer[] aworldserver = this.worldServer;
          int i = aworldserver.length;
  
@@ -1088,7 +1104,7 @@
  
              if (worldserver != null) {
                  Entity entity = worldserver.getEntity(uuid);
-@@ -1171,7 +1546,7 @@
+@@ -1171,7 +1548,7 @@
      }
  
      public boolean getSendCommandFeedback() {
@@ -1097,7 +1113,7 @@
      }
  
      public void a(CommandObjectiveExecutor.EnumCommandResult commandobjectiveexecutor_enumcommandresult, int i) {}
-@@ -1182,14 +1557,14 @@
+@@ -1182,14 +1559,14 @@
  
      public <V> ListenableFuture<V> a(Callable<V> callable) {
          Validate.notNull(callable);

@@ -76,29 +76,25 @@
      }
  
      public void a(Enum<?> oenum) {
-@@ -76,36 +108,28 @@
+@@ -76,36 +108,19 @@
      }
  
      public int e() {
-+        byte b0;
-         int i = 0;
-         int j = 0;
+-        int i = 0;
+-        int j = 0;
 -
 -        byte b0;
 -
-         do {
+-        do {
 -            b0 = this.readByte();
 -            i |= (b0 & 127) << j++ * 7;
 -            if (j > 5) {
-+            b0 = readByte();
-+            i |= (b0 & Byte.MAX_VALUE) << j++ * 7;
-+            if (j > 5)
-                 throw new RuntimeException("VarInt too big");
+-                throw new RuntimeException("VarInt too big");
 -            }
 -        } while ((b0 & 128) == 128);
 -
-+        } while ((b0 & 0x80) == 128);
-         return i;
+-        return i;
++        return dev.cobblesword.network.VarIntUtil.readVarInt(this.a); // PandaSpigot - Optimize VarInt reading
      }
  
      public long f() {
@@ -123,7 +119,23 @@
          return i;
      }
  
-@@ -142,14 +166,16 @@
+@@ -118,14 +133,9 @@
+         return new UUID(this.readLong(), this.readLong());
+     }
+ 
+     public void b(int i) {
+-        while ((i & -128) != 0) {
+-            this.writeByte(i & 127 | 128);
+-            i >>>= 7;
+-        }
+-
+-        this.writeByte(i);
++        dev.cobblesword.network.VarIntUtil.writeVarInt(this.a, i); // PandaSpigot - Optimize VarInt writing
+     }
+ 
+     public void b(long i) {
+         while ((i & -128L) != 0L) {
+@@ -142,14 +152,16 @@
          } else {
              try {
                  NBTCompressedStreamTools.a(nbttagcompound, (DataOutput) (new ByteBufOutputStream(this)));
@@ -142,7 +154,7 @@
          int i = this.readerIndex();
          byte b0 = this.readByte();
  
-@@ -157,12 +183,16 @@
+@@ -157,12 +169,16 @@
              return null;
          } else {
              this.readerIndex(i);
@@ -161,7 +173,7 @@
              this.writeShort(-1);
          } else {
              this.writeShort(Item.getId(itemstack.getItem()));
-@@ -171,6 +201,10 @@
+@@ -171,6 +187,10 @@
              NBTTagCompound nbttagcompound = null;
  
              if (itemstack.getItem().usesDurability() || itemstack.getItem().p()) {
@@ -172,7 +184,7 @@
                  nbttagcompound = itemstack.getTag();
              }
  
-@@ -179,37 +213,44 @@
+@@ -179,51 +199,59 @@
  
      }
  
@@ -237,7 +249,27 @@
      }
  
      public PacketDataSerializer a(String s) {
-@@ -256,6 +297,14 @@
+-        byte[] abyte = s.getBytes(Charsets.UTF_8);
+-
+-        if (abyte.length > 32767) {
++        // PandaSpigot start - Optimize string writing
++        int utf8Bytes = io.netty.buffer.ByteBufUtil.utf8Bytes(s);
++        if (utf8Bytes > 32767) {
+             throw new EncoderException("String too big (was " + s.length() + " bytes encoded, max " + 32767 + ")");
+         } else {
+-            this.b(abyte.length);
+-            this.writeBytes(abyte);
++            this.b(utf8Bytes);
++            this.writeCharSequence(s, Charsets.UTF_8);
+             return this;
+         }
++        // PandaSpigot end
+     }
+ 
+     public int capacity() {
+         return this.a.capacity();
+     }
+@@ -256,6 +284,14 @@
          return this.a.isDirect();
      }
  
@@ -252,7 +284,7 @@
      public int readerIndex() {
          return this.a.readerIndex();
      }
-@@ -356,26 +405,54 @@
+@@ -356,26 +392,54 @@
          return this.a.getShort(i);
      }
  
@@ -307,7 +339,7 @@
      public long getLong(int i) {
          return this.a.getLong(i);
      }
-@@ -424,6 +501,16 @@
+@@ -424,6 +488,16 @@
          return this.a.getBytes(i, gatheringbytechannel, j);
      }
  
@@ -324,7 +356,7 @@
      public ByteBuf setBoolean(int i, boolean flag) {
          return this.a.setBoolean(i, flag);
      }
-@@ -436,18 +523,38 @@
+@@ -436,18 +510,38 @@
          return this.a.setShort(i, j);
      }
  
@@ -363,7 +395,7 @@
      public ByteBuf setChar(int i, int j) {
          return this.a.setChar(i, j);
      }
-@@ -492,10 +599,20 @@
+@@ -492,10 +586,20 @@
          return this.a.setBytes(i, scatteringbytechannel, j);
      }
  
@@ -384,7 +416,7 @@
      public boolean readBoolean() {
          return this.a.readBoolean();
      }
-@@ -512,30 +629,65 @@
+@@ -512,30 +616,65 @@
          return this.a.readShort();
      }
  
@@ -450,7 +482,7 @@
      public char readChar() {
          return this.a.readChar();
      }
-@@ -556,6 +708,12 @@
+@@ -556,6 +695,12 @@
          return this.a.readSlice(i);
      }
  
@@ -463,7 +495,7 @@
      public ByteBuf readBytes(ByteBuf bytebuf) {
          return this.a.readBytes(bytebuf);
      }
-@@ -588,6 +746,16 @@
+@@ -588,6 +733,16 @@
          return this.a.readBytes(gatheringbytechannel, i);
      }
  
@@ -480,7 +512,7 @@
      public ByteBuf skipBytes(int i) {
          return this.a.skipBytes(i);
      }
-@@ -604,18 +772,38 @@
+@@ -604,18 +759,38 @@
          return this.a.writeShort(i);
      }
  
@@ -519,7 +551,7 @@
      public ByteBuf writeChar(int i) {
          return this.a.writeChar(i);
      }
-@@ -660,10 +848,18 @@
+@@ -660,10 +835,18 @@
          return this.a.writeBytes(scatteringbytechannel, i);
      }
  
@@ -538,7 +570,7 @@
      public int indexOf(int i, int j, byte b0) {
          return this.a.indexOf(i, j, b0);
      }
-@@ -680,6 +876,23 @@
+@@ -680,6 +863,23 @@
          return this.a.bytesBefore(i, j, b0);
      }
  
@@ -562,7 +594,7 @@
      public int forEachByte(ByteBufProcessor bytebufprocessor) {
          return this.a.forEachByte(bytebufprocessor);
      }
-@@ -708,14 +921,29 @@
+@@ -708,14 +908,29 @@
          return this.a.slice();
      }
  
@@ -592,7 +624,7 @@
      public int nioBufferCount() {
          return this.a.nioBufferCount();
      }
-@@ -792,6 +1020,14 @@
+@@ -792,6 +1007,14 @@
          return this.a.retain();
      }
  
@@ -607,7 +639,7 @@
      public int refCnt() {
          return this.a.refCnt();
      }
-@@ -803,16 +1039,4 @@
+@@ -803,16 +1026,4 @@
      public boolean release(int i) {
          return this.a.release(i);
      }

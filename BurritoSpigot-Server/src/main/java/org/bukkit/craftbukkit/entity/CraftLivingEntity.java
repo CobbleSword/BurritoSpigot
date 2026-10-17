@@ -64,6 +64,7 @@ import org.bukkit.util.Vector;
 
 public class CraftLivingEntity extends CraftEntity implements LivingEntity {
     private CraftEntityEquipment equipment;
+    private boolean potionParticles = true;
 
     public CraftLivingEntity(final CraftServer server, final EntityLiving entity) {
         super(server, entity);
@@ -330,6 +331,21 @@ public class CraftLivingEntity extends CraftEntity implements LivingEntity {
             effects.add(new PotionEffect(PotionEffectType.getById(handle.getEffectId()), handle.getDuration(), handle.getAmplifier(), handle.isAmbient(), handle.isShowParticles()));
         }
         return effects;
+    }
+
+    @Override
+    public void setPotionParticles(boolean enabled) {
+        this.potionParticles = enabled;
+        if(enabled) {
+            this.getHandle().updateEffects = true;
+        } else {
+            this.getHandle().getDataWatcher().watch(7, (int) 0); // particle color
+            this.getHandle().getDataWatcher().watch(8, (byte) 0); // ambient flag
+        }
+    }
+
+    public boolean getPotionParticles() {
+        return this.potionParticles;
     }
 
     public <T extends Projectile> T launchProjectile(Class<? extends T> projectile) {

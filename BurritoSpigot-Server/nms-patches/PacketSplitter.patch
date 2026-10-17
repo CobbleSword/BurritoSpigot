@@ -1,0 +1,83 @@
+--- a/net/minecraft/server/PacketSplitter.java
++++ b/net/minecraft/server/PacketSplitter.java
+@@ -1,5 +1,6 @@
+ package net.minecraft.server;
+ 
++import dev.cobblesword.network.VarIntByteDecoder; // PandaSpigot
+ import io.netty.buffer.ByteBuf;
+ import io.netty.buffer.Unpooled;
+ import io.netty.channel.ChannelHandlerContext;
+@@ -12,36 +13,48 @@
+     public PacketSplitter() {}
+ 
+     protected void decode(ChannelHandlerContext channelhandlercontext, ByteBuf bytebuf, List<Object> list) throws Exception {
+-        bytebuf.markReaderIndex();
+-        byte[] abyte = new byte[3];
++        // PandaSpigot start
++        if (!channelhandlercontext.channel().isActive()) {
++            bytebuf.clear();
++            return;
++        }
+ 
+-        for (int i = 0; i < abyte.length; ++i) {
+-            if (!bytebuf.isReadable()) {
+-                bytebuf.resetReaderIndex();
+-                return;
++        final VarIntByteDecoder reader = new VarIntByteDecoder();
++        int varIntEnd = bytebuf.forEachByte(reader);
++
++        if (varIntEnd == -1) {
++            // We tried to go beyond the end of the buffer. This is probably a good sign that the
++            // buffer was too short to hold a proper varint.
++            if (reader.getResult() == VarIntByteDecoder.DecodeResult.RUN_OF_ZEROES) {
++                // Special case where the entire packet is just a run of zeroes. We ignore them all.
++                bytebuf.clear();
+             }
++            return;
++        }
+ 
+-            abyte[i] = bytebuf.readByte();
+-            if (abyte[i] >= 0) {
+-                PacketDataSerializer packetdataserializer = new PacketDataSerializer(Unpooled.wrappedBuffer(abyte));
+-
+-                try {
+-                    int j = packetdataserializer.e();
+-
+-                    if (bytebuf.readableBytes() >= j) {
+-                        list.add(bytebuf.readBytes(j));
+-                        return;
+-                    }
+-
+-                    bytebuf.resetReaderIndex();
+-                } finally {
+-                    packetdataserializer.release();
++        if (reader.getResult() == VarIntByteDecoder.DecodeResult.RUN_OF_ZEROES) {
++            // this will return to the point where the next varint starts
++            bytebuf.readerIndex(varIntEnd);
++        } else if (reader.getResult() == VarIntByteDecoder.DecodeResult.SUCCESS) {
++            int readVarint = reader.getReadVarint();
++            int bytesRead = reader.getBytesRead();
++            if (readVarint < 0) {
++                bytebuf.clear();
++                throw new CorruptedFrameException("Bad packet length");
++            } else if (readVarint == 0) {
++                // skip over the empty packet(s) and ignore it
++                bytebuf.readerIndex(varIntEnd + 1);
++            } else {
++                int minimumRead = bytesRead + readVarint;
++                if (bytebuf.isReadable(minimumRead)) {
++                    list.add(bytebuf.retainedSlice(varIntEnd + 1, readVarint));
++                    bytebuf.skipBytes(minimumRead);
+                 }
+-
+-                return;
+             }
++        } else if (reader.getResult() == VarIntByteDecoder.DecodeResult.TOO_BIG) {
++            bytebuf.clear();
++            throw new CorruptedFrameException("VarInt too big");
+         }
+-
+-        throw new CorruptedFrameException("length wider than 21-bit");
++        // PandaSpigot end
+     }
+ }

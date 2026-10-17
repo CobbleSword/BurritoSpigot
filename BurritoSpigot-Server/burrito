@@ -12,7 +12,6 @@ done
 SOURCE=$([[ "$SOURCE" = /* ]] && echo "$SOURCE" || echo "$PWD/${SOURCE#./}")
 basedir=$(dirname "$SOURCE")/BurritoSpigot-Server
 
-git submodule update --init
 case "$1" in
     "rb" | "rbp" | "rebuild")
     (

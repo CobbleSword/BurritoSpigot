@@ -1,6 +1,117 @@
 --- a/net/minecraft/server/BlockPosition.java
 +++ b/net/minecraft/server/BlockPosition.java
-@@ -127,30 +127,30 @@
+@@ -52,59 +52,96 @@
+     }
+ 
+     public BlockPosition up() {
+-        return this.up(1);
++        return new BlockPosition(this.getX(), this.getY() + 1, this.getZ()); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition up(int i) {
+-        return this.shift(EnumDirection.UP, i);
++        return i == 0 ? this : new BlockPosition(this.getX(), this.getY() + i, this.getZ()); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition down() {
+-        return this.down(1);
++        return new BlockPosition(this.getX(), this.getY() - 1, this.getZ()); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition down(int i) {
+-        return this.shift(EnumDirection.DOWN, i);
++        return i == 0 ? this : new BlockPosition(this.getX(), this.getY() - i, this.getZ()); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition north() {
+-        return this.north(1);
++        return new BlockPosition(this.getX(), this.getY(), this.getZ() - 1); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition north(int i) {
+-        return this.shift(EnumDirection.NORTH, i);
++        return i == 0 ? this : new BlockPosition(this.getX(), this.getY(), this.getZ() - i); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition south() {
+-        return this.south(1);
++        return new BlockPosition(this.getX(), this.getY(), this.getZ() + 1); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition south(int i) {
+-        return this.shift(EnumDirection.SOUTH, i);
++        return i == 0 ? this : new BlockPosition(this.getX(), this.getY(), this.getZ() + i); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition west() {
+-        return this.west(1);
++        return new BlockPosition(this.getX() - 1, this.getY(), this.getZ()); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition west(int i) {
+-        return this.shift(EnumDirection.WEST, i);
++        return i == 0 ? this : new BlockPosition(this.getX() - i, this.getY(), this.getZ()); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition east() {
+-        return this.east(1);
++        return new BlockPosition(this.getX() + 1, this.getY(), this.getZ()); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition east(int i) {
+-        return this.shift(EnumDirection.EAST, i);
++        return i == 0 ? this : new BlockPosition(this.getX() + i, this.getY(), this.getZ()); // PandaSpigot - Optimize BlockPosition
+     }
+ 
+     public BlockPosition shift(EnumDirection enumdirection) {
+-        return this.shift(enumdirection, 1);
++        // PandaSpigot start - Optimize BlockPosition
++        switch(enumdirection) {
++            case UP:
++                return new BlockPosition(this.getX(), this.getY() + 1, this.getZ());
++            case DOWN:
++                return new BlockPosition(this.getX(), this.getY() - 1, this.getZ());
++            case NORTH:
++                return new BlockPosition(this.getX(), this.getY(), this.getZ() - 1);
++            case SOUTH:
++                return new BlockPosition(this.getX(), this.getY(), this.getZ() + 1);
++            case WEST:
++                return new BlockPosition(this.getX() - 1, this.getY(), this.getZ());
++            case EAST:
++                return new BlockPosition(this.getX() + 1, this.getY(), this.getZ());
++            default:
++                return new BlockPosition(this.getX() + enumdirection.getAdjacentX(), this.getY() + enumdirection.getAdjacentY(), this.getZ() + enumdirection.getAdjacentZ());
++        }
++        // PandaSpigot end
+     }
+ 
+     public BlockPosition shift(EnumDirection enumdirection, int i) {
+-        return i == 0 ? this : new BlockPosition(this.getX() + enumdirection.getAdjacentX() * i, this.getY() + enumdirection.getAdjacentY() * i, this.getZ() + enumdirection.getAdjacentZ() * i);
++        // PandaSpigot start - Optimize BlockPosition
++        if (i == 0) {
++            return this;
++        }
++        switch(enumdirection) {
++            case UP:
++                return new BlockPosition(this.getX(), this.getY() + i, this.getZ());
++            case DOWN:
++                return new BlockPosition(this.getX(), this.getY() - i, this.getZ());
++            case NORTH:
++                return new BlockPosition(this.getX(), this.getY(), this.getZ() - i);
++            case SOUTH:
++                return new BlockPosition(this.getX(), this.getY(), this.getZ() + i);
++            case WEST:
++                return new BlockPosition(this.getX() - i, this.getY(), this.getZ());
++            case EAST:
++                return new BlockPosition(this.getX() + i, this.getY(), this.getZ());
++            default:
++                return new BlockPosition(this.getX() + enumdirection.getAdjacentX() * i, this.getY() + enumdirection.getAdjacentY() * i, this.getZ() + enumdirection.getAdjacentZ() * i);
++        }
++        // PandaSpigot end
+     }
+ 
+     public BlockPosition c(BaseBlockPosition baseblockposition) {
+@@ -127,30 +164,30 @@
          final BlockPosition blockposition2 = new BlockPosition(Math.min(blockposition.getX(), blockposition1.getX()), Math.min(blockposition.getY(), blockposition1.getY()), Math.min(blockposition.getZ(), blockposition1.getZ()));
          final BlockPosition blockposition3 = new BlockPosition(Math.max(blockposition.getX(), blockposition1.getX()), Math.max(blockposition.getY(), blockposition1.getY()), Math.max(blockposition.getZ(), blockposition1.getZ()));
  
@@ -41,7 +152,7 @@
                                  ++k;
                              }
  
-@@ -171,36 +171,38 @@
+@@ -171,36 +208,38 @@
          final BlockPosition blockposition2 = new BlockPosition(Math.min(blockposition.getX(), blockposition1.getX()), Math.min(blockposition.getY(), blockposition1.getY()), Math.min(blockposition.getZ(), blockposition1.getZ()));
          final BlockPosition blockposition3 = new BlockPosition(Math.max(blockposition.getX(), blockposition1.getX()), Math.max(blockposition.getY(), blockposition1.getY()), Math.max(blockposition.getZ(), blockposition1.getZ()));
  
@@ -93,7 +204,7 @@
                              return this.b;
                          }
                      }
-@@ -219,9 +221,25 @@
+@@ -219,9 +258,25 @@
  
      public static final class MutableBlockPosition extends BlockPosition {
  
@@ -119,7 +230,7 @@
  
          public MutableBlockPosition() {
              this(0, 0, 0);
-@@ -229,11 +247,13 @@
+@@ -229,11 +284,13 @@
  
          public MutableBlockPosition(int i, int j, int k) {
              super(0, 0, 0);
@@ -136,7 +247,7 @@
          public int getX() {
              return this.c;
          }
-@@ -245,11 +265,19 @@
+@@ -245,11 +302,19 @@
          public int getZ() {
              return this.e;
          }

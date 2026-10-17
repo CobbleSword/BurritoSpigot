@@ -264,6 +264,15 @@
                      public String a() throws Exception {
                          return CrashReportSystemDetails.a(blockposition);
                      }
+@@ -128,7 +296,7 @@
+     }
+ 
+     public boolean isLoaded(BlockPosition blockposition) {
+-        return this.a(blockposition, true);
++        return getChunkIfLoaded(blockposition.getX() >> 4, blockposition.getZ() >> 4) != null; // PandaSpigot - Optimize World.isLoaded(BlockPosition)Z
+     }
+ 
+     public boolean a(BlockPosition blockposition, boolean flag) {
 @@ -193,6 +361,27 @@
      }
  

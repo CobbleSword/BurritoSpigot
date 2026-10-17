@@ -143,4 +143,34 @@ public final class CraftMagicNumbers implements UnsafeValues {
         }
         return matches;
     }
+
+    // PandaSpigot start
+    @Override
+    public byte[] serializeItem(ItemStack item) {
+        com.google.common.base.Preconditions.checkNotNull(item, "null cannot be serialized");
+        com.google.common.base.Preconditions.checkArgument(item.getType() != Material.AIR, "air cannot be serialized");
+
+        java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+        NBTTagCompound compound = (item instanceof CraftItemStack ? ((CraftItemStack) item).handle : CraftItemStack.asNMSCopy(item)).save(new NBTTagCompound());
+        try {
+            net.minecraft.server.NBTCompressedStreamTools.writeNBT(compound, outputStream);
+        } catch (java.io.IOException ex) {
+            throw new RuntimeException(ex);
+        }
+        return outputStream.toByteArray();
+    }
+
+    @Override
+    public ItemStack deserializeItem(byte[] data) {
+        com.google.common.base.Preconditions.checkNotNull(data, "null cannot be deserialized");
+        com.google.common.base.Preconditions.checkArgument(data.length > 0, "cannot deserialize nothing");
+
+        try {
+            NBTTagCompound compound = net.minecraft.server.NBTCompressedStreamTools.readNBT(new java.io.ByteArrayInputStream(data));
+            return CraftItemStack.asCraftMirror(net.minecraft.server.ItemStack.createStack(compound));
+        } catch (java.io.IOException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
+    // PandaSpigot end
 }

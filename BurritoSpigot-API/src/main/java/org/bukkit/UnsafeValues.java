@@ -30,4 +30,10 @@ public interface UnsafeValues {
     Achievement getAchievementFromInternalName(String name);
 
     List<String> tabCompleteInternalStatisticOrAchievementName(String token, List<String> completions);
+
+    // PandaSpigot start
+    byte[] serializeItem(ItemStack item);
+
+    ItemStack deserializeItem(byte[] data);
+    // PandaSpigot end
 }

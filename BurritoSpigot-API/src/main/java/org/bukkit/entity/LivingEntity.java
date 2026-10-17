@@ -318,6 +318,13 @@ public interface LivingEntity extends Entity, Damageable, ProjectileSource {
     public Collection<PotionEffect> getActivePotionEffects();
 
     /**
+     * Enables or disables potion particles visible around this entity when under
+     * the effect of a potion. If this entity is a player, this also affects the
+     * particles they see in front of them.
+     */
+    public void setPotionParticles(boolean enabled);
+
+    /**
      * Checks whether the living entity has block line of sight to another.
      * <p>
      * This uses the same algorithm that hostile mobs use to find the closest

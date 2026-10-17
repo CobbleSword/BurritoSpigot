@@ -200,7 +200,7 @@
  
 +                    // CraftBukkit start - Fix for nonsensical head yaw
 +                    this.i = MathHelper.d(this.tracker.getHeadRotation() * 256.0F / 360.0F);
-+                    this.broadcast(new PacketPlayOutEntityHeadRotation(this.tracker, (byte) i));
++                    entityplayer.playerConnection.sendPacket(new PacketPlayOutEntityHeadRotation(this.tracker, (byte) this.i)); // PandaSpigot - Don't broadcast
 +                    // CraftBukkit end
 +
                      if (this.tracker instanceof EntityLiving) {

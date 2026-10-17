@@ -8,6 +8,7 @@ workdir="$basedir/work"
 builddatadir="$workdir/BuildData"
 minecraftversion=$(cat "$builddatadir/info.json" | grep minecraftVersion | cut -d '"' -f 4)
 minecrafthash=$(cat "$builddatadir/info.json" | grep minecraftHash | cut -d '"' -f 4)
+minecraftserverurl="https://launcher.mojang.com/v1/objects/5fafba3f58c40dc51b5c3ca72a98f62dfdae1db7/server.jar"
 accesstransforms="$builddatadir/mappings/"$(cat "$builddatadir/info.json" | grep accessTransforms | cut -d '"' -f 4)
 classmappings="$builddatadir/mappings/"$(cat "$builddatadir/info.json" | grep classMappings | cut -d '"' -f 4)
 membermappings="$builddatadir/mappings/"$(cat "$builddatadir/info.json" | grep memberMappings | cut -d '"' -f 4)
@@ -17,7 +18,7 @@ jarpath="$workdir/$minecraftversion/$minecraftversion"
 echo "Downloading unmapped vanilla jar..."
 if [ ! -f  "$jarpath.jar" ]; then
     mkdir -p "$workdir/$minecraftversion"
-    curl -s -o "$jarpath.jar" "https://s3.amazonaws.com/Minecraft.Download/versions/$minecraftversion/minecraft_server.$minecraftversion.jar"
+    curl -sL -o "$jarpath.jar" "$minecraftserverurl"
     if [ "$?" != "0" ]; then
         echo "Failed to download the vanilla server jar. Check connectivity or try again later."
         exit 1
@@ -44,7 +45,7 @@ fi
 
 echo "Applying class mappings..."
 if [ ! -f "$jarpath-cl.jar" ]; then
-    java -jar "$builddatadir/bin/SpecialSource-2.jar" map -i "$jarpath.jar" -m "$classmappings" -o "$jarpath-cl.jar" 1>/dev/null
+    java -jar "$basedir/bin/SpecialSource-2.jar" map -i "$jarpath.jar" -m "$classmappings" -o "$jarpath-cl.jar" 1>/dev/null
     if [ "$?" != "0" ]; then
         echo "Failed to apply class mappings."
         exit 1
@@ -53,7 +54,7 @@ fi
 
 echo "Applying member mappings..."
 if [ ! -f "$jarpath-m.jar" ]; then
-    java -jar "$builddatadir/bin/SpecialSource-2.jar" map -i "$jarpath-cl.jar" -m "$membermappings" -o "$jarpath-m.jar" 1>/dev/null
+    java -jar "$basedir/bin/SpecialSource-2.jar" map -i "$jarpath-cl.jar" -m "$membermappings" -o "$jarpath-m.jar" 1>/dev/null
     if [ "$?" != "0" ]; then
         echo "Failed to apply member mappings."
         exit 1
@@ -62,7 +63,7 @@ fi
 
 echo "Creating remapped jar..."
 if [ ! -f "$jarpath-mapped.jar" ]; then
-    java -jar "$builddatadir/bin/SpecialSource.jar" --kill-lvt -i "$jarpath-m.jar" --access-transformer "$accesstransforms" -m "$packagemappings" -o "$jarpath-mapped.jar" 1>/dev/null
+    java -jar "$basedir/bin/SpecialSource.jar" --kill-lvt -i "$jarpath-m.jar" --access-transformer "$accesstransforms" -m "$packagemappings" -o "$jarpath-mapped.jar" 1>/dev/null
     if [ "$?" != "0" ]; then
         echo "Failed to create remapped jar."
         exit 1

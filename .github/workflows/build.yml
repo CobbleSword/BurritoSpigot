@@ -12,14 +12,14 @@ jobs:
                 java: [8, 17]
             fail-fast: true
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v4
     - name: JDK ${{ matrix.java }}
-      uses: actions/setup-java@v2
+      uses: actions/setup-java@v4
       with:
         java-version: ${{ matrix.java}}
         distribution: 'temurin'
     - name: Cache maven
-      uses: actions/cache@v2
+      uses: actions/cache@v4
       with:
         path: |
             ~/.m2/repository/
@@ -28,7 +28,7 @@ jobs:
         restore-keys: ${{ runner.os }}-paper-2
     - name: Patch and Build
       run: cd BurritoSpigot-Server && ./burrito build
-    - uses: actions/upload-artifact@v2
+    - uses: actions/upload-artifact@v4
       with:
         name: BurritoSpigot JDK ${{ matrix.java }}
         path: ./BurritoSpigot-Server/target/BurritoSpigot.jar

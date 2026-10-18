@@ -917,6 +917,28 @@ public interface World extends PluginMessageRecipient, Metadatable {
     public boolean isAutoSave();
 
     /**
+     * Sets whether this world's chunks are written to disk at all.
+     * <p>
+     * Unlike {@link #setAutoSave(boolean)}, which only stops periodic saves, turning this off
+     * stops every chunk save: autosave, {@code save-all}, {@link #save()}, chunk unloads and
+     * shutdown. Changes to the world are then thrown away when their chunks unload, which is
+     * useful for arenas and other maps that should reset. Player data and the world's
+     * {@code level.dat} are still saved.
+     * <p>
+     * The setting isn't stored with the world and is {@code true} again after a restart.
+     *
+     * @param shouldSave false to stop this world's chunks being saved
+     */
+    public void setShouldSave(boolean shouldSave);
+
+    /**
+     * Gets whether this world's chunks are written to disk.
+     *
+     * @return false if chunk saving was turned off with {@link #setShouldSave(boolean)}
+     */
+    public boolean shouldSave();
+
+    /**
      * Sets whether or not the world will automatically save
      *
      * @param value true if the world should automatically save, otherwise

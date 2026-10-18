@@ -1505,4 +1505,18 @@ public class CraftWorld implements World {
         return spigot;
     }
     // Spigot end
+
+    // BurritoSpigot start - per-world chunk saving toggle
+    private boolean shouldSave = true;
+
+    @Override
+    public void setShouldSave(boolean shouldSave) {
+        this.shouldSave = shouldSave;
+    }
+
+    @Override
+    public boolean shouldSave() {
+        return this.shouldSave;
+    }
+    // BurritoSpigot end
 }

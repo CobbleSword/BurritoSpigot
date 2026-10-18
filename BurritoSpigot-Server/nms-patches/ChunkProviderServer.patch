@@ -238,7 +238,7 @@
      }
  
      public Chunk loadChunk(int i, int j) {
-@@ -111,13 +243,15 @@
+@@ -111,38 +243,42 @@
                  if (chunk != null) {
                      chunk.setLastSaved(this.world.getTime());
                      if (this.chunkProvider != null) {
@@ -255,7 +255,11 @@
                  return null;
              }
          }
-@@ -128,7 +262,7 @@
+     }
+ 
+     public void saveChunkNOP(Chunk chunk) {
++        if (!this.world.getWorld().shouldSave()) return; // BurritoSpigot - per-world chunk saving toggle
+         if (this.chunkLoader != null) {
              try {
                  this.chunkLoader.b(this.world, chunk);
              } catch (Exception exception) {
@@ -264,7 +268,12 @@
              }
  
          }
-@@ -140,9 +274,9 @@
+     }
+ 
+     public void saveChunk(Chunk chunk) {
++        if (!this.world.getWorld().shouldSave()) return; // BurritoSpigot - per-world chunk saving toggle
+         if (this.chunkLoader != null) {
+             try {
                  chunk.setLastSaved(this.world.getTime());
                  this.chunkLoader.a(this.world, chunk);
              } catch (IOException ioexception) {
@@ -276,7 +285,7 @@
              }
  
          }
-@@ -155,6 +289,30 @@
+@@ -155,6 +291,30 @@
              chunk.n();
              if (this.chunkProvider != null) {
                  this.chunkProvider.getChunkAt(ichunkprovider, i, j);
@@ -307,7 +316,7 @@
                  chunk.e();
              }
          }
-@@ -174,10 +332,12 @@
+@@ -174,10 +334,12 @@
  
      public boolean saveChunks(boolean flag, IProgressUpdate iprogressupdate) {
          int i = 0;
@@ -323,7 +332,7 @@
  
              if (flag) {
                  this.saveChunkNOP(chunk);
-@@ -187,7 +347,7 @@
+@@ -187,7 +349,7 @@
                  this.saveChunk(chunk);
                  chunk.f(false);
                  ++i;
@@ -332,7 +341,7 @@
                      return false;
                  }
              }
-@@ -205,22 +365,47 @@
+@@ -205,22 +367,47 @@
  
      public boolean unloadChunks() {
          if (!this.world.savingDisabled) {
@@ -387,7 +396,7 @@
  
              if (this.chunkLoader != null) {
                  this.chunkLoader.a();
-@@ -235,7 +420,8 @@
+@@ -235,7 +422,8 @@
      }
  
      public String getName() {
@@ -397,7 +406,7 @@
      }
  
      public List<BiomeBase.BiomeMeta> getMobsFor(EnumCreatureType enumcreaturetype, BlockPosition blockposition) {
-@@ -247,7 +433,8 @@
+@@ -247,7 +435,8 @@
      }
  
      public int getLoadedChunks() {

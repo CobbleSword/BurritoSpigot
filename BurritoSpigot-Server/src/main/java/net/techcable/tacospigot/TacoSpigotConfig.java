@@ -108,4 +108,13 @@ public class TacoSpigotConfig {
     private static void useArraysForBlockStates() {
         useArraysForBlockStates = getBoolean("useArraysForBlockStates", false);
     }
+
+    // PandaSpigot start - Limit book sizes
+    public static int maxBookPageSize;
+    public static double maxBookTotalSizeMultiplier;
+    private static void bookSizeLimits() {
+        maxBookPageSize = getInt("book-size.page-max", 2560);
+        maxBookTotalSizeMultiplier = getDouble("book-size.total-multiplier", 0.98D);
+    }
+    // PandaSpigot end
 }

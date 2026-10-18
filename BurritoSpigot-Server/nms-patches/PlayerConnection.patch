@@ -1805,8 +1805,49 @@
          ArrayList arraylist = Lists.newArrayList();
          Iterator iterator = this.minecraftServer.tabCompleteCommand(this.player, packetplayintabcomplete.a(), packetplayintabcomplete.b()).iterator();
  
-@@ -888,15 +1983,48 @@
+@@ -886,17 +1981,89 @@
+         this.player.a(packetplayinsettings);
+     }
  
++    // PandaSpigot start - Limit book sizes
++    private boolean validateBook(ItemStack testStack) {
++        NBTTagList pageList = testStack.getTag().getList("pages", 8);
++        long byteTotal = 0;
++        int maxBookPageSize = net.techcable.tacospigot.TacoSpigotConfig.maxBookPageSize;
++        double multiplier = Math.max(0.3D, Math.min(1D, net.techcable.tacospigot.TacoSpigotConfig.maxBookTotalSizeMultiplier));
++        long byteAllowed = maxBookPageSize;
++        for (int i = 0; i < pageList.size(); ++i) {
++            String testString = pageList.getString(i);
++            int byteLength = testString.getBytes(java.nio.charset.StandardCharsets.UTF_8).length;
++            byteTotal += byteLength;
++
++            int length = testString.length();
++            int multibytes = 0;
++            if (length != byteLength) {
++                for (char c : testString.toCharArray()) {
++                    if (c > 127) {
++                        multibytes++;
++                    }
++                }
++            }
++            byteAllowed += (maxBookPageSize * Math.min(1, Math.max(0.1D, (double) length / 255D))) * multiplier;
++
++            if (multibytes > 1) {
++                // penalize MB
++                byteAllowed -= multibytes;
++            }
++        }
++
++        if (byteTotal > byteAllowed) {
++            PlayerConnection.c.warn(this.player.getName() + " tried to send too large of a book. Book Size: " + byteTotal + " - Allowed:  "+ byteAllowed + " - Pages: " + pageList.size());
++            minecraftServer.postToMainThread(() -> this.disconnect("Book too large!"));
++            return false;
++        }
++
++        return true;
++    }
++    // PandaSpigot end
++
      public void a(PacketPlayInCustomPayload packetplayincustompayload) {
          PlayerConnectionUtils.ensureMainThread(packetplayincustompayload, this, this.player.u());
 +        if(isExploiter) return;// BurritoSpigot - ignore if they have explotied
@@ -1855,10 +1896,11 @@
                  if (itemstack == null) {
                      return;
                  }
-@@ -908,13 +2036,16 @@
+@@ -908,13 +2075,17 @@
                  itemstack1 = this.player.inventory.getItemInHand();
                  if (itemstack1 != null) {
                      if (itemstack.getItem() == Items.WRITABLE_BOOK && itemstack.getItem() == itemstack1.getItem()) {
++                        if (!validateBook(itemstack)) return; // PandaSpigot
 +                        itemstack1 = new ItemStack(Items.WRITABLE_BOOK); // CraftBukkit
                          itemstack1.a("pages", (NBTBase) itemstack.getTag().getList("pages", 8));
 +                        CraftEventFactory.handleEditBookEvent(player, itemstack1); // CraftBukkit
@@ -1873,7 +1915,7 @@
                  return;
              } finally {
                  packetdataserializer.release();
-@@ -922,10 +2053,14 @@
+@@ -922,10 +2093,14 @@
  
              return;
          } else if ("MC|BSign".equals(packetplayincustompayload.a())) {
@@ -1889,10 +1931,11 @@
                  if (itemstack == null) {
                      return;
                  }
-@@ -937,16 +2072,21 @@
+@@ -937,16 +2112,22 @@
                  itemstack1 = this.player.inventory.getItemInHand();
                  if (itemstack1 != null) {
                      if (itemstack.getItem() == Items.WRITTEN_BOOK && itemstack1.getItem() == Items.WRITABLE_BOOK) {
++                        if (!validateBook(itemstack)) return; // PandaSpigot
 +                        // CraftBukkit start
 +                        itemstack1 = new ItemStack(Items.WRITTEN_BOOK);
                          itemstack1.a("author", (NBTBase) (new NBTTagString(this.player.getName())));
@@ -1912,7 +1955,7 @@
                  return;
              } finally {
                  packetdataserializer.release();
-@@ -962,12 +2102,13 @@
+@@ -962,12 +2143,13 @@
                      ((ContainerMerchant) container).d(i);
                  }
              } catch (Exception exception2) {
@@ -1928,7 +1971,7 @@
                  packetdataserializer = packetplayincustompayload.b();
  
                  try {
-@@ -999,10 +2140,11 @@
+@@ -999,10 +2181,11 @@
                          }
  
                          commandblocklistenerabstract.h();
@@ -1942,7 +1985,7 @@
                  } finally {
                      packetdataserializer.release();
                  }
-@@ -1027,7 +2169,8 @@
+@@ -1027,7 +2210,8 @@
                          iinventory.update();
                      }
                  } catch (Exception exception4) {
@@ -1952,7 +1995,7 @@
                  }
              }
          } else if ("MC|ItemName".equals(packetplayincustompayload.a()) && this.player.activeContainer instanceof ContainerAnvil) {
-@@ -1043,6 +2186,144 @@
+@@ -1043,6 +2227,144 @@
                  containeranvil.a("");
              }
          }

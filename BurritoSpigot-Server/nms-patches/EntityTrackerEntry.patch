@@ -194,19 +194,21 @@
                          if (!collection.isEmpty()) {
                              entityplayer.playerConnection.sendPacket(new PacketPlayOutUpdateAttributes(this.tracker.getId(), collection));
                          }
-@@ -319,6 +410,11 @@
+@@ -319,6 +410,13 @@
                          }
                      }
  
 +                    // CraftBukkit start - Fix for nonsensical head yaw
-+                    this.i = MathHelper.d(this.tracker.getHeadRotation() * 256.0F / 360.0F);
-+                    entityplayer.playerConnection.sendPacket(new PacketPlayOutEntityHeadRotation(this.tracker, (byte) this.i)); // PandaSpigot - Don't broadcast
++                    if (this.tracker instanceof EntityLiving) { // SportBukkit - only living entities have a head rotation
++                        this.i = MathHelper.d(this.tracker.getHeadRotation() * 256.0F / 360.0F);
++                        entityplayer.playerConnection.sendPacket(new PacketPlayOutEntityHeadRotation(this.tracker, (byte) this.i)); // PandaSpigot - Don't broadcast
++                    }
 +                    // CraftBukkit end
 +
                      if (this.tracker instanceof EntityLiving) {
                          EntityLiving entityliving = (EntityLiving) this.tracker;
                          Iterator iterator = entityliving.getEffects().iterator();
-@@ -339,8 +435,10 @@
+@@ -339,8 +437,10 @@
      }
  
      public boolean c(EntityPlayer entityplayer) {
@@ -219,7 +221,7 @@
  
          return d0 >= (double) (-this.b) && d0 <= (double) this.b && d1 >= (double) (-this.b) && d1 <= (double) this.b && this.tracker.a(entityplayer);
      }
-@@ -358,7 +456,10 @@
+@@ -358,7 +458,10 @@
  
      private Packet c() {
          if (this.tracker.dead) {
@@ -231,7 +233,7 @@
          }
  
          if (this.tracker instanceof EntityItem) {
-@@ -457,13 +558,14 @@
+@@ -457,13 +560,14 @@
                  } else if (this.tracker instanceof EntityExperienceOrb) {
                      return new PacketPlayOutSpawnEntityExperienceOrb((EntityExperienceOrb) this.tracker);
                  } else {

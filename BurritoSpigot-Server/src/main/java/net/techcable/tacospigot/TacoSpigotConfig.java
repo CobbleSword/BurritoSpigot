@@ -108,4 +108,11 @@ public class TacoSpigotConfig {
     private static void useArraysForBlockStates() {
         useArraysForBlockStates = getBoolean("useArraysForBlockStates", false);
     }
+
+    // BurritoSpigot start - limit arm swing spam
+    public static int maxArmSwingsPerSecond;
+    private static void maxArmSwingsPerSecond() {
+        maxArmSwingsPerSecond = getInt("max-arm-swings-per-second", 40); // 0 disables the limit
+    }
+    // BurritoSpigot end
 }

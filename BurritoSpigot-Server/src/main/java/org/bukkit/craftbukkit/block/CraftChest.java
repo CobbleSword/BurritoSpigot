@@ -84,4 +84,9 @@ public class CraftChest extends CraftBlockState implements Chest {
     public TileEntityChest getTileEntity() {
         return chest;
     }
+
+    @Override
+    public void setName(String name) {
+        chest.a(name);
+    }
 }
